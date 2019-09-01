@@ -1,3 +1,5 @@
+[TOC]
+
 # Project Proposal
 
 ## Design
@@ -30,6 +32,10 @@ Alternatives:
 
 #### Authentication
 
+Django authentication system
+
+Alternative:
+
 > ##### Form-based authentication
 >
 > Form-based Authentication gives the developer freedom to build a more secure authentication scheme. This type evolved over time. Basically, form-based authentication refers to any mechanism that relies on factors external to the HTTP protocol for authenticating the user. The application is left to deal with taking the user credentials, verifying them and deciding their authenticity.
@@ -44,18 +50,10 @@ Alternatives:
 > ##### Disadvantages
 >
 > - Encryption or security is not enforced by default. The responsibility to implement a safe solution belongs to the developer.
-
-```html
-<form method="POST" action="/login">
-   <input type="text" name="username" required>
-   <input type="password" name="password" required>
-   <button type="submit">Login</button>
-</form>
-```
-
-References:
-
-[Evolution of Authentication in Web Applications]: https://www.paladion.net/blogs/evolution-of-authentication-in-web-applications	"Evolution of Authentication in Web Applications"
+>
+> References:
+>
+> [Evolution of Authentication in Web Applications]: https://www.paladion.net/blogs/evolution-of-authentication-in-web-applications	"Evolution of Authentication in Web Applications"
 
 #### Data Update Logic
 
@@ -63,39 +61,47 @@ Pre-condition: Each data is sent to 3 different account for cleansing.
 
 - \>= 2 out of 3 agreed
   - Reviewer +3 point for having made positive contribution, and +1 for having made attempt
-  - Data is correct
+  - Data is finalized.
 - <= 1 out of 3 agreed
-  - 2-3 updated answer was stored and published to controversial task list
+  - 2-3 updated answer was stored and published to controversial task list the day after
   - Another 5 out of **other** accounts are to be assigned to check which answer is more suitable
-    - If there are (0, 3) other accounts, assign the question to any one left
-    - If there are 0 other accounts, admin needs to manually update it
+    - If there are 1,2,4 other accounts, assign the question to any one left
+    - If there are 0 or 3 other accounts, admin needs to manually update it
   - For the selected answer, reviewer +3 point, other reviewers +2 having made positive contribution, and +1 for having made attempt
+
+##### Possible Extension:
+
+Make the number of checker for each record customizable. However, this will influnece the examination for new answers. Therefore, this extension may only be activated when the task is only verifying data without updating and modifying.
 
 #### Task Assign Logic
 
-Each user should get two types of tasks per day: Data Cleansing and Controversial Data Cleansing
+Each user should get two types of tasks per day: 1st Iteration Data Cleansing (New Tasks) and 2nd Interation Data Cleansing (Controversial Tasks)
 
-The data retrieval is different for them, while the logic to allocate them to each user is the same
+The table that data should be retrieved from is different, while the logic to allocate them to each user is the same
 
-No. of records assigned to per user daily = Math.min(PREDEFINED_MAX, floor(No. of all **unchecked** records in db / No. of all doctors))
+No. of tasks assigned to per user daily = Math.min(PREDEFINED_MAX, floor(No. of all **unchecked** tasks in db / No. of all doctors))
 
-If a doctor didn't finish the tasks of previous days, the record allocated to him previously decreased by 50% per day
+> NOTE: `tasks` is data under each iteration, i.e. the number of data (tasks) received per day is computed separately
 
-Actual no. of records per user should check per day = No. of records assigned to per user daily + No. of records not finished yesterday * 0.5
+##### Possible Extension:
 
-> NOTE: `records` is records of each type, i.e. the number of records received per day is computed separately
+No. of all doctors is referring to active doctors. For now all doctor accounts registered are assumed to be active. Extension is admin being able to control the state of doctor account.
 
 #### Database
 
 ##### Schema
 
-Data(<u>**id**</u>, question, answer, type, checked, num_agreed, num_disagreed)
+![schema](./schema.png)
 
-DisagreeAnswers(<u>**id**</u>, answer, did)
+##### Reason to split data settled:
 
-ControversialData(<u>**did**</u>, num_agree_first, num_agree_second, num_agree_thrid)
+1. Easier to get all the finalized data
 
-Account(**<u>email</u>**, password, type)
+2. Finalized data set is assumed to be large. Split finalized data can improve the efficiency to get data to be cleaned.
+
+##### Reason to split unsettled data:
+
+Different attributes is needed for each iteration.
 
 ## Use cases
 
@@ -173,7 +179,7 @@ Extensions:
 
 ​	2a2. Use case ended.
 
-#### Forget Password
+#### Forgot Password
 
 MSS:
 
@@ -192,7 +198,7 @@ Extensions:
 
 ​	2a2. Use case ended.
 
-#### Attempt Data Cleaning
+#### Attempt Data Cleansing
 
 Pre-conditions:
 
