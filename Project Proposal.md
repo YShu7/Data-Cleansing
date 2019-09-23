@@ -87,6 +87,12 @@ No. of tasks assigned to per user daily = Math.min(PREDEFINED_MAX, floor(No. of 
 
 No. of all doctors is referring to active doctors. For now all doctor accounts registered are assumed to be active. Extension is admin being able to control the state of doctor account.
 
+#### Asynchronous Jobs
+
+Use **Celery** to make generating report and downloading dataset asynchronous so that they will not block other functions.
+
+Celery can also be used to do periodic jobs, including downloading latest dataset etc.
+
 #### Database
 
 ##### Schema
