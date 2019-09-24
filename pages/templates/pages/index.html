@@ -4,11 +4,11 @@
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 
-{% include "pages/header.html" with user_name=login_user %}
+{% include "partial/header.html" with user_name=login_user %}
 
 <div class="row flex-xl-nowrap">
     <div class="col-md-3 col-xl-2">
-        {% include "pages/sidebar.html" %}
+        {% include "partial/sidebar.html" %}
     </div>
 
     <div class="col-9">
@@ -19,6 +19,13 @@
             </h3>
             <hr/>
         </div>
-        {% include 'pages/tasks.html' with questions=question_list %}
+        <div>
+            <h5><a href="#validating" class="link-dark">Validating</a></h5>
+            {% include 'partial/tasks.html' with questions=question_list %}
+        </div>
+        <div>
+            <h5><a href="#voting" class="link-dark">Voting</a></h5>
+            {% include 'partial/tasks.html' with questions=question_list %}
+        </div>
     </div>
 </div>
