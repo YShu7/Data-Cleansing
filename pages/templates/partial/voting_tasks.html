@@ -1,0 +1,80 @@
+{% if questions %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    
+    <div id="taskList">
+        <form action="{% url 'validate' %}" method="post">
+        {% csrf_token %}
+        <table type="table" class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Question</th>
+                    <th scope="col">Answer</th>
+                    <th scope="col">
+                        <div class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Status
+                        </a>
+                        <div id="filter_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <button class="dropdown-item" type="button">Approved</button>
+                            <button class="dropdown-item" type="button">Disapproved</button>
+                            <button class="dropdown-item" type="button">?</button>
+                        </div>
+                        </div>
+                    </th>
+                    <th scope="col" width="30%"> </th>
+                </tr>
+            </thead>
+            <tbody id="voting_tasks">
+                {% for question in questions %}
+                <tr>
+                    <th scope="row">{{question.id}}</th>
+                    <td>{{question.question_text}}</td>
+                    <td>
+                        <div class="dropdown">
+                            <a id="selected_answer" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{question.answer_text_1}}
+                            </a>
+                            <div id="dropdown_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <button id="answer_1" class="dropdown-item" type="button">{{question.answer_text_1}}</button>
+                                <button id="answer_2" class="dropdown-item" type="button">{{question.answer_text_2}}</button>
+                                <button id="answer_3" class="dropdown-item" type="button">{{question.answer_text_3}}</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td id="type">?</td>
+                    <td>
+                        <button id="vote_{{question.id}}" value="{{question.id}}" type="button" name="vote" class="vote btn btn-primary btn-sm">
+                            Vote
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <span class="d-flex"><input class="btn btn-primary btn float-right ml-auto" type="submit" value="Submit"></span>
+        </form>
+    </div>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
+<script>
+    $(document).ready(function(){
+        $("#dropdown_voting .dropdown-item").on("click", function(e) {
+            var selectedAnswer= $(this).text();
+            $("#selected_answer").text(selectedAnswer)
+        });
+        $("#filter_voting .dropdown-item").on("click", function(e) {
+            var selectedType = $(this).text();
+            $("#voting_tasks tr").filter(function() {
+                $(this).toggle($("#type").text() == selectedType);
+            })
+        });
+        $(".vote").on('click', function(e) {
+            alert("to update vote");
+            $(this).attr('disabled', true);
+        });
+    });
+</script>

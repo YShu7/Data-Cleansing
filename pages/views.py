@@ -1,24 +1,28 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import generic
-from .models import Data
+from .models import *
+from django.core import serializers
+from django.template import loader
+
 # Create your views here.
 
-class IndexView(generic.ListView):
-    template_name = 'pages/index.html'
-    context_object_name = 'question_list'
+def index(request):
+    template = loader.get_template('pages/tasks.html')
+    context = {
+        'question_list_validating': Data.objects.all(),
+        'question_list_voting': VotingData.objects.all(),
+        'login_user': 'Alice',
+        'title': 'Tasks'
+    }
+    return HttpResponse(template.render(context))
 
-    def get_queryset(self):
-        return Data.objects.all()
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        context['login_user'] = 'Alice'
-        context['title'] = 'Tasks'
-        return context
+def profile(request):
+    template = loader.get_template('pages/profile.html')
+    context = {
+        'title': 'Profile'
+    }
+    return HttpResponse(template.render(context))
 
-class TasksView(generic.ListView):
-    template_name = 'pages/tasks.html'
-    context_object_name = 'question_list'
-
-    def get_queryset(self):
-        return Data.objects.all()
+def validate():
+    return HttpResponseRedirect(reverse('index'))
