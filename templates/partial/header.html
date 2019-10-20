@@ -1,0 +1,11 @@
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="">
+        Data Cleansing
+    </a>
+    {% if user_name == "" %}
+        <a href='accounts/login'>Log In</a>
+    {% else %}
+        <h6>Welcome, {{ user_name }}</h6>
+        <a href='accounts/login'>Log Out</a>
+    {% endif %}
+</nav>

@@ -1,0 +1,76 @@
+{% if questions %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    
+    <div id="taskList">
+        <table type="table" class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Question</th>
+                    <th scope="col">Answer</th>
+                    <th scope="col">
+                        <div class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Status
+                        </a>
+                        <div id="filter_validating" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <button class="dropdown-item" type="button">Approved</button>
+                            <button class="dropdown-item" type="button">Disapproved</button>
+                            <button class="dropdown-item" type="button">?</button>
+                        </div>
+                        </div>
+                    </th>
+                    <th scope="col" width="30%"> </th>
+                </tr>
+            </thead>
+            <tbody id="validating_tasks">
+            <form action="{% url 'validate' %}" method="post">
+            {% csrf_token %}
+                {% for question in questions %}
+                <tr>
+                    <th scope="row">{{question.id}}</th>
+                    <td>{{question.question_text}}</td>
+                    <td>{{question.answer_text}}</td>
+                    <td id="type">?</td>
+                    <td>
+                        <div class="btn-group btn-block">
+                        <button id="approve_{{question.id}}" value="{{question.id}}" type="button" name="choice" class="approve btn btn-outline-success btn-sm">
+                            Approve
+                        </button>
+                        <button id="change_{{question.id}}" value="{{question.id}}" type="button" name="choice" class="change btn btn-outline-primary btn-sm">
+                            Change
+                        </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <span class="d-flex"><input class="btn btn-primary btn ml-auto" type="submit" value="Submit"></span>
+    </form>
+    </div>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
+<script>
+    $(document).ready(function(){
+        $("#filter_validating .dropdown-item").on("click", function(e) {
+            var selectedType = $(this).text();
+            $("#validating_tasks tr").filter(function() {
+                $(this).toggle($("#type").text() == selectedType);
+            })
+        });
+        $(".approve").on('click', function(e) {
+            $(this).attr('disabled', true);
+            var id = $(this).attr('value');
+            $("#change_" + id).attr('disabled', false);
+        });
+        $(".change").on('click', function(e) {
+            var id = $(this).attr('value');
+            alert("#approve_" + id);
+            $("#approve_" + id).attr('disabled', false);
+        });
+    });
+</script>
