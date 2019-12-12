@@ -138,7 +138,7 @@ Extensions
 
 ​	4a1. User is directed to admin page
 
-4b. The user account is admin account
+4b. The user account is non-admin account
 
 ​	4b1. User is directed to user page
 
