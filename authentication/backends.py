@@ -25,5 +25,5 @@ class CustomBackend(ModelBackend):
                 return user
             else:
                 return None
-        except User.DoesNotExist:
+        except UserModel.DoesNotExist:
             return None

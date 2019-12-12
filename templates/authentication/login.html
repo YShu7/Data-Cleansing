@@ -24,15 +24,25 @@
 <div class="container h-100">
     <div class="row h-100 justify-content-center align-items-center">
         <div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-50">
-            <form method="post" class="w-100 validate-form">
+            <form action="{% url 'login' %}" method="post">
                 {% csrf_token %}
-                <table class="table table-borderless">
+                <h4 class="mt-3 mb-3">Account Login</h4>
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="text" class="from-control" id="username" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="text" class="from-control" id="password" name="password">
+                </div>
+
+                <!--table class="table table-borderless">
                     <thead>
                         <th colspan="2" class="text-center">
                             <h4 class="mt-3 mb-3">Account Login</h4>
                         </th>
                     </thead>
-                    <tbody>  
+                    <tbody>
                         <tr>
                             <td>{{ form.username.label_tag }}</td>
                             <td>{{ form.username }}</td>
@@ -42,7 +52,7 @@
                             <td>{{ form.password }}</td>
                         </tr>
                     </tbody>
-                </table>
+                </table-->
 
                 <button class="btn-primary btn-lg btn-block" type="submit">
                     Sign in

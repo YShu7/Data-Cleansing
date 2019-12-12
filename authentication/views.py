@@ -1,24 +1,26 @@
 from django.shortcuts import render
+from django.template import loader
+from django.http import *
+from .backends import CustomBackend
+from django.contrib import auth
 
 # Create your views here.
 def login(request):
-    template = loader.get_template('pages/tasks.html')
-    username = request.POST['username']
-    password = request.POST['password']
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    user = authenticate(request, username=username, password=password)
-    
-    if user is not None:
-        login(user)
-        return HttpResponse(template.render(context))
-    else:
-        return HttpResponseRedirect(request.path_info)
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = CustomBackend.authenticate(CustomBackend, request, username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            return HttpResponseRedirect('/')
+        else:
+            return render(request, 'authentication/login.html')
+    return render(request, 'authentication/login.html')
 
 def logout(request):
     logout(user)
-    template = loader.get_template('registration/login.html')
-    return HttpResponse(template.render(context))
+    return HttpResponseRedirect('authentication/login')
 
 def password_reset(request):
     raise 1
