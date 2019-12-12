@@ -19,7 +19,7 @@ def login(request):
     return render(request, 'authentication/login.html')
 
 def logout(request):
-    logout(user)
+    auth.logout(request)
     return HttpResponseRedirect('authentication/login')
 
 def password_reset(request):
