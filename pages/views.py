@@ -1,12 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.views import generic
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import *
-from django.core import serializers
 from django.template import loader
 from django.contrib.auth.decorators import login_required
-
-# Create your views here.
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def index(request):
@@ -27,8 +24,9 @@ def index(request):
             'error': "Invalid Log In"
         }
         return HttpResponse(template.render(context))
-    
 
+
+@login_required
 def profile(request):
     template = loader.get_template('pages/profile.html')
     context = {
@@ -37,15 +35,25 @@ def profile(request):
     }
     return HttpResponse(template.render(context))
 
-def validate(request):
-    return HttpResponseRedirect(request.path_info)
 
+@login_required
+@csrf_exempt
+def validate(request):
+    if request.method == 'POST':
+        ids = request.POST['validate_ids'].split(',');
+        for id in ids:
+            approve = request.POST["approve_value_{}".format(id)]
+            new_ans = request.POST["new_ans_{}".format(id)]
+    return render(request, 'pages/tasks.html')
+
+
+@login_required
 def vote(request, data_id):
     print("VOTE")
     print(request)
     data = get_object_or_404(VotingData, pk=data_id)
     try:
-        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+        selected_choice = data.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
         # Redisplay the question voting form.
         return HttpResponseRedirect(reverse('index', args=()))
