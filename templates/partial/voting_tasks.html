@@ -32,7 +32,7 @@
                 {% csrf_token %}
                 <tr>
                     <th scope="row">{{question.id}}</th>
-                    <input type="hidden" name="choice" id="choice" value="1">
+                    <input type="hidden" name="choice" id="choice" value="0">
                     <td>{{question.question_text}}</td>
                     <td>
                         <div class="dropdown">
@@ -40,9 +40,9 @@
                                 {{question.answer_text_1}}
                             </a>
                             <div id="dropdown_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <button id="answer_1" class="vote dropdown-item" type="button" value="1">{{question.answer_text_1}}</button>
-                                <button id="answer_2" class="vote dropdown-item" type="button" value="2">{{question.answer_text_2}}</button>
-                                <button id="answer_3" class="vote dropdown-item" type="button" value="3">{{question.answer_text_3}}</button>
+                                {% for ans in question.answers %}
+                                    <button id="answer_{{ans.id}}" class="vote dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
+                                {% endfor %}
                             </div>
                         </div>
                     </td>

@@ -5,14 +5,18 @@ from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
+
 @login_required
 def index(request):
     user = request.user
     if user is not None:
         template = loader.get_template('pages/tasks.html')
+        voting_data = VotingData.objects.all()
+        for data in voting_data:
+            data.answers = Choice.objects.filter(data_id=data.id)
         context = {
             'question_list_validating': Data.objects.all(),
-            'question_list_voting': VotingData.objects.all(),
+            'question_list_voting': voting_data,
             'login_user': user,
             'title': 'Tasks'
         }
@@ -52,17 +56,17 @@ def validate(request):
 @login_required
 @csrf_exempt
 def vote(request, question_id):
-    print(question_id)
     if request.method == 'POST':
-        choice = request.POST["choice"]
-        data = get_object_or_404(VotingData, pk=question_id)
         try:
-            selected_choice = data.choice_set.get(pk=request.POST['choice'])
-        except (KeyError, Choice.DoesNotExist):
-            # Redisplay the question voting form.
-            return HttpResponse("Vote operation failed.")
+            choice = request.POST["choice"]
+            data = VotingData.objects.get(pk=question_id)
+            selected_choice = Choice.objects.get(data_id=question_id, pk=request.POST['choice'])
+        except VotingData.DoesNotExist:
+            return HttpResponse("Voting data doesn't exist.")
+        except Choice.DoesNotExist:
+            return HttpResponse("Choice doesn't exist.")
         else:
-            selected_choice.votes += 1
+            selected_choice.num_votes += 1
             selected_choice.save()
     else:
         return HttpResponse("Request method is not allowed.")
