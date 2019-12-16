@@ -40,25 +40,30 @@ def profile(request):
 @csrf_exempt
 def validate(request):
     if request.method == 'POST':
-        ids = request.POST['validate_ids'].split(',');
+        ids = request.POST['validate_ids'].split(',')
         for id in ids:
             approve = request.POST["approve_value_{}".format(id)]
             new_ans = request.POST["new_ans_{}".format(id)]
+    else:
+        HttpResponse("Request method is not allowed.")
     return render(request, 'pages/tasks.html')
 
 
 @login_required
-def vote(request, data_id):
-    print("VOTE")
-    print(request)
-    data = get_object_or_404(VotingData, pk=data_id)
-    try:
-        selected_choice = data.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return HttpResponseRedirect(reverse('index', args=()))
+@csrf_exempt
+def vote(request, question_id):
+    print(question_id)
+    if request.method == 'POST':
+        choice = request.POST["choice"]
+        data = get_object_or_404(VotingData, pk=question_id)
+        try:
+            selected_choice = data.choice_set.get(pk=request.POST['choice'])
+        except (KeyError, Choice.DoesNotExist):
+            # Redisplay the question voting form.
+            return HttpResponse("Vote operation failed.")
+        else:
+            selected_choice.votes += 1
+            selected_choice.save()
     else:
-        selected_choice.votes += 1
-        selected_choice.save()
-
-        return HttpResponseRedirect(reverse('index', args=()))
+        return HttpResponse("Request method is not allowed.")
+    return render(request, 'pages/tasks.html')

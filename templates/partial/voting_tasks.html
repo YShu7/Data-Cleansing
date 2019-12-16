@@ -32,6 +32,7 @@
                 {% csrf_token %}
                 <tr>
                     <th scope="row">{{question.id}}</th>
+                    <input type="hidden" name="choice" id="choice" value="1">
                     <td>{{question.question_text}}</td>
                     <td>
                         <div class="dropdown">
@@ -39,15 +40,15 @@
                                 {{question.answer_text_1}}
                             </a>
                             <div id="dropdown_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <button id="answer_1" class="dropdown-item" type="button">{{question.answer_text_1}}</button>
-                                <button id="answer_2" class="dropdown-item" type="button">{{question.answer_text_2}}</button>
-                                <button id="answer_3" class="dropdown-item" type="button">{{question.answer_text_3}}</button>
+                                <button id="answer_1" class="vote dropdown-item" type="button" value="1">{{question.answer_text_1}}</button>
+                                <button id="answer_2" class="vote dropdown-item" type="button" value="2">{{question.answer_text_2}}</button>
+                                <button id="answer_3" class="vote dropdown-item" type="button" value="3">{{question.answer_text_3}}</button>
                             </div>
                         </div>
                     </td>
                     <td id="type">?</td>
                     <td>
-                        <button id="vote_{{question.id}}" value="{{question.id}}" type="submit" name="vote" class="vote btn btn-outline-primary btn-sm btn-block">
+                        <button id="vote_{{question.id}}" value="{{question.id}}" type="submit" name="vote" class="btn btn-outline-primary btn-sm btn-block">
                             Vote
                         </button>
                     </td>
@@ -74,8 +75,8 @@
             })
         });
         $(".vote").on('click', function(e) {
-            alert("to update vote");
-            $(this).attr('disabled', true);
+            var choice = $(this).attr('value');
+            $("#choice").val(choice);
         });
     });
 </script>
