@@ -22,6 +22,23 @@ class Data(models.Model):
         return data
 
 
+class ValidatingData(models.Model):
+    question_text = models.CharField(max_length=200)
+    answer_text = models.TextField()
+    num_approved = models.IntegerField(default=0)
+    num_disapproved = models.IntegerField(default=0)
+    type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return "Q: {}, A: {}, T: {}, N: {}/{}".format(self.question_text, self.answer_text, self.type,
+                                                      self.num_approved, self.num_disapproved)
+
+    @classmethod
+    def create(cls, qns, ans, type, num_app, num_dis):
+        data = cls(question_text=qns, answer_text=ans,type=type, num_approved=num_app, num_disapproved=num_dis)
+        return data
+
+
 class VotingData(models.Model):
     question_text = models.CharField(max_length=200)
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
@@ -38,7 +55,7 @@ class VotingData(models.Model):
 class Choice(models.Model):
     data = models.ForeignKey(VotingData, models.CASCADE)
     answer = models.TextField()
-    num_votes = models.IntegerField()
+    num_votes = models.IntegerField(default=0)
 
     def __str__(self):
         return "ID: {}, A: {}, N: {}".format(self.data, self.answer, self.num_votes)

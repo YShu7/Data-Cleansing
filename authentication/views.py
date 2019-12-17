@@ -4,7 +4,7 @@ from django.http import *
 from .backends import CustomBackend
 from django.contrib import auth
 
-# Create your views here.
+
 def login(request):
     if request.method == 'POST':
         username = request.POST['username']
