@@ -4,6 +4,7 @@ from .models import *
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from .helper import get_context
 
 
 @login_required
@@ -11,15 +12,7 @@ def index(request):
     user = request.user
     if user is not None:
         template = loader.get_template('pages/tasks.html')
-        voting_data = VotingData.objects.all()
-        for data in voting_data:
-            data.answers = Choice.objects.filter(data_id=data.id)
-        context = {
-            'question_list_validating': ValidatingData.objects.all(),
-            'question_list_voting': voting_data,
-            'login_user': user,
-            'title': 'Tasks'
-        }
+        context = get_context(user)
         return HttpResponse(template.render(context))
     else:
         template = loader.get_template('registration/login.html')
@@ -55,21 +48,24 @@ def validate(request):
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
-                Choice.objects.update_or_create(data=task, answer=new_ans)
-                VotingData.objects.update_or_create(question_text=task.question_text, type=task.type)
+                data, _ = VotingData.objects.update_or_create(question_text=task.question_text, type=task.type)
+                Choice.objects.update_or_create(data=data, answer=new_ans)
 
+            datas = VotingData.objects.filter(question_text=task.question_text, type=task.type)
             if task.num_approved >= 2:
                 Data.objects.update_or_create(question_text=task.question_text, answer_text=task.answer_text,
                                               type=task.type)
-                datas = VotingData.objects.filter(question_text=task.question_text, type=task.type)
                 for data in datas:
                     Choice.objects.filter(data=data).delete()
                 task.delete()
             elif task.num_disapproved >= 2:
+                for data in datas:
+                    data.activate = True
+                    data.save()
                 task.delete()
     else:
         HttpResponse("Request method is not allowed.")
-    return render(request, 'pages/tasks.html')
+    return render(request, 'pages/tasks.html', context=get_context(request.user))
 
 
 @login_required
@@ -99,4 +95,5 @@ def vote(request, question_id):
                 data.delete()
     else:
         return HttpResponse("Request method is not allowed.")
-    return render(request, 'pages/tasks.html')
+
+    return render(request, 'pages/tasks.html', context=get_context(request.user))

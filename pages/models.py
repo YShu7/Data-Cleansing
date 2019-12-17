@@ -42,6 +42,7 @@ class ValidatingData(models.Model):
 class VotingData(models.Model):
     question_text = models.CharField(max_length=200)
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
+    activate = models.BooleanField(default=False)
 
     def __str__(self):
         return "Q: {}, T: {}".format(self.question_text, self.type)
