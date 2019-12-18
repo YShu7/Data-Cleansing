@@ -18,6 +18,7 @@ def login(request):
             return render(request, 'authentication/login.html')
     return render(request, 'authentication/login.html')
 
+
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect('authentication/login')

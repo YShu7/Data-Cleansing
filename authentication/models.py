@@ -1,9 +1,18 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.models import AbstractUser, UserManager, Group
+
+
+class Specialization(models.Model):
+    name = models.CharField(max_length=32)
+
+
+class CustomGroup(models.Model):
+    name = models.CharField(max_length=10)
+    main_group = models.ForeignKey(to=Specialization, null=False, on_delete=models.CASCADE)
+
 
 class CustomUserManager(UserManager):
-    def create_user(self, email, name, certificate, password=None):
+    def create_user(self, email, name, certificate, group, password=None):
         if not email:
             raise ValueError('Users must have an email address')
 
@@ -11,6 +20,7 @@ class CustomUserManager(UserManager):
             email=self.normalize_email(email),
             name=name,
             certificate=certificate,
+            group=group,
         )
 
         user.set_password(password)
@@ -33,6 +43,9 @@ class CustomUser(AbstractUser):
     email = models.CharField(max_length=40, unique=True)
     certificate = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=20)
+    group = models.ForeignKey(CustomGroup, on_delete=models.SET_NULL, null=True)
+    point = models.IntegerField(default=0)
+    accuracy = models.FloatField(default=100)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -41,7 +54,7 @@ class CustomUser(AbstractUser):
     #backend = CustomBackend()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'certificate']
+    REQUIRED_FIELDS = ['name', 'certificate', 'group']
 
     def __str__(self):
         return self.email
