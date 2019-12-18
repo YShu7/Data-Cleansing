@@ -19,5 +19,6 @@ from authentication.models import *
 
 urlpatterns = [
     path('', include('pages.urls'), name='pages'),
-    path('authentication/', include('authentication.urls'), name='auth')
+    path('authentication/', include('authentication.urls'), name='auth'),
+    path('admin/', admin.site.urls),
 ]

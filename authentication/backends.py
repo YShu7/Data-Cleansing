@@ -4,6 +4,7 @@ from .models import CustomUser
 from django.contrib.auth.backends import ModelBackend
 import logging
 
+
 class CustomBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None):
         UserModel = get_user_model()

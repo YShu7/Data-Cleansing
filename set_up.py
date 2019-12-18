@@ -19,8 +19,11 @@ test_group_1, _ = CustomGroup.objects.update_or_create(name="Nurse-A", main_grou
 test_group_2, _ = CustomGroup.objects.update_or_create(name="Nurse-B", main_group=test_spec_1)
 
 CustomUser.objects.all().delete()
-test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", name="Alice",
-                                                group=test_group_1, password="alice")
+test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", username="Alice",
+                                           group=test_group_1, password="alice")
+
+test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
+                                                 password="guy123456")
 
 from pages.models import *
 
