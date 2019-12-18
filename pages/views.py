@@ -4,7 +4,7 @@ from .models import *
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from .helper import get_context
+from .helper import *
 
 
 @login_required
@@ -12,7 +12,7 @@ def index(request):
     user = request.user
     if user is not None:
         template = loader.get_template('pages/tasks.html')
-        context = get_context(user)
+        context = get_tasks_context(user)
         return HttpResponse(template.render(context))
     else:
         template = loader.get_template('registration/login.html')
@@ -26,11 +26,7 @@ def index(request):
 @login_required
 def profile(request):
     template = loader.get_template('pages/profile.html')
-    context = {
-        'login_user': 'Alice',
-        'title': 'Profile'
-    }
-    return HttpResponse(template.render(context))
+    return HttpResponse(template.render(get_profile_context(request.user)))
 
 
 @login_required
@@ -65,7 +61,7 @@ def validate(request):
                 task.delete()
     else:
         HttpResponse("Request method is not allowed.")
-    return render(request, 'pages/tasks.html', context=get_context(request.user))
+    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
 
 
 @login_required
@@ -96,4 +92,4 @@ def vote(request, question_id):
     else:
         return HttpResponse("Request method is not allowed.")
 
-    return render(request, 'pages/tasks.html', context=get_context(request.user))
+    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
