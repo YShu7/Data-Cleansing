@@ -23,5 +23,6 @@ def logout(request):
     auth.logout(request)
     return HttpResponseRedirect('authentication/login')
 
+
 def password_reset(request):
     raise 1
