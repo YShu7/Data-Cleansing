@@ -11,6 +11,8 @@ from .helper import *
 def index(request):
     user = request.user
     if user is not None:
+        if user.is_superuser:
+            return HttpResponseRedirect('/admin')
         template = loader.get_template('pages/tasks.html')
         context = get_tasks_context(user)
         return HttpResponse(template.render(context))
@@ -25,6 +27,8 @@ def index(request):
 
 @login_required
 def profile(request):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     template = loader.get_template('pages/profile.html')
     return HttpResponse(template.render(get_profile_context(request.user)))
 
@@ -32,6 +36,8 @@ def profile(request):
 @login_required
 @csrf_exempt
 def validate(request):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     if request.method == 'POST':
         ids = request.POST['validate_ids'].split(',')
         for id in ids:
@@ -67,6 +73,8 @@ def validate(request):
 @login_required
 @csrf_exempt
 def vote(request, question_id):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
