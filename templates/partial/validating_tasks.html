@@ -8,7 +8,7 @@
          <form action="{% url 'validate' %}" method="post">
              {% csrf_token %}
              <input type="hidden" name="validate_ids" id="validate_ids" value="">
-             <table type="table" class="table table-hover">
+             <table type="table" class="table table-hover" id="tasks_table">
                 <thead class="thead-light">
                     <tr>
                         <th scope="col">ID</th>
@@ -34,8 +34,8 @@
                     <tr>
                         <th scope="row">{{question.id}}</th>
                         <td>{{question.question_text}}</td>
-                        <td>{{question.answer_text}}</td>
-                        <td id="type">?</td>
+                        <td id="ans_{{question.id}}">{{question.answer_text}}</td>
+                        <td id="type_{{question.id}}">?</td>
                         <td>
                             <input type="hidden" name="approve_value_{{question.id}}" id="approve_value_{{question.id}}" value="">
                             <input type="hidden" name="new_ans_{{question.id}}" id="new_ans_{{question.id}}" value="">
@@ -55,6 +55,10 @@
             <span class="d-flex"><input class="btn btn-primary btn ml-auto" type="submit" value="Submit"></span>
         </form>
     </div>
+    <div id="dialog" style="display: none">
+        <textarea id="new_ans" rows="3" cols="20"></textarea>
+        <button id="update_btn">Confirm</button>
+    </div>
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
@@ -73,13 +77,25 @@
             $("#change_" + id).attr('disabled', false);
             $("#approve_value_" + id).val(true);
             $("#validate_ids").val(getNewIds(id));
+
+            approve(id, true);
         });
         $(".change").on('click', function(e) {
             var id = $(this).attr('value');
+            $("#validate_ids").val(getNewIds(id));
+            $("#update_btn").val(id);
+
+            var x = document.getElementById('dialog');
+            x.setAttribute('style', "display: block");
+        });
+        $("#update_btn").on('click', function(e) {
+            var id = $("#update_btn").attr('value');
+            approve(id, false);
+
             $("#approve_" + id).attr('disabled', false);
             $("#approve_value_" + id).val(false);
-            $("#new_ans_" + id).val("PLACE_HOLDER");
-            $("#validate_ids").val(getNewIds(id));
+            var x = document.getElementById('dialog');
+            x.setAttribute('style', "display: none");
         });
         function getNewIds(id) {
             var ids = $("#validate_ids").attr('value');
@@ -89,6 +105,21 @@
                 ids = id;
             }
             return ids;
-        }
+        };
+        function approve(id, approved) {
+            // update status
+            var row = $("#type_" + id).parent().index() + 1;
+            var col = $("#type_" + id).index();
+            var x = document.getElementById('tasks_table').rows[row].cells
+
+            if (approved) {
+                x[col].innerHTML = "Approved";
+            } else {
+                x[col].innerHTML = "Disapproved";
+                var new_ans = $("#new_ans").val();
+                $("#new_ans_" + id).val(new_ans);
+                x[col-1].innerHTML = new_ans;
+            }
+        };
     });
 </script>

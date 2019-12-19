@@ -11,18 +11,6 @@
                     <th scope="col">ID</th>
                     <th scope="col">Question</th>
                     <th scope="col">Answer</th>
-                    <th scope="col">
-                        <div class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Status
-                        </a>
-                        <div id="filter_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <button class="dropdown-item" type="button">Approved</button>
-                            <button class="dropdown-item" type="button">Disapproved</button>
-                            <button class="dropdown-item" type="button">?</button>
-                        </div>
-                        </div>
-                    </th>
                     <th scope="col" width="30%"> </th>
                 </tr>
             </thead>
@@ -46,7 +34,6 @@
                             </div>
                         </div>
                     </td>
-                    <td id="type">?</td>
                     <td>
                         <button id="vote_{{question.id}}" value="{{question.id}}" type="submit" name="vote" class="btn btn-outline-primary btn-sm btn-block">
                             Vote
