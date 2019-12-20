@@ -6,6 +6,8 @@
 
 {% include "partial/header.html" with user_name=user %}
 
+
+
 <div class="row flex-xl-nowrap">
     <div class="col-md-3 col-xl-2">
         {% include "partial/admin/sidebar.html" %}
@@ -21,7 +23,16 @@
         </div>
 
         <div>
-            <h5><a href="#validating" class="link-dark">Validating</a></h5>
+            <h5><a href="#num" class="link-dark">Summary</a></h5>
+            <div col-lg-5>
+                <label>Current Data #: </label>{{num_data}}
+            </div>
+
+            <a href="/download" class="btn btn-primary">Download</a>
+        </div>
+
+        <div>
+            <h5><a href="#setting" class="link-dark">Data To Be Validate</a></h5>
             {% include 'partial/admin/setting_tasks.html' with questions=data %}
         </div>
     </div>

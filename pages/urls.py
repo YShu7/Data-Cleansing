@@ -12,6 +12,7 @@ urlpatterns = [
     path('user', admin.index, name='user'),
     path('add_user', admin.add_user, name='add_user'),
     path('dataset', admin.dataset, name='dataset'),
+    path('download', admin.download, name='download'),
     path('<int:question_id>/update', admin.update, name='update'),
     path('report', admin.report, name='report'),
     path('log', admin.log, name='log'),

@@ -1,9 +1,12 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from pages.helper import *
 from authentication.models import *
+import csv
+import time
+
 
 @login_required
 def index(request):
@@ -69,6 +72,32 @@ def dataset(request):
         'data': voting_data,
     }
     return HttpResponse(template.render(context=context))
+
+
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+@login_required
+def download(request):
+    """A view that streams a large CSV file."""
+    # Generate a sequence of rows. The range is based on the maximum number of
+    # rows that can be handled by a single sheet in most spreadsheet
+    # applications.
+    rows = ([data.id, data.question_text, data.answer_text, data.type] for data in Data.objects.all())
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                     content_type="text/csv")
+    filename = "{}.csv".format(time.time())
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+    return response
 
 
 @login_required
