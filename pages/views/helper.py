@@ -1,4 +1,4 @@
-from .models import *
+from pages.models import *
 from assign.models import AssignmentVote, AssignmentValidate
 
 

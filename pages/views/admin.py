@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpRespons
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from pages.helper import *
+from pages.views.helper import *
 from authentication.models import *
 import csv
 import time
@@ -63,13 +63,20 @@ def dataset(request):
     voting_data = []
     for id in ids:
         voting_data.append(VotingData.objects.get(id=id))
-
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)
+
+    types = Type.objects.all()
+    num_data = {}
+    num_data["all"] = Data.objects.all().count()
+    for type in types:
+        num_data[type.type] = Data.objects.all().filter(type=type).count()
+
     context = {
         'title': 'Data Set',
-        'num_data': Data.objects.count(),
+        'num_data': num_data,
         'data': voting_data,
+        'types': types,
     }
     return HttpResponse(template.render(context=context))
 

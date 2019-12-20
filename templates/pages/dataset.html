@@ -25,7 +25,20 @@
         <div>
             <h5><a href="#num" class="link-dark">Summary</a></h5>
             <div col-lg-5>
-                <label>Current Data #: </label>{{num_data}}
+                <label>Current Data #: </label><label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
+                <br>
+                <label>Number of Data for </label>
+                <div class="dropdown">
+                    <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        all
+                    </a>
+                    <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for type in types %}
+                            <button class="dropdown-item" type="button">{{type}}</button>
+                        {% endfor %}
+                        <button class="dropdown-item" type="button">-</button>
+                    </div>
+                </div>
             </div>
 
             <a href="/download" class="btn btn-primary">Download</a>
@@ -37,3 +50,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function(){
+        $("#filter .dropdown-item").on("click", function(e) {
+            var selectedType = $(this).text();
+            $("#selected_type").text(selectedType);
+            var num_data = $("#num_data").attr('value');
+            var start = num_data.indexOf(selectedType);
+            var substring = num_data.substring(start);
+
+            start = substring.indexOf(':');
+            substring = substring.substring(start);
+
+            start = substring.indexOf(' ');
+            end = substring.indexOf(',');
+            var num = substring.substring(start, end-start+1);
+
+            $("#num_data").text(num);
+        });
+    });
+</script>
