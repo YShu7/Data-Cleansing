@@ -67,7 +67,7 @@ def validate(request):
                 task.delete()
     else:
         HttpResponse("Request method is not allowed.")
-    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
+    return HttpResponseRedirect("/")
 
 
 @login_required
@@ -100,4 +100,4 @@ def vote(request, question_id):
     else:
         return HttpResponse("Request method is not allowed.")
 
-    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
+    return HttpResponseRedirect('/')

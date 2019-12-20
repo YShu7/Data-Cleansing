@@ -33,7 +33,7 @@ test_type2,  _ = Type.objects.update_or_create(type="T2")
 
 VotingData.objects.all().delete()
 test_voting_1,  _ = VotingData.objects.update_or_create(question_text="Vote1", type=test_type1, activate=True)
-test_voting_2,  _ = VotingData.objects.update_or_create(question_text="Vote2", type=test_type2)
+test_voting_2,  _ = VotingData.objects.update_or_create(question_text="Vote2", type=test_type2, activate=True)
 
 ValidatingData.objects.all().delete()
 test_validating_1,  _ = ValidatingData.objects.update_or_create(question_text="Val1", answer_text="A1", type=test_type2)
@@ -42,3 +42,5 @@ test_validating_2,  _ = ValidatingData.objects.update_or_create(question_text="V
 Choice.objects.all().delete()
 test_choice_11,  _ = Choice.objects.update_or_create(data=test_voting_1, answer="AC1", num_votes=1)
 test_choice_12,  _ = Choice.objects.update_or_create(data=test_voting_1, answer="AC2", num_votes=0)
+test_choice_21,  _ = Choice.objects.update_or_create(data=test_voting_2, answer="AC3", num_votes=1)
+test_choice_22,  _ = Choice.objects.update_or_create(data=test_voting_2, answer="AC4", num_votes=0)

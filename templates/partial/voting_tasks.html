@@ -24,10 +24,10 @@
                     <td>{{question.question_text}}</td>
                     <td>
                         <div class="dropdown">
-                            <a id="selected_answer" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a id="selected_answer_{{question.id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{question.answer_text_1}}
                             </a>
-                            <div id="dropdown_voting" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <div id="dropdown_voting_{{question.id}}" value="{{question.id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
                                 {% for ans in question.answers %}
                                     <button id="answer_{{ans.id}}" class="vote dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
                                 {% endfor %}
@@ -51,15 +51,10 @@
 
 <script>
     $(document).ready(function(){
-        $("#dropdown_voting .dropdown-item").on("click", function(e) {
+        $(".dropdown_voting .dropdown-item").on("click", function(e) {
             var selectedAnswer= $(this).text();
-            $("#selected_answer").text(selectedAnswer)
-        });
-        $("#filter_voting .dropdown-item").on("click", function(e) {
-            var selectedType = $(this).text();
-            $("#voting_tasks tr").filter(function() {
-                $(this).toggle($("#type").text() == selectedType);
-            })
+            var id = $(this).parent().attr('value');
+            $("#selected_answer_" + id).text(selectedAnswer);
         });
         $(".vote").on('click', function(e) {
             var choice = $(this).attr('value');

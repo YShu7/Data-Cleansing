@@ -115,10 +115,10 @@
             if (approved) {
                 x[col].innerHTML = "Approved";
             } else {
-                x[col].innerHTML = "Disapproved";
                 var new_ans = $("#new_ans").val();
                 $("#new_ans_" + id).val(new_ans);
                 x[col-1].innerHTML = new_ans;
+                x[col-1].setAttribute('style', 'color:red');
             }
         };
     });
