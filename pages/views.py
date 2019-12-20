@@ -1,10 +1,9 @@
-from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import *
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from .helper import *
+from authentication.models import *
 
 
 @login_required
@@ -12,9 +11,14 @@ def index(request):
     user = request.user
     if user is not None:
         if user.is_superuser:
-            return HttpResponseRedirect('/admin')
-        template = loader.get_template('pages/tasks.html')
-        context = get_tasks_context(user)
+            template = loader.get_template('pages/admin.html')
+            context = {
+                'specs': Specialization.objects.all(),
+                'groups': CustomGroup.objects.all(),
+            }
+        else:
+            template = loader.get_template('pages/tasks.html')
+            context = get_tasks_context(user)
         return HttpResponse(template.render(context))
     else:
         template = loader.get_template('registration/login.html')
@@ -106,4 +110,38 @@ def vote(request, question_id):
     else:
         return HttpResponse("Request method is not allowed.")
 
+    return HttpResponseRedirect('/')
+
+
+@login_required
+@csrf_exempt
+def add_user(request):
+    if request.method == "POST":
+        print(request.POST)
+        username = request.POST["username"]
+        certificate = request.POST["certificate"]
+        email = request.POST["email"]
+        if not request.POST["group"]:
+            group = CustomGroup.objects.get(id=request.POST["group"])
+        else:
+            group = None
+        if CustomUser.objects.get(email=email):
+            return HttpResponse("Email {} has been used".format(email))
+        else:
+            CustomUser.objects.create_user(email=email, certificate=certificate, username=username,
+                                           group=group, password="123456")
+        return HttpResponseRedirect('/')
+    else:
+        return HttpResponse("Request method is not allowed.")
+
+
+def dataset(request):
+    return HttpResponseRedirect('/dataset')
+
+
+def report(request):
+    return HttpResponseRedirect('/report')
+
+
+def log(request):
     return HttpResponseRedirect('/')
