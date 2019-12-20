@@ -11,6 +11,8 @@ from .helper import *
 def index(request):
     user = request.user
     if user is not None:
+        if user.is_superuser:
+            return HttpResponseRedirect('/admin')
         template = loader.get_template('pages/tasks.html')
         context = get_tasks_context(user)
         return HttpResponse(template.render(context))
@@ -25,6 +27,8 @@ def index(request):
 
 @login_required
 def profile(request):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     template = loader.get_template('pages/profile.html')
     return HttpResponse(template.render(get_profile_context(request.user)))
 
@@ -32,11 +36,14 @@ def profile(request):
 @login_required
 @csrf_exempt
 def validate(request):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     if request.method == 'POST':
         ids = request.POST['validate_ids'].split(',')
         for id in ids:
             task = ValidatingData.objects.get(id=id)
             approve = request.POST["approve_value_{}".format(id)]
+            assign = AssignmentValidate.objects.get(task_id=id)
             if approve == "true":
                 task.num_approved += 1
                 task.save()
@@ -59,19 +66,24 @@ def validate(request):
                     data.activate = True
                     data.save()
                 task.delete()
+            assign.done = True
+            assign.save()
     else:
         HttpResponse("Request method is not allowed.")
-    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
+    return HttpResponseRedirect("/")
 
 
 @login_required
 @csrf_exempt
 def vote(request, question_id):
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
             data = VotingData.objects.get(pk=question_id)
             selected_choice = Choice.objects.get(data_id=question_id, pk=choice)
+            assign = AssignmentVote.objects.get(task_id=question_id)
         except VotingData.DoesNotExist:
             return HttpResponse("Voting data doesn't exist.")
         except Choice.DoesNotExist:
@@ -89,7 +101,9 @@ def vote(request, question_id):
             if sum_votes >= 5 and selected_choice.num_votes == max_votes:
                 Data.objects.update_or_create(question_text=data.question_text, answer_text=selected_choice.answer, type=data.type)
                 data.delete()
+            assign.done = True
+            assign.save()
     else:
         return HttpResponse("Request method is not allowed.")
 
-    return render(request, 'pages/tasks.html', context=get_tasks_context(request.user))
+    return HttpResponseRedirect('/')

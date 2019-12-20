@@ -1,12 +1,17 @@
 from .models import *
+from assign.models import AssignmentVote, AssignmentValidate
 
 
 def get_tasks_context(user):
-    voting_data = VotingData.objects.all().filter(activate=True)
+    validating_data = [i.task for i in AssignmentValidate.objects.all().filter(tasker_id=user.id, done=False)]
+
+    voting_data = [i.task for i in AssignmentVote.objects.all().filter(tasker_id=user.id, done=False)]
+
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)
+
     context = {
-        'question_list_validating': ValidatingData.objects.all(),
+        'question_list_validating': validating_data,
         'question_list_voting': voting_data,
         'login_user': user,
         'title': 'Tasks'

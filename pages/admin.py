@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import *
 
-# Register your models here.
+
+admin.site.register(VotingData)
+admin.site.register(ValidatingData)
+admin.site.register(Type)

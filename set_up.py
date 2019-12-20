@@ -19,23 +19,37 @@ test_group_1, _ = CustomGroup.objects.update_or_create(name="Nurse-A", main_grou
 test_group_2, _ = CustomGroup.objects.update_or_create(name="Nurse-B", main_group=test_spec_1)
 
 CustomUser.objects.all().delete()
-test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", name="Alice",
-                                                group=test_group_1, password="alice")
+test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", username="Alice",
+                                           group=test_group_1, password="alice")
+
+for i in range(2):
+    CustomUser.objects.create_user(email="{}@gmail.com".format(i), certificate="G1234567{}".format(i), username="Alice",
+                                   group=test_group_1, password="{}".format(i))
+
+test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
+                                                 password="guy123456")
 
 from pages.models import *
 
 Type.objects.all().delete()
-test_type1,  _ = Type.objects.update_or_create(type="T1")
-test_type2,  _ = Type.objects.update_or_create(type="T2")
+types = []
+for i in range(5):
+    type,  _ = Type.objects.update_or_create(type="Type_{}".format(i))
+    types.append(type)
 
 VotingData.objects.all().delete()
-test_voting_1,  _ = VotingData.objects.update_or_create(question_text="Vote1", type=test_type1, activate=True)
-test_voting_2,  _ = VotingData.objects.update_or_create(question_text="Vote2", type=test_type2)
+Choice.objects.all().delete()
+for i in range(10):
+    voting_data,  _ = VotingData.objects.update_or_create(question_text="Vote{}".format(i), type=types[i%len(types)], activate=True)
+    for j in range(2):
+        choice, _ = Choice.objects.update_or_create(data=voting_data, answer="Answer_{}{}".format(i, j), num_votes=0)
 
 ValidatingData.objects.all().delete()
-test_validating_1,  _ = ValidatingData.objects.update_or_create(question_text="Val1", answer_text="A1", type=test_type2)
-test_validating_2,  _ = ValidatingData.objects.update_or_create(question_text="Val2", answer_text="A1")
+for i in range(10):
+    validating_data,  _ = ValidatingData.objects.update_or_create(question_text="Val{}".format(i),
+                                                                  answer_text="A{}".format(i), type=types[i%len(types)])
 
-Choice.objects.all().delete()
-test_choice_11,  _ = Choice.objects.update_or_create(data=test_voting_1, answer="AC1", num_votes=1)
-test_choice_12,  _ = Choice.objects.update_or_create(data=test_voting_1, answer="AC2", num_votes=0)
+from assign.models import AssignmentValidate, AssignmentVote
+from assign.views import assign
+assign(CustomUser, ValidatingData, AssignmentValidate, 10)
+assign(CustomUser, VotingData, AssignmentVote, 3)

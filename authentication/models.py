@@ -5,20 +5,26 @@ from django.contrib.auth.models import AbstractUser, UserManager, Group
 class Specialization(models.Model):
     name = models.CharField(max_length=32)
 
+    def __str__(self):
+        return self.name
+
 
 class CustomGroup(models.Model):
     name = models.CharField(max_length=10)
     main_group = models.ForeignKey(to=Specialization, null=False, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class CustomUserManager(UserManager):
-    def create_user(self, email, name, certificate, group, password=None):
+    def create_user(self, email, username, certificate, group=None, password=None):
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
             email=self.normalize_email(email),
-            name=name,
+            username=username,
             certificate=certificate,
             group=group,
         )
@@ -27,14 +33,18 @@ class CustomUserManager(UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, certificate, password=None):
+    def create_superuser(self, email, username, certificate, password=None):
         user = self.create_user(
-            email,
-            name,
-            certificate,
-            password=password,
+            email=self.normalize_email(email),
+            username=username,
+            certificate=certificate,
+            group=None,
         )
         user.is_admin = True
+        user.is_staff = True
+        user.is_superuser = True
+
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -42,7 +52,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser):
     email = models.CharField(max_length=40, unique=True)
     certificate = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=20)
+    username = models.CharField(max_length=20)
     group = models.ForeignKey(CustomGroup, on_delete=models.SET_NULL, null=True)
     point = models.IntegerField(default=0)
     accuracy = models.FloatField(default=100)
@@ -54,7 +64,7 @@ class CustomUser(AbstractUser):
     #backend = CustomBackend()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'certificate', 'group']
+    REQUIRED_FIELDS = ['username', 'certificate', 'group']
 
     def __str__(self):
         return self.email
@@ -68,9 +78,3 @@ class CustomUser(AbstractUser):
         "Does the user have permissions to view the app `pages`?"
         # Simplest possible answer: Yes, always
         return True
-
-    @property
-    def is_staff(self):
-        "Is the user a member of staff?"
-        # Simplest possible answer: All admins are staff
-        return self.is_admin

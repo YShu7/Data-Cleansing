@@ -13,7 +13,10 @@ def login(request):
 
         if user is not None:
             auth.login(request, user)
-            return HttpResponseRedirect('/')
+            if user.is_admin:
+                return HttpResponseRedirect('/admin')
+            else:
+                return HttpResponseRedirect('/')
         else:
             return render(request, 'authentication/login.html')
     return render(request, 'authentication/login.html')
