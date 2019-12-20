@@ -42,7 +42,7 @@ Choice.objects.all().delete()
 for i in range(10):
     voting_data,  _ = VotingData.objects.update_or_create(question_text="Vote{}".format(i), type=types[i%len(types)], activate=True)
     for j in range(2):
-        choice, _ = Choice.objects.update_or_create(data=voting_data, answer="Answer_{}".format(j), num_votes=0)
+        choice, _ = Choice.objects.update_or_create(data=voting_data, answer="Answer_{}{}".format(i, j), num_votes=0)
 
 ValidatingData.objects.all().delete()
 for i in range(10):

@@ -29,13 +29,13 @@
                             </a>
                             <div id="dropdown_voting_{{question.id}}" value="{{question.id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
                                 {% for ans in question.answers %}
-                                    <button id="answer_{{ans.id}}" class="vote dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
+                                    <button id="answer_{{ans.id}}" class="dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
                                 {% endfor %}
                             </div>
                         </div>
                     </td>
                     <td>
-                        <button id="vote_{{question.id}}" value="{{question.id}}" type="submit" name="vote" class="btn btn-outline-primary btn-sm btn-block">
+                        <button id="vote_{{question.id}}" value="" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
                             Vote
                         </button>
                     </td>
@@ -54,7 +54,9 @@
         $(".dropdown_voting .dropdown-item").on("click", function(e) {
             var selectedAnswer= $(this).text();
             var id = $(this).parent().attr('value');
+            var ans_id = $(this).attr('value');
             $("#selected_answer_" + id).text(selectedAnswer);
+            $("#vote_" + id).val(ans_id);
         });
         $(".vote").on('click', function(e) {
             var choice = $(this).attr('value');

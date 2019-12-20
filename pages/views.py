@@ -83,7 +83,7 @@ def vote(request, question_id):
             choice = request.POST['choice']
             data = VotingData.objects.get(pk=question_id)
             selected_choice = Choice.objects.get(data_id=question_id, pk=choice)
-            assign = AssignmentVote.objects.get(task_id=id)
+            assign = AssignmentVote.objects.get(task_id=question_id)
         except VotingData.DoesNotExist:
             return HttpResponse("Voting data doesn't exist.")
         except Choice.DoesNotExist:
