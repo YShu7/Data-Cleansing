@@ -6,15 +6,9 @@
 
 <script>
     var names = String({{ names | safe }}).split(",");
-    var numQns = [];
-    var points = [];
-    var accuracy = [];
-
-    for (var i = 0; i < names.length; i++) {
-        numQns.push(1);
-        points.push(2);
-        accuracy.push(3);
-    }
+    var numQns = String({{ num_ans | safe}}).split(",").map(parseInt);
+    var points = String({{ points | safe}}).split(",").map(parseInt);
+    var accuracy = String({{ accuracy | safe}}).split(",").map(parseFloat);
     var series = [{name: '# of Answered Questions', data: numQns},
                   {name: 'Points', data: points},
                   {name: 'Accuracy', data: accuracy}];
@@ -31,7 +25,6 @@
 		crosshair: true
 	},
 	tooltip: {
-		// head + 每个 point + footer 拼接成完整的 table
 		headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
 		'<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',

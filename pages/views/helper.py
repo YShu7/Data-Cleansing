@@ -1,5 +1,6 @@
 from pages.models import *
 from authentication.models import *
+from authentication.helper import *
 from assign.models import AssignmentVote, AssignmentValidate
 
 
@@ -27,18 +28,24 @@ def get_profile_context(user):
     return context
 
 
-def comupte_group_point(users):
+def comupte_group_point():
     groups = CustomGroup.objects.all()
 
-    name = []
-    name_idx = [0]
-    curr_idx = 0
+    names = []
+    points = []
+    num_ans = []
+    accu = []
     for group in groups:
-        name.append(group.name)
-        curr_idx += len(group.name)
-        name_idx.append(curr_idx)
+        names.append(group.name)
+        dict = get_group_report(group)
+        points.append(dict["point"])
+        num_ans.append(dict["num_ans"])
+        accu.append(dict["accuracy"])
+
     context = {
-        'names': name,
-        'names_idx': name_idx,
+        'names': names,
+        'points': points,
+        'num_ans': num_ans,
+        'accuracy': accu,
     }
     return context

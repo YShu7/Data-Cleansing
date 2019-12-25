@@ -128,14 +128,16 @@ def report(request):
     template = loader.get_template('pages/report.html')
     i = datetime.datetime.now()
     users = CustomUser.objects.all()
-    groups = comupte_group_point(users)
+    groups = comupte_group_point()
 
     context = {
         'title': 'Report',
         'today': '{}-{}-{}'.format(i.year, i.month, i.day),
         'users': users,
         'names': json.dumps(groups['names']),
-
+        'points': json.dumps(groups['points']),
+        'num_ans': json.dumps(groups['num_ans']),
+        'accuracy': json.dumps(groups['accuracy']),
         'login_user': request.user,
     }
     return HttpResponse(template.render(context=context))
