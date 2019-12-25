@@ -3,14 +3,14 @@ from django.contrib.auth.models import AbstractUser, UserManager, Group
 
 
 class Specialization(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=32, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class CustomGroup(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=50, unique=True)
     main_group = models.ForeignKey(to=Specialization, null=False, on_delete=models.CASCADE)
 
     def __str__(self):
