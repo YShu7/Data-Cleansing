@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from pages.views.helper import *
 from authentication.models import *
+from assign.views import assign
 import csv
 import time
 import datetime
@@ -156,3 +157,9 @@ def download_report(request):
 
 def log(request):
     return HttpResponseRedirect('/')
+
+
+def assign_tasks(request):
+    assign(CustomUser, ValidatingData, AssignmentValidate, 10)
+    assign(CustomUser, VotingData, AssignmentVote, 10)
+    return HttpResponse("Assign Tasks Succeed")

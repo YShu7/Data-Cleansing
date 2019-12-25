@@ -17,4 +17,5 @@ urlpatterns = [
     path('<int:question_id>/update', admin.update, name='update'),
     path('report', admin.report, name='report'),
     path('log', admin.log, name='log'),
+    path('assign_tasks', admin.assign_tasks, name='assign_tasks'),
 ]
