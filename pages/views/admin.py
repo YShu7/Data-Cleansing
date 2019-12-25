@@ -6,6 +6,8 @@ from pages.views.helper import *
 from authentication.models import *
 import csv
 import time
+import datetime
+import json
 
 
 @login_required
@@ -17,6 +19,7 @@ def index(request):
             context = {
                 'specs': Specialization.objects.all(),
                 'groups': CustomGroup.objects.all(),
+                'login_user': user,
             }
             return HttpResponse(template.render(context=context))
         else:
@@ -77,6 +80,7 @@ def dataset(request):
         'num_data': num_data,
         'data': voting_data,
         'types': types,
+        'login_user': request.user,
     }
     return HttpResponse(template.render(context=context))
 
@@ -92,7 +96,7 @@ class Echo:
 
 
 @login_required
-def download(request):
+def download_dataset(request):
     """A view that streams a large CSV file."""
     # Generate a sequence of rows. The range is based on the maximum number of
     # rows that can be handled by a single sheet in most spreadsheet
@@ -105,7 +109,6 @@ def download(request):
     filename = "{}.csv".format(time.time())
     response['Content-Disposition'] = 'attachment; filename=' + filename
     return response
-
 
 @login_required
 @csrf_exempt
@@ -120,8 +123,33 @@ def update(request, question_id):
     return HttpResponseRedirect("/dataset")
 
 
+@login_required
 def report(request):
-    return HttpResponseRedirect('/report')
+    template = loader.get_template('pages/report.html')
+    i = datetime.datetime.now()
+    users = CustomUser.objects.all()
+    groups = comupte_group_point(users)
+
+    context = {
+        'title': 'Report',
+        'today': '{}-{}-{}'.format(i.year, i.month, i.day),
+        'users': users,
+        'names': json.dumps(groups['names']),
+
+        'login_user': request.user,
+    }
+    return HttpResponse(template.render(context=context))
+
+
+def download_report(request):
+    rows = ([data.id, data.question_text, data.answer_text, data.type] for data in Data.objects.all())
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                     content_type="text/csv")
+    filename = "{}.csv".format(time.time())
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+    return response
 
 
 def log(request):

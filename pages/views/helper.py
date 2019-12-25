@@ -1,4 +1,5 @@
 from pages.models import *
+from authentication.models import *
 from assign.models import AssignmentVote, AssignmentValidate
 
 
@@ -22,5 +23,22 @@ def get_tasks_context(user):
 def get_profile_context(user):
     context = {
         'user': user
+    }
+    return context
+
+
+def comupte_group_point(users):
+    groups = CustomGroup.objects.all()
+
+    name = []
+    name_idx = [0]
+    curr_idx = 0
+    for group in groups:
+        name.append(group.name)
+        curr_idx += len(group.name)
+        name_idx.append(curr_idx)
+    context = {
+        'names': name,
+        'names_idx': name_idx,
     }
     return context

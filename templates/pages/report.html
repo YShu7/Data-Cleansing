@@ -1,0 +1,66 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+
+{% include "partial/header.html" with user_name=login_user %}
+
+<div class="row flex-xl-nowrap">
+    <div class="col-md-3 col-xl-2">
+        {% include "partial/admin/sidebar.html" %}
+    </div>
+
+    <div class="col-9">
+        <div id="title">
+            </br>
+            <h3>
+                {{ title }}
+            </h3>
+            <hr/>
+        </div>
+
+        <div>
+            <label for="from">From</label>
+            <input id="from" type="date" value="{{today}}"/>
+            <label for="to">To</label>
+            <input id="to" type="date" value="{{today}}"/>
+            <a href="/download_report" class="btn btn-primary float-right">Download</a>
+        </div>
+        <div class="btn-group">
+            <button id='group-toggle' class="btn btn-primary">Group</button>
+            <button id='individual-toggle' class="btn btn-outline-success">Individual</button>
+        </div>
+        <div id="individual_list" style="display: none">
+            {% include 'partial/admin/individual_report.html' with users=users %}
+        </div>
+        <div id="group_list">
+            {% include 'partial/admin/group_report.html' with groups=groups %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#group-toggle").on('click', function(e) {
+            var group = document.getElementById('group_list');
+            group.setAttribute('style', "display: block");
+            var individual = document.getElementById('individual_list');
+            individual.setAttribute('style', "display: none");
+            var btn = document.getElementById('individual-toggle');
+            btn.setAttribute('class', "btn btn-outline-success");
+            btn = document.getElementById('group-toggle');
+            btn.setAttribute('class', "btn btn-primary");
+        });
+        $("#individual-toggle").on('click', function(e) {
+            var individual = document.getElementById('individual_list');
+            individual.setAttribute('style', "display: block");
+            var group = document.getElementById('group_list');
+            group.setAttribute('style', "display: none");
+            var btn = document.getElementById('group-toggle');
+            btn.setAttribute('class', "btn btn-outline-primary");
+            btn = document.getElementById('individual-toggle');
+            btn.setAttribute('class', "btn btn-success");
+        });
+    });
+</script>

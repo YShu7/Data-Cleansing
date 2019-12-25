@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 
-{% include "partial/header.html" with user_name=user %}
+{% include "partial/header.html" with user_name=login_user %}
 
 
 
@@ -39,7 +39,7 @@
                         <button class="dropdown-item" type="button">all</button>
                     </div>
                     <label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
-                    <a href="/download" class="btn btn-primary float-right">Download</a>
+                    <a href="/download_dataset" class="btn btn-primary float-right">Download</a>
                 </div>
             </div>
 
