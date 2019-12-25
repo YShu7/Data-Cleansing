@@ -28,7 +28,7 @@
                             {% for ans in question.answers %}
                                 <button id="answer_{{ans.id}}" class="dropdown-item normal-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
                             {% endfor %}
-                            <button id="answer_new" class="dropdown-item" type="button" value="{{question.id}}">Add New Answer</button>
+                            <button id="answer_new" class="dropdown-item" data-toggle="modal" data-target="#dialog" type="button" value="{{question.id}}">Add New Answer</button>
                         </div>
                     </div>
                 </td>
@@ -43,9 +43,23 @@
         </tbody>
     </table>
 </div>
-<div id="dialog" style="display: none">
-    <textarea id="new_ans" rows="3" cols="20"></textarea>
-    <button id="update_btn">Confirm</button>
+<div class="modal fade" id="dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">New Answer</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea id="new_ans" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="update_btn" class="btn btn-primary" data-dismiss="modal">Confirm</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
