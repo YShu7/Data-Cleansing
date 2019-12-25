@@ -67,8 +67,9 @@
     $(document).ready(function(){
         $("#filter_validating .dropdown-item").on("click", function(e) {
             var selectedType = $(this).text();
-            $("#validating_tasks tr").filter(function() {
-                $(this).toggle($("#type").text() == selectedType);
+            $("#validating_tasks tr").map(function() {
+                var id = $(this).children("th").text();
+                $(this).toggle($("#type_" + id).text() == selectedType);
             })
         });
         $(".approve").on('click', function(e) {
