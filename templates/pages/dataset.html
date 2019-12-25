@@ -25,10 +25,10 @@
         <div>
             <h5><a href="#num" class="link-dark">Summary</a></h5>
             <div col-lg-5>
-                <label>Current Data #: </label><label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
+                <label>Current Data #: </label><label id="num_all_data" value="{{num_data}}">{{num_data.all}}</label>
                 <br>
-                <label>Number of Data for </label>
                 <div class="dropdown">
+                    <label>Number of Data for </label>
                     <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         all
                     </a>
@@ -36,12 +36,13 @@
                         {% for type in types %}
                             <button class="dropdown-item" type="button">{{type}}</button>
                         {% endfor %}
-                        <button class="dropdown-item" type="button">-</button>
+                        <button class="dropdown-item" type="button">all</button>
                     </div>
+                    <label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
+                    <a href="/download" class="btn btn-primary float-right">Download</a>
                 </div>
             </div>
 
-            <a href="/download" class="btn btn-primary">Download</a>
         </div>
 
         <div>
