@@ -1,8 +1,6 @@
 {% if questions %}
     {% load staticfiles %}
     <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
-    <!--script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script-->
     
     <div id="taskList">
          <form action="{% url 'validate' %}" method="post">
@@ -38,12 +36,14 @@
                         <td id="type_{{question.id}}">?</td>
                         <td>
                             <input type="hidden" name="approve_value_{{question.id}}" id="approve_value_{{question.id}}" value="">
+                            <input type="hidden" name="old_ans_{{question.id}}" id="old_ans_{{question.id}}" value="{{question.answer_text}}">
                             <input type="hidden" name="new_ans_{{question.id}}" id="new_ans_{{question.id}}" value="">
                             <div class="btn-group btn-block">
                                 <button id="approve_{{question.id}}" value="{{question.id}}" type="button" name="choice_{{question.id}}" class="approve btn btn-outline-success btn-sm">
                                 Approve
                             </button>
-                            <button id="change_{{question.id}}" value="{{question.id}}" type="button" name="choice_{{question.id}}" class="change btn btn-outline-primary btn-sm">
+
+                            <button id="change_{{question.id}}" value="{{question.id}}" type="button" data-toggle="modal" data-target="#dialog" class="change btn btn-outline-primary btn-sm">
                                 Change
                             </button>
                             </div>
@@ -55,9 +55,23 @@
             <span class="d-flex"><input class="btn btn-primary btn ml-auto" type="submit" value="Submit"></span>
         </form>
     </div>
-    <div id="dialog" style="display: none">
-        <textarea id="new_ans" rows="3" cols="20"></textarea>
-        <button id="update_btn">Confirm</button>
+    <div class="modal fade" id="dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">New Answer</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="new_ans" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button id="update_btn" class="btn btn-primary" data-dismiss="modal">Confirm</button>
+                </div>
+            </div>
+        </div>
     </div>
 {% else %}
     <p>No polls are available.</p>
@@ -85,9 +99,8 @@
             var id = $(this).attr('value');
             $("#validate_ids").val(getNewIds(id));
             $("#update_btn").val(id);
-
-            var x = document.getElementById('dialog');
-            x.setAttribute('style', "display: block");
+            $("#new_ans").val("");
+            $('#dialog').modal();
         });
         $("#update_btn").on('click', function(e) {
             var id = $("#update_btn").attr('value');
@@ -115,11 +128,17 @@
 
             if (approved) {
                 x[col].innerHTML = "Approved";
+                var old_ans = $("#old_ans_" + id).val();
+                x[col-1].innerHTML = old_ans;
+                x[col-1].setAttribute('style', 'color:green');
+                x[col].setAttribute('style', 'color:green');
             } else {
+                x[col].innerHTML = "Disapproved";
                 var new_ans = $("#new_ans").val();
                 $("#new_ans_" + id).val(new_ans);
                 x[col-1].innerHTML = new_ans;
                 x[col-1].setAttribute('style', 'color:red');
+                x[col].setAttribute('style', 'color:red');
             }
         };
     });
