@@ -3,14 +3,14 @@ from django.contrib.auth.models import AbstractUser, UserManager, Group
 
 
 class Specialization(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=32, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class CustomGroup(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=50, unique=True)
     main_group = models.ForeignKey(to=Specialization, null=False, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -55,7 +55,8 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=20)
     group = models.ForeignKey(CustomGroup, on_delete=models.SET_NULL, null=True)
     point = models.IntegerField(default=0)
-    accuracy = models.FloatField(default=100)
+    correct_num_ans = models.IntegerField(default=0)
+    num_ans = models.IntegerField(default=0)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -68,6 +69,11 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    def accuracy(self):
+        if not self.num_ans:
+            return 1
+        return self.correct_num_ans / self.num_ans
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

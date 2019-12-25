@@ -1,0 +1,75 @@
+{% load staticfiles %}
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+    
+<div id="taskList">
+    <table type="table" class="table table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Question</th>
+                <th scope="col">Answer</th>
+                <th scope="col" width="30%"> </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+            <form action="{% url 'update' question.id %}" method="post">
+            {% csrf_token %}
+            <tr>
+                <th scope="row">{{question.id}}</th>
+                <input type="hidden" name="choice" id="choice" value="">
+                <td>{{question.question_text}}</td>
+                <td>
+                    <div class="dropdown">
+                        <a id="selected_answer_{{question.id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{question.answers.first.answer}}
+                        </a>
+                        <div id="dropdown_voting_{{question.id}}" value="{{question.id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
+                            {% for ans in question.answers %}
+                                <button id="answer_{{ans.id}}" class="dropdown-item normal-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
+                            {% endfor %}
+                            <button id="answer_new" class="dropdown-item" type="button" value="{{question.id}}">Add New Answer</button>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <button id="vote_{{question.id}}" value="" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
+                        Update
+                    </button>
+                </td>
+            </tr>
+            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div id="dialog" style="display: none">
+    <textarea id="new_ans" rows="3" cols="20"></textarea>
+    <button id="update_btn">Confirm</button>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".dropdown_voting .normal-item").on("click", function(e) {
+            var id = $(this).parent().attr('value');
+            var selectedAnswer= $(this).text();
+            $("#selected_answer_" + id).text(selectedAnswer);
+            var ans = $(this).text();
+            $("#choice").val(ans);
+        });
+        $("#answer_new").on("click", function(e) {
+            var id = $(this).attr('value');
+            $("#update_btn").val(id);
+            var x = document.getElementById('dialog');
+            x.setAttribute('style', "display: block");
+        });
+        $("#update_btn").on('click', function(e) {
+            var id = $("#update_btn").attr('value');
+            var ans = $("#new_ans").val();
+            $("#selected_answer_" + id).text(ans);
+            $("#choice").val(ans);
+            var x = document.getElementById('dialog');
+            x.setAttribute('style', "display: none");
+        });
+    });
+</script>

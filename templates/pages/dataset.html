@@ -1,0 +1,74 @@
+<script src="https://unpkg.com/vue"></script>
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+
+{% include "partial/header.html" with user_name=login_user %}
+
+
+
+<div class="row flex-xl-nowrap">
+    <div class="col-md-3 col-xl-2">
+        {% include "partial/admin/sidebar.html" %}
+    </div>
+
+    <div class="col-9">
+        <div id="title">
+            </br>
+            <h3>
+                {{ title }}
+            </h3>
+            <hr/>
+        </div>
+
+        <div>
+            <h5><a href="#num" class="link-dark">Summary</a></h5>
+            <div col-lg-5>
+                <label>Current Data #: </label><label id="num_all_data" value="{{num_data}}">{{num_data.all}}</label>
+                <br>
+                <div class="dropdown">
+                    <label>Number of Data for </label>
+                    <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        all
+                    </a>
+                    <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for type in types %}
+                            <button class="dropdown-item" type="button">{{type}}</button>
+                        {% endfor %}
+                        <button class="dropdown-item" type="button">all</button>
+                    </div>
+                    <label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
+                    <a href="/download_dataset" class="btn btn-primary float-right">Download</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+            <h5><a href="#setting" class="link-dark">Data To Be Validate</a></h5>
+            {% include 'partial/admin/setting_tasks.html' with questions=data %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#filter .dropdown-item").on("click", function(e) {
+            var selectedType = $(this).text();
+            $("#selected_type").text(selectedType);
+            var num_data = $("#num_data").attr('value');
+            var start = num_data.indexOf(selectedType);
+            var substring = num_data.substring(start);
+
+            start = substring.indexOf(':');
+            substring = substring.substring(start);
+
+            start = substring.indexOf(' ');
+            end = substring.indexOf(',');
+            var num = substring.substring(start, end-start+1);
+
+            $("#num_data").text(num);
+        });
+    });
+</script>
