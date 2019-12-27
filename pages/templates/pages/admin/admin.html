@@ -1,0 +1,7 @@
+{% extends "pages/admin/base.html" %}
+
+{% block page %}User Registration{% endblock %}
+
+{% block content %}
+{% include 'pages/admin/partial/user.html' with specializations=specs groups=groups%}
+{% endblock %}

@@ -4,19 +4,23 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from pages.views.helper import *
 
+ADMIN_DIR = 'pages/admin'
+USER_DIR = 'pages/user'
+AUTH_DIR = 'authentication'
+
 
 @login_required
 def index(request):
     user = request.user
     if user is not None:
         if not user.is_superuser:
-            template = loader.get_template('pages/tasks.html')
+            template = loader.get_template('{}/tasks.html'.format(USER_DIR))
             context = get_tasks_context(user)
             return HttpResponse(template.render(context))
         else:
             return HttpResponseRedirect('/admin')
     else:
-        template = loader.get_template('authentication/login.html')
+        template = loader.get_template('{}/login.html'.format(AUTH_DIR))
         context = {
             'title': 'Log In',
             'error': "Invalid Log In"
@@ -28,7 +32,7 @@ def index(request):
 def profile(request):
     if request.user.is_superuser:
         return HttpResponseRedirect('/admin')
-    template = loader.get_template('pages/profile.html')
+    template = loader.get_template('{}/profile.html'.format(USER_DIR))
     return HttpResponse(template.render(get_profile_context(request.user)))
 
 

@@ -11,12 +11,16 @@ import datetime
 import json
 
 
+ADMIN_DIR = 'pages/admin'
+USER_DIR = 'pages/user'
+AUTH_DIR = 'authentication'
+
 @login_required
 def index(request):
     user = request.user
     if user is not None:
         if user.is_superuser:
-            template = loader.get_template('pages/admin.html')
+            template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
             context = {
                 'specs': Specialization.objects.all(),
                 'groups': CustomGroup.objects.all(),
@@ -26,7 +30,7 @@ def index(request):
         else:
             return HttpResponseRedirect('/')
     else:
-        template = loader.get_template('registration/login.html')
+        template = loader.get_template('{}/login.html'.format(AUTH_DIR))
         context = {
             'title': 'Log In',
             'error': "Invalid Log In"
@@ -58,7 +62,7 @@ def add_user(request):
 
 @login_required
 def dataset(request):
-    template = loader.get_template('pages/dataset.html')
+    template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
     ids = [i.id for i in VotingData.objects.all()]
     exclude_ids = [i.task.id for i in AssignmentVote.objects.all()]
     for exclude_id in exclude_ids:
@@ -126,10 +130,10 @@ def update(request, question_id):
 
 @login_required
 def report(request):
-    template = loader.get_template('pages/report.html')
+    template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
     i = datetime.datetime.now()
     users = CustomUser.objects.all()
-    groups = comupte_group_point()
+    groups = compute_group_point()
 
     context = {
         'title': 'Report',
@@ -156,7 +160,12 @@ def download_report(request):
 
 
 def log(request):
-    return HttpResponseRedirect('/')
+    template = loader.get_template('{}/log.html'.format(ADMIN_DIR))
+    context = {
+        'title': "Admin Log",
+        'login_user': request.user,
+    }
+    return HttpResponse(template.render(context=context))
 
 
 def assign_tasks(request):

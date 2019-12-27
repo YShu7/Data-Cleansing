@@ -1,0 +1,47 @@
+{% extends "pages/user/base.html" %}
+
+{% block content %}
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th scope="col" width="50%"></th>
+            <th scope="col" width="50%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th >Name</th>
+            <td>{{login_user.username}}</td>
+        </tr>
+        <tr>
+            <th>ID</th>
+            <td>{{login_user.certificate}}</td>
+        </tr>
+        <tr>
+            <th>Sepcialization</th>
+            <td>{{login_user.group.main_group.name}}</td>
+        </tr>
+        <tr>
+            <th>Group</th>
+            <td>{{login_user.group.name}}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{login_user.email}}</td>
+        </tr>
+        <tr>
+            <th>Current Point</th>
+            <td>{{login_user.point}}</td>
+        </tr>
+        <tr>
+            <th>Overall Accuracy</td>
+            <td>{{login_user.accuracy}}%</td>
+        </tr>
+    </tbody>
+</table>
+<span class="d-flex justify-content-center">
+    <button href="{% url 'password_reset' %}" class="btn btn-outline-primary" >
+        Reset Password
+    </button>
+</span>
+{% endblock %}
