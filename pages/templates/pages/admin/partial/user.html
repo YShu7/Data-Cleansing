@@ -5,43 +5,40 @@
 
 <form action="{% url 'add_user' %}" method="post">
     {% csrf_token %}
-    <div class="card m-auto" style="width:80%">
-        <div class="card-body">
-            <label>Name</label>
-            <input class="form-control" type="text" name="username" id="username">
-
-            <label>ID</label>
-            <input class="form-control" type="text" name="certificate" id="certificate">
-
-            <label>Sepcialization</label>
-            <div class="dropdown">
-                <input class="form-control" type="hidden" name="specialization" id="specialization">
-                <a id="spec_text" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Please Select Specialization
-                </a>
-                <div id="dropdown_spec" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    {% for spec in specializations %}
-                        <button id="spec_{{spec.id}}" class="dropdown-item" type="button" value="{{spec.id}}">{{spec.name}}</button>
-                    {% endfor %}
-                </div>
+    <div id="card" class="card m-auto" style="width:80%">
+        <div class="card-body form-row">
+            <div class="form-group col-md-6">
+                <label for="username">Name</label>
+                <input class="form-control" type="text" name="username" id="username" value="{{obj.username}}">
             </div>
 
+            <div class="form-group col-md-6">
+                <label for="certificate">ID</label>
+                <input class="form-control" type="text" name="certificate" id="certificate" value="{{obj.certificate}}">
+            </div>
 
-            <label>Group</label>
-            <div class="dropdown">
-                <input class="form-control" type="hidden" name="group" id="group">
-                <a id="group_text" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Please Select Group
-                </a>
-                <div id="dropdown_group" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <div class="form-group col-md-12">
+                <label for="email">Email</label>
+                <input class="form-control" type="email" name="email" id="email" value="{{obj.email}}">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="specialization">Sepcialization</label>
+                <select class="form-control" id="specialization" name="specialization" value="{{obj.specialization}}">
+                {% for spec in specializations %}
+                    <option id="spec_{{spec.id}}" value="{{spec.id}}">{{spec.name}}</option>
+                {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="group">Group</label>
+                <select class="form-control" name="group" id="group" value="{{obj.group}}">
                     {% for group in groups %}
-                        <button id="group_{{spec.id}}" class="dropdown-item" type="button" value="{{group.id}}">{{group.name}}</button>
+                        <option id="group_{{spec.id}}" value="{{group.id}}">{{group.name}}</option>
                     {% endfor %}
-                </div>
+                </select>
             </div>
-
-            <label>Email</label>
-            <input class="form-control" type="text" name="email" id="email">
         </div>
         <div class="card-footer">
             <input id="add_new_user" type="button" style="float:right" class="btn btn-outline-success" value="+ Add Another User">
@@ -58,16 +55,6 @@
 
 <script>
     $(document).ready(function(){
-        $("#dropdown_spec .dropdown-item").on("click", function(e) {
-            var selected = $(this).text();
-            $("#spec_text").text(selected);
-            $("#specialization").val($(this).val());
-        });
-        $("#dropdown_group .dropdown-item").on("click", function(e) {
-            var selected = $(this).text();
-            $("#group_text").text(selected);
-            $("#group").val($(this).val());
-        });
         $("#add_new_user").on("click", function(e) {
 
         });
