@@ -23,12 +23,13 @@ def get_tasks_context(user):
 
 def get_profile_context(user):
     context = {
-        'user': user
+        'title': "Profile",
+        'login_user': user,
     }
     return context
 
 
-def comupte_group_point():
+def compute_group_point():
     groups = CustomGroup.objects.all()
 
     names = []

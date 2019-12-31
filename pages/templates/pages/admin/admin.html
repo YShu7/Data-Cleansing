@@ -1,0 +1,22 @@
+{% extends "pages/admin/base.html" %}
+
+{% block page %}User Registration{% endblock %}
+
+{% block content %}
+{% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+{% endif %}
+
+{% for message in messages %}
+    <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+        {{ message }}
+    </div>
+{% endfor %}
+
+{% include 'pages/admin/partial/user.html' with specializations=specs groups=groups%}
+{% endblock %}

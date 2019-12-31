@@ -9,6 +9,16 @@ import csv
 import time
 import datetime
 import json
+from django.contrib import messages
+
+ADMIN_DIR = 'pages/admin'
+USER_DIR = 'pages/user'
+AUTH_DIR = 'authentication'
+
+MSG_SUCCESS = "User registration succeed"
+MSG_FAIL_EMAIL = "Email {} has been used"
+MSG_FAIL_CERTI = "Certificate {} has been used"
+MSG_FAIL_FILL = "Please fill in all fields."
 
 
 @login_required
@@ -16,17 +26,32 @@ def index(request):
     user = request.user
     if user is not None:
         if user.is_superuser:
-            template = loader.get_template('pages/admin.html')
+            template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
+
             context = {
                 'specs': Specialization.objects.all(),
                 'groups': CustomGroup.objects.all(),
-                'login_user': user,
+                'login_user': request.user,
             }
-            return HttpResponse(template.render(context=context))
+
+            obj = request.session.pop('obj', False)
+            if obj:
+                context['obj'] = obj
+
+            success = request.session.pop('success', False)
+
+            if success:
+                messages.success(request, success)
+
+            fail = request.session.pop('error', False)
+            if fail:
+                messages.add_message(request, messages.ERROR, message=fail, extra_tags="danger")
+
+            return HttpResponse(template.render(context=context, request=request))
         else:
             return HttpResponseRedirect('/')
     else:
-        template = loader.get_template('registration/login.html')
+        template = loader.get_template('{}/login.html'.format(AUTH_DIR))
         context = {
             'title': 'Log In',
             'error': "Invalid Log In"
@@ -38,27 +63,44 @@ def index(request):
 @csrf_exempt
 def add_user(request):
     if request.method == "POST":
-        print(request.POST)
         username = request.POST["username"]
         certificate = request.POST["certificate"]
         email = request.POST["email"]
-        if not request.POST["group"]:
-            group = CustomGroup.objects.get(id=request.POST["group"])
-        else:
-            group = None
-        if CustomUser.objects.get(email=email):
-            return HttpResponse("Email {} has been used".format(email))
+        group = CustomGroup.objects.get(id=request.POST["group"])
+
+        if not username or not certificate or not email or not group:
+            request.session['error'] = MSG_FAIL_FILL
+            request.session['obj'] = request.POST
+            return HttpResponseRedirect('/')
+
+        user = None
+        try:
+            user = CustomUser.objects.get(email=email)
+            request.session['error'] = MSG_FAIL_EMAIL.format(email)
+        except Exception:
+            pass
+
+        try:
+            user = CustomUser.objects.get(certificate=certificate)
+            request.session['error'] = MSG_FAIL_CERTI.format(certificate)
+        except Exception:
+            pass
+
+        if user:
+            request.session['obj'] = request.POST
+            return HttpResponseRedirect('/')
         else:
             CustomUser.objects.create_user(email=email, certificate=certificate, username=username,
                                            group=group, password="123456")
-        return HttpResponseRedirect('/')
+            request.session['success'] = MSG_SUCCESS
+            return HttpResponseRedirect('/')
     else:
         return HttpResponse("Request method is not allowed.")
 
 
 @login_required
 def dataset(request):
-    template = loader.get_template('pages/dataset.html')
+    template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
     ids = [i.id for i in VotingData.objects.all()]
     exclude_ids = [i.task.id for i in AssignmentVote.objects.all()]
     for exclude_id in exclude_ids:
@@ -126,10 +168,10 @@ def update(request, question_id):
 
 @login_required
 def report(request):
-    template = loader.get_template('pages/report.html')
+    template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
     i = datetime.datetime.now()
     users = CustomUser.objects.all()
-    groups = comupte_group_point()
+    groups = compute_group_point()
 
     context = {
         'title': 'Report',
@@ -156,7 +198,12 @@ def download_report(request):
 
 
 def log(request):
-    return HttpResponseRedirect('/')
+    template = loader.get_template('{}/log.html'.format(ADMIN_DIR))
+    context = {
+        'title': "Admin Log",
+        'login_user': request.user,
+    }
+    return HttpResponse(template.render(context=context))
 
 
 def assign_tasks(request):

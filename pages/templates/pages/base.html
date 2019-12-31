@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% load staticfiles %}
+    <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+    <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+    <title>{% block title %}Data Cleansing{% endblock %}</title>
+</head>
+<body>
+    <div>
+        <nav class="navbar navbar-light bg-light" style="height:10vh">
+            {% include "pages/partial/header.html" with user_name=login_user %}
+        </nav>
+
+        <div class="row flex-xl-nowrap">
+            <div class="col-md-3 col-xl-2">
+                <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top" style="height:100vh; top:0vh">
+                    {% block sidebar %}{% endblock %}
+                </nav>
+            </div>
+
+            <div id="content" class="col-9">
+                <div id="title">
+                    </br>
+                    <h3>
+                        {% block page %}{{ title }}{% endblock %}
+                    </h3>
+                    <hr/>
+                </div>
+
+                <div>{% block content %}{% endblock %}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+    .active {
+        background: lightgray;
+    }
+</style>
+
+<script>
+    $(document).ready(function(){
+        var links = document.getElementById("sidebar").getElementsByTagName("a");
+        var currentURL = document.location.href;
+
+        for(var i=0;i<links.length;i++){
+            var url=links[i].getAttribute("href");
+            if(currentURL.indexOf(url)!=-1 && url.indexOf("#") == -1) {
+                removeClass(links[0], "active");
+                addClass(links[i], "active");
+            }
+        }
+    });
+
+    function addClass(element, value ){
+        if (!element.className){
+            element.className = value;
+        } else {
+            newClassName = element.className;
+            newClassName+= " ";
+            newClassName+= value ;
+            element.className = newClassName;
+        }
+    }
+
+    function removeClass(element, value ){
+        if (!element.className){
+            element.className = value;
+        } else {
+            newClassName = element.className.replace(/active/g, "");
+            element.className = newClassName;
+        }
+    }
+</script>
