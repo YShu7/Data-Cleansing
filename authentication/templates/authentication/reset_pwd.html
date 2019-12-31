@@ -3,11 +3,11 @@
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+<script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 
 <div class="modal fade" id="{{modal_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
                 <button type="button" id="close" class="close" data-dismiss="modal" aria-label="Close">
@@ -52,6 +52,17 @@
                 $('#new_pwd').val("");
                 $('#re_new_pwd').val("");
                 $(".modal").modal('hide');
+
+                $.ajax({
+                    url: "authentication/password_reset",
+                    type: "post",
+                    headers:{'X-CSRFToken':$.cookie('csrftoken')},
+                    data: {"new_pwd": new_pwd},
+                    success: function(response) {
+                        alert("Password reset succeed. Please log in again.");
+                        window.location.href="/authentication/login";
+                    }
+                });
             }
         });
     });
