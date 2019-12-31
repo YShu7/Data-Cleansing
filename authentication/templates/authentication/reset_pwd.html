@@ -1,0 +1,58 @@
+{% load staticfiles %}
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+
+<div class="modal fade" id="{{modal_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
+                <button type="button" id="close" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new_pwd">New Password</label>
+                    <input id="new_pwd" type="password" class="form-control" rows="3"/>
+                </div>
+                <div class="form-group">
+                    <label for="new_pwd">Confirm New Password</label>
+                    <input id="re_new_pwd" type="password" class="form-control" rows="3"/>
+                    <label id="error" style="color:red"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="update_pwd" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $("#close").on('click', function() {
+            $('#new_pwd').val("");
+            $('#re_new_pwd').val("");
+            var label = document.getElementById("error");
+            label.innerHTML = "";
+        });
+        $("#update_pwd").on('click', function() {
+            var new_pwd =  $('#new_pwd').val();
+            var re_new_pwd = $('#re_new_pwd').val();
+            var label = document.getElementById("error");
+
+            if (new_pwd != re_new_pwd) {
+                label.innerHTML = "Password doesn't match";
+            } else {
+                label.innerHTML = "";
+                $('#new_pwd').val("");
+                $('#re_new_pwd').val("");
+                $(".modal").modal('hide');
+            }
+        });
+    });
+</script>

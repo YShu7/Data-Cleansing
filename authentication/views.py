@@ -28,4 +28,11 @@ def logout(request):
 
 
 def password_reset(request):
-    raise 1
+    new_pwd = request.POST['new_pwd']
+    if new_pwd != request.POST['re_new_pwd']:
+        error = "Password doesn't match"
+    else:
+        user = request.user
+        user.password = new_pwd
+        user.save()
+    return HttpResponseRedirect('/')
