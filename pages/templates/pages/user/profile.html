@@ -39,12 +39,14 @@
         </tr>
     </tbody>
 </table>
+
 <span class="d-flex justify-content-center">
     <button id="reset" class="btn btn-outline-primary" >
         Reset Password
     </button>
 </span>
-{% include 'authentication/reset_pwd.html' with modal_id="dialog" %}
+
+{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show%}
 
 <script>
     $(document).ready(function(){

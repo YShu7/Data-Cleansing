@@ -1,8 +1,12 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from pages.views.helper import *
+from authentication.forms import CustomPasswordChangeForm
+from django.middleware.csrf import get_token
+from django.shortcuts import *
+from django.contrib import messages
+from django.http import QueryDict
+
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
@@ -33,7 +37,20 @@ def profile(request):
     if request.user.is_superuser:
         return HttpResponseRedirect('/admin')
     template = loader.get_template('{}/profile.html'.format(USER_DIR))
-    return HttpResponse(template.render(get_profile_context(request.user)))
+    context = get_profile_context(request.user)
+    context['token'] = get_token(request)
+    context['next'] = '{}/profile.html'.format(USER_DIR)
+    context['form_obj'] = CustomPasswordChangeForm(user=request.user)
+    context['show'] = False
+    success = request.session.pop('success', False)
+    data = request.session.pop('data', False)
+    if not success and data:
+        context['show'] = True
+        qdict = QueryDict('', mutable=True)
+        qdict.update(data)
+        context['form_obj'] = CustomPasswordChangeForm(data=qdict, user=request.user)
+
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
