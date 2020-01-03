@@ -54,8 +54,7 @@
         $("#answer_new").on("click", function(e) {
             var id = $(this).attr('value');
             $("#update_btn").val(id);
-            var x = document.getElementById('dialog');
-            x.setAttribute('style', "display: block");
+            $('#dialog').modal();
         });
         $("#update_btn").on('click', function(e) {
             var id = $("#update_btn").attr('value');

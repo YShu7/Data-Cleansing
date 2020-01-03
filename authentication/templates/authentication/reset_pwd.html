@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forget Password</title>
+</head>
+<body>
+    <form action="{% url 'password_forget' %}" method="POST" novalidate autocomplete="off">
+        {% csrf_token %}
+        <div>
+            <label>{{ form_obj.email.label }}</label>
+            {{ form_obj.email }} {{ form_obj.email.errors.0 }}
+        </div>
+        <div>
+            <input type="submit" class="btn btn-success" value="Send Email">
+        </div>
+    </form>
+</body>
+</html>

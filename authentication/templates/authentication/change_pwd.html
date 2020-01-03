@@ -1,0 +1,90 @@
+{% load staticfiles %}
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+<script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<div class="modal" id="{{modal_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form action="{% url 'password_change' %}" method="POST" novalidate autocomplete="off">
+        <input name="next" type="hidden" value="{{next}}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{token}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
+                    <button type="button" id="close" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>{{ form_obj.old_password.label }}</label>
+                        {{ form_obj.old_password }}
+                        <label style="color:red">{{ form_obj.old_password.errors.0 }}</label>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ form_obj.new_password1.label }}</label>
+                        {{ form_obj.new_password1 }}
+                        <label style="color:red">{{ form_obj.new_password1.errors.0 }}</label>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ form_obj.new_password2.label }}</label>
+                        {{ form_obj.new_password2 }}
+                        <label style="color:red">{{ form_obj.new_password2.errors.0 }}</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="update_pwd" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if show == True %}
+<script>$(".modal").modal();</script>
+{%endif%}
+
+{% for field in form_obj.fields.keys %}
+<script>$("#id_{{field}}").val("{{form_obj.data|get_item:field}}");</script>
+{% endfor %}
+
+<script>
+    $(document).ready(function() {
+
+        $("#close").on('click', function() {
+            $('#new_pwd').val("");
+            $('#re_new_pwd').val("");
+            var label = document.getElementById("error");
+            label.innerHTML = "";
+        });
+        $("#update_pwd_1").on('click', function() {
+            var new_pwd =  $('#new_pwd').val();
+            var re_new_pwd = $('#re_new_pwd').val();
+            var label = document.getElementById("error");
+
+            if (new_pwd != re_new_pwd) {
+                label.innerHTML = "Password doesn't match";
+            } else {
+                label.innerHTML = "";
+                $('#new_pwd').val("");
+                $('#re_new_pwd').val("");
+                $(".modal").modal('hide');
+
+                $.ajax({
+                    url: "authentication/password_reset",
+                    type: "post",
+                    headers:{'X-CSRFToken':$.cookie('csrftoken')},
+                    data: {"new_pwd": new_pwd},
+                    success: function(response) {
+                        alert("Password reset succeed. Please log in again.");
+                        window.location.href="/authentication/login";
+                    }
+                });
+            }
+        });
+    });
+</script>
