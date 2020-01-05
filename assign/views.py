@@ -9,7 +9,6 @@ def assign(UserModel, TaskModel, AssignModel, PREDEFINED_MAX):
     num_taskers = all_taskers.count()
     num_tasks = TaskModel.objects.count()
     num_tasks_per_user = min(PREDEFINED_MAX, floor(num_tasks/num_taskers))
-    print(num_tasks_per_user)
 
     random_tasks = [i for i in TaskModel.objects.all()]
     random.shuffle(random_tasks)
