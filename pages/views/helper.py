@@ -1,13 +1,13 @@
 from pages.models import *
 from authentication.models import *
 from authentication.helper import *
-from assign.models import AssignmentVote, AssignmentValidate
+from assign.models import Assignment
 
 
 def get_tasks_context(user):
-    validating_data = [i.task for i in AssignmentValidate.objects.all().filter(tasker_id=user.id, done=False)]
+    validating_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
 
-    voting_data = [i.task for i in AssignmentVote.objects.all().filter(tasker_id=user.id, done=False)]
+    voting_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
 
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)

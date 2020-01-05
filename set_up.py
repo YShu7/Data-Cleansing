@@ -43,19 +43,23 @@ for i in range(5):
     type,  _ = Type.objects.update_or_create(type="Type_{}".format(i))
     types.append(type)
 
+TaskData.objects.all().delete()
+
 VotingData.objects.all().delete()
 Choice.objects.all().delete()
 for i in range(50):
-    voting_data,  _ = VotingData.objects.update_or_create(question_text="Vote{}".format(i), type=types[i%len(types)], activate=True)
+    task_data, _ = TaskData.objects.update_or_create(question_text="Vote{}".format(i))
+    voting_data, _ = VotingData.objects.update_or_create(question=task_data, type=types[i%len(types)], activate=True)
     for j in range(2):
         choice, _ = Choice.objects.update_or_create(data=voting_data, answer="Answer_{}{}".format(i, j), num_votes=0)
 
 ValidatingData.objects.all().delete()
 for i in range(50):
-    validating_data,  _ = ValidatingData.objects.update_or_create(question_text="Val{}".format(i),
+    task_data, _ = TaskData.objects.update_or_create(question_text="Val{}".format(i))
+    validating_data,  _ = ValidatingData.objects.update_or_create(question=task_data,
                                                                   answer_text="A{}".format(i), type=types[i%len(types)])
 
-from assign.models import AssignmentValidate, AssignmentVote
+from assign.models import Assignment
 from assign.views import assign
-assign(CustomUser, ValidatingData, AssignmentValidate, 10)
-assign(CustomUser, VotingData, AssignmentVote, 3)
+assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
+assign(CustomUser, Assignment, 3, VotingData, TaskData)

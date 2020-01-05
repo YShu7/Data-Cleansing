@@ -102,7 +102,7 @@ def add_user(request):
 def dataset(request):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
     ids = [i.id for i in VotingData.objects.all()]
-    exclude_ids = [i.task.id for i in AssignmentVote.objects.all()]
+    exclude_ids = [i.task.id for i in Assignment.objects.all()]
     for exclude_id in exclude_ids:
         ids.remove(exclude_id)
 
@@ -207,6 +207,6 @@ def log(request):
 
 
 def assign_tasks(request):
-    assign(CustomUser, ValidatingData, AssignmentValidate, 10)
-    assign(CustomUser, VotingData, AssignmentVote, 10)
+    assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
+    assign(CustomUser, Assignment, 10, VotingData, TaskData)
     return HttpResponse("Assign Tasks Succeed")
