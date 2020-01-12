@@ -63,10 +63,14 @@ def validate(request):
             task = ValidatingData.objects.get(id=id)
             approve = request.POST["approve_value_{}".format(id)]
             assign = Assignment.objects.get(task_id=id)
+            new_ans = task.answer_text
+
             if approve == "true":
+                # if user approve the answer, add votes
                 task.num_approved += 1
                 task.save()
             else:
+                # if user disapprove the answer, create VotingData and the choice
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
@@ -75,18 +79,24 @@ def validate(request):
 
             datas = VotingData.objects.filter(question_text=task.question_text, type=task.type)
             if task.num_approved >= 2:
+                # if enough user has approve the answer
+                # the origin answer is considered to be correct
                 Data.objects.update_or_create(question_text=task.question_text, answer_text=task.answer_text,
                                               type=task.type)
                 for data in datas:
                     Choice.objects.filter(data=data).delete()
                 task.delete()
             elif task.num_disapproved >= 2:
+                # if enough user has disapprove the answer
+                # the better answer should be selected by activating VotingData
                 for data in datas:
                     data.activate = True
                     data.save()
                 task.delete()
             assign.done = True
             assign.save()
+            Log.objects.update_or_create(user=request.user, task=assign, action='validate',
+                                         response=new_ans)
     else:
         HttpResponse("Request method is not allowed.")
     return HttpResponseRedirect("/")
@@ -108,20 +118,26 @@ def vote(request, question_id):
         except Choice.DoesNotExist:
             return HttpResponse("Choice doesn't exist.")
         else:
+            # update num of votes of the selected choice
             selected_choice.num_votes += 1
             selected_choice.save()
 
+            # get the number of choices that have been made for this question
             choices = Choice.objects.filter(data_id=question_id)
             sum_votes = 0
             max_votes = selected_choice.num_votes
             for c in choices:
                 sum_votes += c.num_votes
                 max_votes = max(max_votes, c.num_votes)
+
+            # if enough users have made responses to this question and this choice has the maximum num of votes,
+            # this question is done
             if sum_votes >= 5 and selected_choice.num_votes == max_votes:
                 Data.objects.update_or_create(question_text=data.question_text, answer_text=selected_choice.answer, type=data.type)
                 data.delete()
             assign.done = True
             assign.save()
+            Log.objects.update_or_create(user=request.user, task=assign, action='vote', response=choice)
     else:
         return HttpResponse("Request method is not allowed.")
 

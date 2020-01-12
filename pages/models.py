@@ -75,4 +75,6 @@ from assign.models import Assignment
 class Log(models.Model):
     user = models.ForeignKey(get_user_model(), models.DO_NOTHING)
     task = models.ForeignKey(Assignment, models.DO_NOTHING)
-    status = models.CharField(max_length=32)
+    action = models.CharField(max_length=32)
+    response = models.TextField()
+    checked = models.BooleanField(default=False)

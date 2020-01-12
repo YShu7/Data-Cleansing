@@ -210,3 +210,16 @@ def assign_tasks(request):
     assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
     assign(CustomUser, Assignment, 10, VotingData, TaskData)
     return HttpResponse("Assign Tasks Succeed")
+
+def summarize(request):
+    users = get_user_model().objects.all()
+    logs = Log.objects.all().filter(checked=False)
+    for user in users:
+        user_logs = logs.filter(tasker=user)
+        for user_log in user_logs:
+            user_response = user_log.response
+            data = Data.objects.filter(question_text=user_log.task.task.question_data)
+            if data and user_response == data.answer_text:
+                user.ans_is(True)
+            else:
+                user.ans_is(False)
