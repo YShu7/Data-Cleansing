@@ -202,6 +202,7 @@ def log(request):
     context = {
         'title': "Admin Log",
         'login_user': request.user,
+        'logs': Log.objects.all(),
     }
     return HttpResponse(template.render(context=context))
 
