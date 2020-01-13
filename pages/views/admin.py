@@ -28,10 +28,15 @@ def index(request):
     if user is not None:
         if user.is_superuser:
             template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
+            specializations = Specialization.objects.all()
+            spec_groups = {}
+            for specialization in specializations:
+                groups = CustomGroup.objects.filter(main_group=specialization).values()
+                spec_groups[specialization.id] = [group for group in groups]
 
             context = {
-                'specs': Specialization.objects.all(),
-                'groups': CustomGroup.objects.all(),
+                'specs': specializations,
+                'spec_groups': spec_groups,
                 'login_user': request.user,
             }
 

@@ -34,9 +34,7 @@
             <div class="form-group col-md-6">
                 <label for="group">Group</label>
                 <select class="form-control" name="group" id="group" value="{{obj.group}}">
-                    {% for group in groups %}
-                        <option id="group_{{spec.id}}" value="{{group.id}}">{{group.name}}</option>
-                    {% endfor %}
+                    <option value="" disabled selected>Please select an option</option>
                 </select>
             </div>
         </div>
@@ -52,11 +50,53 @@
         </button>
     </span>
 </form>
-
 <script>
     $(document).ready(function(){
         $("#add_new_user").on("click", function(e) {
 
         });
+        $("#specialization").on("change", function(e) {
+            // Set selected option as variable
+            var selectValue = $(this).val();
+            $('#group').empty();
+            groups_str = "{{groups}}";
+            start = groups_str.indexOf(selectValue) + selectValue.length;
+            groups_str = groups_str.substring(start);
+            end = groups_str.indexOf(']');
+            groups_str = groups_str.substring(0, end+1).replace(/&#39;/g, "");
+            id_indices = getIndicesOf("id:", groups_str, true, true);
+            name_indices = getIndicesOf("name:", groups_str, true, true);
+
+            for (i = 0; i < id_indices.length; i++) {
+                var substring = groups_str.substring(id_indices[i]);
+                id_end = substring.indexOf(',');
+                id = substring.substring(0, id_end);
+
+                substring = groups_str.substring(name_indices[i]);
+                name_end = substring.indexOf(',');
+                name = substring.substring(0, name_end);
+                $('#group').append("<option value='" + id + "' id='" + "group_" + id + "'>" + name + "</option>");
+            }
+        });
+        function getIndicesOf(searchStr, str, caseSensitive, end) {
+            var searchStrLen = searchStr.length;
+            if (searchStrLen == 0) {
+                return [];
+            }
+            var startIndex = 0, index, indices = [];
+            if (!caseSensitive) {
+                str = str.toLowerCase();
+                searchStr = searchStr.toLowerCase();
+            }
+            while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+                if (end) {
+                    indices.push(index + searchStrLen);
+                } else {
+                    indices.push(index);
+                }
+                startIndex = index + searchStrLen;
+            }
+            return indices;
+        }
     });
 </script>
