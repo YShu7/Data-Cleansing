@@ -3,9 +3,9 @@
 {% block content %}
 <div>
     <label for="from">From</label>
-    <input id="from" type="date" value="{{today}}"/>
+    <input id="from" type="date" value="{{today}}" max="{{today}}"/>
     <label for="to">To</label>
-    <input id="to" type="date" value="{{today}}"/>
+    <input id="to" type="date" value="{{today}}" max="{{today}}"/>
     <a href="/download_report" class="btn btn-primary float-right">Download</a>
 </div>
 <div class="btn-group">

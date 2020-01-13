@@ -10,12 +10,12 @@
         </thead>
         <tbody>
             {% for question in questions %}
-            <form action="{% url 'update' question.id %}" method="post">
+            <form action="{% url 'update' question.question_id %}" method="post">
             {% csrf_token %}
             <tr>
-                <th scope="row">{{question.id}}</th>
+                <th scope="row">{{question.question_id}}</th>
                 <input type="hidden" name="choice" id="choice" value="">
-                <td>{{question.question_text}}</td>
+                <td>{{question.question.question_text}}</td>
                 <td>
                     <div class="dropdown">
                         <a id="selected_answer_{{question.id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

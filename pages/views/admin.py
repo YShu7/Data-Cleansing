@@ -113,17 +113,18 @@ def dataset(request):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
 
     # get all VotingData ids that are not allocated to any user
-    ids = [i.id for i in VotingData.objects.all()]
+    ids = [i.question_id for i in VotingData.objects.all()]
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
     for exclude_id in exclude_ids:
-        ids.remove(exclude_id)
+        if exclude_id in ids:
+            ids.remove(exclude_id)
 
     # get all VotingData objects and combine them with their respective choices
     voting_data = []
     for id in ids:
-        voting_data.append(VotingData.objects.get(id=id))
+        voting_data.append(VotingData.objects.get(question_id=id))
     for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
+        data.answers = Choice.objects.filter(data_id=data.question_id)
 
     # calculate num of data of each type
     types = Type.objects.all()
@@ -162,9 +163,9 @@ def download_dataset(request):
 def update(request, question_id):
     if request.method == 'POST':
         # update VotingData to Data directly
-        data = VotingData.objects.get(id=question_id)
+        data = VotingData.objects.get(question_id=question_id)
         ans = request.POST["choice"]
-        Data.objects.update_or_create(question_text=data.question_text, answer_text=ans, type=data.type)
+        Data.objects.update_or_create(question_text=data.question.question_text, answer_text=ans, type=data.type)
         data.delete()
     else:
         HttpResponse("Request method is not allowed.")

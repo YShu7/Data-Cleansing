@@ -74,7 +74,7 @@ def validate(request):
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
-                data, _ = VotingData.objects.update_or_create(question_text=task.question.question_text, type=task.type)
+                data, _ = VotingData.objects.update_or_create(question=task.question, type=task.type)
                 Choice.objects.update_or_create(data=data, answer=new_ans)
 
             datas = VotingData.objects.filter(question_id=task.question_id, type=task.type)

@@ -37,7 +37,7 @@ def password_change(request):
     if request.method == "POST":
         form_obj = CustomPasswordChangeForm(data=request.POST, user=request.user)
         if form_obj.is_valid():
-            new_pwd = request.POST['new_pwd']
+            new_pwd = request.POST['new_password1']
             user = request.user
             user.set_password(new_pwd)
             user.save()
