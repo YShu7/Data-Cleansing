@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+import datetime
 
 
 class Type(models.Model):
@@ -77,4 +78,5 @@ class Log(models.Model):
     task = models.ForeignKey(Assignment, models.DO_NOTHING)
     action = models.CharField(max_length=32)
     response = models.TextField()
+    timestamp = models.DateTimeField(default=datetime.datetime.now())
     checked = models.BooleanField(default=False)

@@ -23,6 +23,7 @@ MSG_FAIL_FILL = "Please fill in all fields."
 
 @login_required
 def index(request):
+    """A view that provides necessary input fields for registering new users."""
     user = request.user
     if user is not None:
         if user.is_superuser:
@@ -34,12 +35,12 @@ def index(request):
                 'login_user': request.user,
             }
 
+            # deal with messages passed from the previous page
             obj = request.session.pop('obj', False)
             if obj:
                 context['obj'] = obj
 
             success = request.session.pop('success', False)
-
             if success:
                 messages.success(request, success)
 
@@ -62,12 +63,14 @@ def index(request):
 @login_required
 @csrf_exempt
 def add_user(request):
+    """A view that tries to create new user with POST data and pass messages to the next page with session."""
     if request.method == "POST":
         username = request.POST["username"]
         certificate = request.POST["certificate"]
         email = request.POST["email"]
         group = CustomGroup.objects.get(id=request.POST["group"])
 
+        # if any of the necessary fields is empty, return error message
         if not username or not certificate or not email or not group:
             request.session['error'] = MSG_FAIL_FILL
             request.session['obj'] = request.POST
@@ -75,12 +78,14 @@ def add_user(request):
 
         user = None
         try:
+            # if a user with the same email has been created
             user = CustomUser.objects.get(email=email)
             request.session['error'] = MSG_FAIL_EMAIL.format(email)
         except Exception:
             pass
 
         try:
+            # if a user with the same certificate has been created
             user = CustomUser.objects.get(certificate=certificate)
             request.session['error'] = MSG_FAIL_CERTI.format(certificate)
         except Exception:
@@ -101,17 +106,21 @@ def add_user(request):
 @login_required
 def dataset(request):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
+
+    # get all VotingData ids that are not allocated to any user
     ids = [i.id for i in VotingData.objects.all()]
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
     for exclude_id in exclude_ids:
         ids.remove(exclude_id)
 
+    # get all VotingData objects and combine them with their respective choices
     voting_data = []
     for id in ids:
         voting_data.append(VotingData.objects.get(id=id))
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)
 
+    # calculate num of data of each type
     types = Type.objects.all()
     num_data = {}
     num_data["all"] = Data.objects.all().count()
@@ -126,16 +135,6 @@ def dataset(request):
         'login_user': request.user,
     }
     return HttpResponse(template.render(context=context))
-
-
-class Echo:
-    """An object that implements just the write method of the file-like
-    interface.
-    """
-
-    def write(self, value):
-        """Write the value by returning it, instead of storing in a buffer."""
-        return value
 
 
 @login_required
@@ -157,6 +156,7 @@ def download_dataset(request):
 @csrf_exempt
 def update(request, question_id):
     if request.method == 'POST':
+        # update VotingData to Data directly
         data = VotingData.objects.get(id=question_id)
         ans = request.POST["choice"]
         Data.objects.update_or_create(question_text=data.question_text, answer_text=ans, type=data.type)
@@ -187,6 +187,7 @@ def report(request):
 
 
 def download_report(request):
+    """A view that streams a large CSV file."""
     rows = ([data.id, data.question_text, data.answer_text, data.type] for data in Data.objects.all())
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -211,6 +212,7 @@ def assign_tasks(request):
     assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
     assign(CustomUser, Assignment, 10, VotingData, TaskData)
     return HttpResponse("Assign Tasks Succeed")
+
 
 def summarize(request):
     users = get_user_model().objects.all()

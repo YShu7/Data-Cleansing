@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'datacleansing.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'datacleansing',
         'USER': 'datacleansinguser', # input your user name
         'PASSWORD': 'L1feI5T0ugh', # input your password

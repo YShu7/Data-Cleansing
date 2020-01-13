@@ -62,7 +62,6 @@ class CustomUser(AbstractUser):
     is_admin = models.BooleanField(default=False)
 
     objects = CustomUserManager()
-    #backend = CustomBackend()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'certificate', 'group']

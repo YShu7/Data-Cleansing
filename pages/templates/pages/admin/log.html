@@ -5,6 +5,7 @@
     <thead class="thead-light">
         <tr>
             <th scope="col">ID</th>
+            <th scope="col">Tiemstamp</th>
             <th scope="col">Action</th>
         </tr>
     </thead>
@@ -13,6 +14,9 @@
         <tr>
             <td>
                 {{log.user.username}}({{log.user.certificate}})
+            </td>
+            <td>
+                {{log.timestamp}}
             </td>
             <td>
                 {{log.action}}&nbsp;{{log.task.id}} with response {{log.response}}
