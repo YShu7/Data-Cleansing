@@ -1,6 +1,6 @@
 */__pycache__
 /datacleansing/settings.py
-/datacleansingenv
+/env
 /node_modules
 
 *.log

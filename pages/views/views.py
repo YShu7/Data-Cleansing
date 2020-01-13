@@ -60,7 +60,7 @@ def validate(request):
     if request.method == 'POST':
         ids = request.POST['validate_ids'].split(',')
         for id in ids:
-            task = ValidatingData.objects.get(id=id)
+            task = ValidatingData.objects.get(question_id=id)
             approve = request.POST["approve_value_{}".format(id)]
             assign = Assignment.objects.get(task_id=id)
             new_ans = task.answer_text
@@ -74,14 +74,14 @@ def validate(request):
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
-                data, _ = VotingData.objects.update_or_create(question_text=task.question_text, type=task.type)
+                data, _ = VotingData.objects.update_or_create(question_text=task.question.question_text, type=task.type)
                 Choice.objects.update_or_create(data=data, answer=new_ans)
 
-            datas = VotingData.objects.filter(question_text=task.question_text, type=task.type)
+            datas = VotingData.objects.filter(question_id=task.question_id, type=task.type)
             if task.num_approved >= 2:
                 # if enough user has approve the answer
                 # the origin answer is considered to be correct
-                Data.objects.update_or_create(question_text=task.question_text, answer_text=task.answer_text,
+                Data.objects.update_or_create(question_text=task.question.question_text, answer_text=task.answer_text,
                                               type=task.type)
                 for data in datas:
                     Choice.objects.filter(data=data).delete()

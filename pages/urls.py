@@ -18,4 +18,5 @@ urlpatterns = [
     path('report', admin.report, name='report'),
     path('log', admin.log, name='log'),
     path('assign_tasks', admin.assign_tasks, name='assign_tasks'),
+    path('summarize', admin.summarize, name='summarize'),
 ]

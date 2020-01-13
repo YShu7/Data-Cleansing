@@ -61,5 +61,6 @@ for i in range(50):
 
 from assign.models import Assignment
 from assign.views import assign
-assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
-assign(CustomUser, Assignment, 3, VotingData, TaskData)
+Assignment.objects.all().delete()
+assign(CustomUser, Assignment, 15, ValidatingData, TaskData)
+assign(CustomUser, Assignment, 30, VotingData, TaskData)

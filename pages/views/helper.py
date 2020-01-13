@@ -5,12 +5,20 @@ from assign.models import Assignment
 
 
 def get_tasks_context(user):
-    validating_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+    data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
 
-    voting_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+    validating_data = []
+    voting_data = []
+    for d in data:
+        try:
+            validating_d = ValidatingData.objects.get(pk=d)
+            validating_data.append(validating_d)
+        except:
+            voting_d = VotingData.objects.get(pk=d)
+            voting_data.append(voting_d)
 
     for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
+        data.answers = Choice.objects.filter(data_id=data.question_id)
 
     context = {
         'question_list_validating': validating_data,

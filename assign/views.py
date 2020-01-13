@@ -3,8 +3,6 @@ import random
 
 
 def assign(UserModel, AssignModel, PREDEFINED_MAX, SubTaskModel, TaskModel=None, ):
-    AssignModel.objects.all().delete()
-
     all_taskers = UserModel.objects.all().filter(is_active=True, is_superuser=False)
     num_taskers = all_taskers.count()
     num_tasks = SubTaskModel.objects.count()
@@ -17,4 +15,4 @@ def assign(UserModel, AssignModel, PREDEFINED_MAX, SubTaskModel, TaskModel=None,
             if not TaskModel:
                 AssignModel.objects.update_or_create(tasker=tasker, task=random_tasks[j])
             else:
-                AssignModel.objects.update_or_create(tasker=tasker, task=TaskModel.objects.get(id=random_tasks[j].question.id))
+                AssignModel.objects.update_or_create(tasker=tasker, task=TaskModel.objects.get(id=random_tasks[j].question_id))

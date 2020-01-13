@@ -93,3 +93,4 @@ class CustomUser(AbstractUser):
             self.correct_num_ans += 1
         else:
             self.point += INCORRECT_POINT
+        self.save()
