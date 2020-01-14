@@ -215,8 +215,8 @@ def log(request):
 
 
 def assign_tasks(request):
-    assign(CustomUser, Assignment, 10, ValidatingData, TaskData)
-    assign(CustomUser, Assignment, 10, VotingData, TaskData)
+    assign(CustomUser, Assignment, ValidatingData, TaskData)
+    assign(CustomUser, Assignment, VotingData, TaskData)
     return HttpResponse("Assign Tasks Succeed")
 
 
