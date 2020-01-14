@@ -62,7 +62,7 @@ def validate(request):
         for id in ids:
             task = ValidatingData.objects.get(question_id=id)
             approve = request.POST["approve_value_{}".format(id)]
-            assign = Assignment.objects.get(task_id=id)
+            assign = Assignment.objects.get(task_id=id, tasker_id=request.user.id)
             new_ans = task.answer_text
 
             if approve == "true":
@@ -112,7 +112,7 @@ def vote(request, question_id):
             choice = request.POST['choice']
             data = VotingData.objects.get(pk=question_id)
             selected_choice = Choice.objects.get(data_id=question_id, pk=choice)
-            assign = Assignment.objects.get(task_id=question_id)
+            assign = Assignment.objects.get(task_id=question_id, tasker_id=request.user.id)
         except VotingData.DoesNotExist:
             return HttpResponse("Voting data doesn't exist.")
         except Choice.DoesNotExist:

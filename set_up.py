@@ -10,7 +10,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datacleansing.settings')
 django.setup()
 
 from authentication.models import *
-
+from pages.models import Log
+Log.objects.all().delete()
 Specialization.objects.all().delete()
 test_spec_1, _ = Specialization.objects.update_or_create(name="Nurse")
 test_spec_2, _ = Specialization.objects.update_or_create(name="General")
@@ -29,8 +30,12 @@ test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate=
                                            group=test_group_11, password="alice")
 
 for i in range(2):
-    CustomUser.objects.create_user(email="{}@gmail.com".format(i), certificate="G1234567{}".format(i), username="Alice",
-                                   group=test_group_11, password="{}".format(i))
+    user = CustomUser.objects.create_user(email="1{}@gmail.com".format(i), certificate="G1234567{}".format(i), username="Alice",
+                                   group=test_group_12, password="{}".format(i))
+
+for i in range(2):
+    user = CustomUser.objects.create_user(email="2{}@gmail.com".format(i), certificate="G2234567{}".format(i), username="Alice",
+                                   group=test_group_21, password="{}".format(i))
 
 test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
                                                  password="guy123456")
@@ -62,5 +67,5 @@ for i in range(50):
 from assign.models import Assignment
 from assign.views import assign
 Assignment.objects.all().delete()
-assign(CustomUser, Assignment, 15, ValidatingData, TaskData)
-assign(CustomUser, Assignment, 30, VotingData, TaskData)
+assign(CustomUser, Assignment, 15, 3, ValidatingData, TaskData)
+assign(CustomUser, Assignment, 30, 5, VotingData, TaskData)

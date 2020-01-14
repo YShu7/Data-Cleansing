@@ -2,10 +2,10 @@ from math import floor
 import random
 
 
-def assign(UserModel, AssignModel, PREDEFINED_MAX, SubTaskModel, TaskModel=None, ):
+def assign(UserModel, AssignModel, PREDEFINED_MAX, NUM_USER_PER_TASK, SubTaskModel, TaskModel=None, ):
     all_taskers = UserModel.objects.all().filter(is_active=True, is_superuser=False)
     num_taskers = all_taskers.count()
-    num_tasks = SubTaskModel.objects.count()
+    num_tasks = SubTaskModel.objects.count() * NUM_USER_PER_TASK
     num_tasks_per_user = min(PREDEFINED_MAX, floor(num_tasks/num_taskers))
 
     random_tasks = [i for i in SubTaskModel.objects.all()]
