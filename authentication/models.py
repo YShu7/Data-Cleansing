@@ -62,7 +62,6 @@ class CustomUser(AbstractUser):
     is_admin = models.BooleanField(default=False)
 
     objects = CustomUserManager()
-    #backend = CustomBackend()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'certificate', 'group']
@@ -84,3 +83,14 @@ class CustomUser(AbstractUser):
         "Does the user have permissions to view the app `pages`?"
         # Simplest possible answer: Yes, always
         return True
+
+    def ans_is(self, correct:bool):
+        CORRECT_POINT = 3
+        INCORRECT_POINT = 1
+        self.num_ans += 1
+        if correct:
+            self.point += CORRECT_POINT
+            self.correct_num_ans += 1
+        else:
+            self.point += INCORRECT_POINT
+        self.save()

@@ -14,18 +14,18 @@
             </thead>
             <tbody id="voting_tasks">
                 {% for question in questions %}
-                <form action="{% url 'vote' question.id %}" method="post">
+                <form action="{% url 'vote' question.question_id %}" method="post">
                 {% csrf_token %}
                 <tr>
-                    <th scope="row">{{question.id}}</th>
+                    <th scope="row">{{question.question_id}}</th>
                     <input type="hidden" name="choice" id="choice" value="0">
-                    <td>{{question.question_text}}</td>
+                    <td>{{question.question.question_text}}</td>
                     <td>
                         <div class="dropdown">
-                            <a id="selected_answer_{{question.id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a id="selected_answer_{{question.question_id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{question.answer_text_1}}
                             </a>
-                            <div id="dropdown_voting_{{question.id}}" value="{{question.id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
+                            <div id="dropdown_voting_{{question.question_id}}" value="{{question.question_id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
                                 {% for ans in question.answers %}
                                     <button id="answer_{{ans.id}}" class="dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
                                 {% endfor %}
@@ -33,7 +33,7 @@
                         </div>
                     </td>
                     <td>
-                        <button id="vote_{{question.id}}" value="0" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
+                        <button id="vote_{{question.question_id}}" value="0" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
                             Vote
                         </button>
                     </td>
