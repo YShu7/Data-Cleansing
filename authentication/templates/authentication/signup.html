@@ -1,0 +1,126 @@
+{% load staticfiles %}
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/main.css' %}" type="text/css"/>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+
+<div class="row align-items-center justify-content-center" style="height:100%">
+    <div class="card m-auto" style="width:50%">
+        <div class="card-header text-center"><h4>User Registration</h4></div>
+        <div class="card-body">
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <form action="{% url 'add_user' %}" method="post">
+                {% csrf_token %}
+                <div class="card-body form-row">
+                    <div class="form-group col-md-6">
+                        <label for="username">Name</label>
+                        <input class="form-control" type="text" name="username" id="username" value="{{obj.username}}">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="certificate">Certificate(FIN/NRIC)</label>
+                        <input class="form-control" type="text" name="certificate" id="certificate" value="{{obj.certificate}}">
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <label for="email">Email</label>
+                        <input class="form-control" type="email" name="email" id="email" value="{{obj.email}}">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="specialization">Sepcialization</label>
+                        <select class="form-control" id="specialization" name="specialization" value="{{obj.specialization}}">
+                        {% for spec in specializations %}
+                            <option id="spec_{{spec.id}}" value="{{spec.id}}">{{spec.name}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label for="group">Group</label>
+                        <select class="form-control" name="group" id="group" value="{{obj.group}}">
+                            <option value="" disabled selected>Please select an option</option>
+                        </select>
+                    </div>
+                </div>
+
+                <br>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-block btn-primary" >
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+            <br/>
+            <form action="{% url 'login' %}">
+                <div class="text-center">
+                    <button type="submit" class="btn btn-block btn-success" >Log In</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function(){
+        $("#specialization").on("change", function(e) {
+            // Set selected option as variable
+            var selectValue = $(this).val();
+
+            $('#group').empty();
+            groups_str = "{{groups}}";
+            start = groups_str.indexOf(selectValue) + selectValue.length;
+            groups_str = groups_str.substring(start);
+            end = groups_str.indexOf(']');
+            groups_str = groups_str.substring(1, end+1);
+
+            id_indices = getIndicesOf("&#39;id&#39;:", groups_str, true, true);
+            name_indices = getIndicesOf("&#39;name&#39;:", groups_str, true, true);
+
+            for (i = 0; i < id_indices.length; i++) {
+                var substring = groups_str.substring(id_indices[i]);
+                id_end = substring.indexOf(',');
+                id = substring.substring(0, id_end);
+
+                substring = groups_str.substring(name_indices[i]);
+                name_end = substring.indexOf(',');
+                name = substring.substring(0, name_end).replace(/&#39;/g, "");
+                $('#group').append("<option value='" + id + "' id='" + "group_" + id + "'>" + name + "</option>");
+            }
+        });
+        function getIndicesOf(searchStr, str, caseSensitive, end) {
+            var searchStrLen = searchStr.length;
+            if (searchStrLen == 0) {
+                return [];
+            }
+            var startIndex = 0, index, indices = [];
+            if (!caseSensitive) {
+                str = str.toLowerCase();
+                searchStr = searchStr.toLowerCase();
+            }
+            while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+                if (end) {
+                    indices.push(index + searchStrLen);
+                } else {
+                    indices.push(index);
+                }
+                startIndex = index + searchStrLen;
+            }
+            return indices;
+        }
+    });
+</script>
+    </div>

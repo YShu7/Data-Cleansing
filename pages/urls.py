@@ -10,7 +10,6 @@ urlpatterns = [
     path('<int:question_id>/vote', views.vote, name='vote'),
     path('admin', admin.index, name='admin'),
     path('user', admin.index, name='user'),
-    path('add_user', admin.add_user, name='add_user'),
     path('dataset', admin.dataset, name='dataset'),
     path('download_dataset', admin.download_dataset, name='download_dataset'),
     path('download_report', admin.download_report, name='download_report'),

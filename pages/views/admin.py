@@ -15,11 +15,6 @@ ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
 AUTH_DIR = 'authentication'
 
-MSG_SUCCESS = "User registration succeed"
-MSG_FAIL_EMAIL = "Email {} has been used"
-MSG_FAIL_CERTI = "Certificate {} has been used"
-MSG_FAIL_FILL = "Please fill in all fields."
-
 
 @login_required
 def index(request):
@@ -68,44 +63,7 @@ def index(request):
 @login_required
 @csrf_exempt
 def add_user(request):
-    """A view that tries to create new user with POST data and pass messages to the next page with session."""
-    if request.method == "POST":
-        username = request.POST["username"]
-        certificate = request.POST["certificate"]
-        email = request.POST["email"]
-        group = CustomGroup.objects.get(id=request.POST["group"])
-
-        # if any of the necessary fields is empty, return error message
-        if not username or not certificate or not email or not group:
-            request.session['error'] = MSG_FAIL_FILL
-            request.session['obj'] = request.POST
-            return HttpResponseRedirect('/')
-
-        user = None
-        try:
-            # if a user with the same email has been created
-            user = CustomUser.objects.get(email=email)
-            request.session['error'] = MSG_FAIL_EMAIL.format(email)
-        except Exception:
-            pass
-
-        try:
-            # if a user with the same certificate has been created
-            user = CustomUser.objects.get(certificate=certificate)
-            request.session['error'] = MSG_FAIL_CERTI.format(certificate)
-        except Exception:
-            pass
-
-        if user:
-            request.session['obj'] = request.POST
-            return HttpResponseRedirect('/')
-        else:
-            CustomUser.objects.create_user(email=email, certificate=certificate, username=username,
-                                           group=group, password="123456")
-            request.session['success'] = MSG_SUCCESS
-            return HttpResponseRedirect('/')
-    else:
-        return HttpResponse("Request method is not allowed.")
+    return 1
 
 
 @login_required

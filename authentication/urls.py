@@ -1,9 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
 from . import views
 
 urlpatterns = [
-    url('login', views.login, name='login'),
-    url('logout', views.logout, name='logout'),
-    url('password_change', views.password_change, name='password_change'),
-    url('password_forget', views.CustomPasswordResetView.as_view(), name='password_forget')
+    path('login', views.login, name='login'),
+    path('logout', views.logout, name='logout'),
+    path('signup', views.signup, name='signup'),
+    path('add_user', views.add_user, name='add_user'),
+    path('password_change', views.password_change, name='password_change'),
+    path('password_forget', views.CustomPasswordResetView.as_view(), name='password_forget'),
 ]
