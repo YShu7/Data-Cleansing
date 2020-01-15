@@ -23,31 +23,11 @@ def index(request):
     if user is not None:
         if user.is_superuser:
             template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
-            specializations = Specialization.objects.all()
-            spec_groups = {}
-            for specialization in specializations:
-                groups = CustomGroup.objects.filter(main_group=specialization).values()
-                spec_groups[specialization.id] = [group for group in groups]
 
             context = {
-                'specs': specializations,
-                'spec_groups': spec_groups,
+                'users': get_user_model().objects.all(),
                 'login_user': request.user,
             }
-
-            # deal with messages passed from the previous page
-            obj = request.session.pop('obj', False)
-            if obj:
-                context['obj'] = obj
-
-            success = request.session.pop('success', False)
-            if success:
-                messages.success(request, success)
-
-            fail = request.session.pop('error', False)
-            if fail:
-                messages.add_message(request, messages.ERROR, message=fail, extra_tags="danger")
-
             return HttpResponse(template.render(context=context, request=request))
         else:
             return HttpResponseRedirect('/')
@@ -63,7 +43,11 @@ def index(request):
 @login_required
 @csrf_exempt
 def add_user(request):
-    return 1
+    user = get_user_model().objects.get(id=request.POST["id"])
+    if 'approve' in request.POST:
+        user.approve(True)
+    else:
+        user.approve(False)
 
 
 @login_required
@@ -173,8 +157,9 @@ def log(request):
 
 
 def assign_tasks(request):
-    assign(CustomUser, Assignment, ValidatingData, TaskData)
-    assign(CustomUser, Assignment, VotingData, TaskData)
+    users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
+    assign(users, Assignment, ValidatingData.objects.all(), TaskData)
+    assign(users, Assignment, VotingData.objects.filter(is_active=True), TaskData)
     return HttpResponse("Assign Tasks Succeed")
 
 
