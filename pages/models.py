@@ -48,7 +48,7 @@ class ValidatingData(models.Model):
 class VotingData(models.Model):
     question = models.ForeignKey(TaskData, related_name='voting_question', on_delete=models.CASCADE, primary_key=True)
     type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
-    activate = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return "Q: {}, T: {}".format(self.question.question_text, self.type)

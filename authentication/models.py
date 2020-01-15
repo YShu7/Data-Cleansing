@@ -57,6 +57,7 @@ class CustomUser(AbstractUser):
     point = models.IntegerField(default=0)
     correct_num_ans = models.IntegerField(default=0)
     num_ans = models.IntegerField(default=0)
+    is_approved = models.BooleanField(default=False)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -93,4 +94,12 @@ class CustomUser(AbstractUser):
             self.correct_num_ans += 1
         else:
             self.point += INCORRECT_POINT
+        self.save()
+
+    def approve(self, approved):
+        self.is_approved = approved
+        self.save()
+
+    def activate(self, active):
+        self.is_active = active
         self.save()
