@@ -3,13 +3,12 @@ import random
 import sys
 
 
-def assign(UserModel, AssignModel, SubTaskModel, TaskModel=None, PREDEFINED_MAX=sys.maxsize, NUM_USER_PER_TASK=3):
-    all_taskers = UserModel.objects.all().filter(is_active=True, is_superuser=False)
+def assign(all_taskers, AssignModel, all_tasks, TaskModel=None, PREDEFINED_MAX=sys.maxsize, NUM_USER_PER_TASK=3):
     num_taskers = all_taskers.count()
-    num_tasks = SubTaskModel.objects.count()
+    num_tasks = all_tasks.count()
     num_tasks_per_user = min(PREDEFINED_MAX, floor(num_tasks * NUM_USER_PER_TASK/num_taskers))
 
-    tasks = [i for i in SubTaskModel.objects.all()]
+    tasks = [i for i in all_tasks]
     random_tasks = []
     for _ in range(NUM_USER_PER_TASK):
         random.shuffle(tasks)

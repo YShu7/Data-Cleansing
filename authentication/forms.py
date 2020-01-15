@@ -1,17 +1,25 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordResetForm, PasswordChangeForm
-from .models import CustomUser
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordResetForm, PasswordChangeForm, AuthenticationForm
+from django.contrib.auth import get_user_model, authenticate
+from .backends import CustomBackend
+
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.EmailField(label="Email",
+                                widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+    password = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'},
+                                                                  render_value=True))
 
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
-        model = CustomUser
+        model = get_user_model()
         fields = ('email', 'username', 'certificate', 'group', 'is_admin')
 
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
-        model = CustomUser
+        model = get_user_model()
         fields = ('email', 'username', 'certificate', 'group', 'is_admin')
 
 
