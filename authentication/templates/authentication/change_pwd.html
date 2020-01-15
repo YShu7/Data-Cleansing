@@ -6,8 +6,8 @@
 <div class="modal" id="{{modal_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form action="{% url 'password_change' %}" method="POST" novalidate autocomplete="off">
-        <input name="next" type="hidden" value="{{next}}">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{token}}">
+            <input name="next" type="hidden" value="{{next}}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{token}}">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
@@ -85,4 +85,5 @@
             }
         });
     });
+
 </script>

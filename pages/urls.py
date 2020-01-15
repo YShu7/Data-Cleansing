@@ -9,6 +9,7 @@ urlpatterns = [
     path('validate', views.validate, name='validate'),
     path('<int:question_id>/vote', views.vote, name='vote'),
     path('admin', admin.index, name='admin'),
+    path('users', admin.index, name='users'),
     path('modify_users', admin.modify_users, name='modify_users'),
     path('dataset', admin.dataset, name='dataset'),
     path('download_dataset', admin.download_dataset, name='download_dataset'),

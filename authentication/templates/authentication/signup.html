@@ -9,18 +9,18 @@
         <div class="card-header text-center"><h4>User Registration</h4></div>
         <div class="card-body">
             {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
             {% endif %}
 
             {% for message in messages %}
-                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                    {{ message }}
-                </div>
+            <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                {{ message }}
+            </div>
             {% endfor %}
 
             <form action="{% url 'add_user' %}" method="post">
@@ -33,7 +33,8 @@
 
                     <div class="form-group col-md-6">
                         <label for="certificate">Certificate(FIN/NRIC)</label>
-                        <input class="form-control" type="text" name="certificate" id="certificate" value="{{obj.certificate}}">
+                        <input class="form-control" type="text" name="certificate" id="certificate"
+                               value="{{obj.certificate}}">
                     </div>
 
                     <div class="form-group col-md-12">
@@ -43,15 +44,17 @@
 
                     <div class="form-group col-md-12">
                         <label for="password">Password</label>
-                        <input class="form-control" type="password" name="password" id="password" value="{{obj.password}}">
+                        <input class="form-control" type="password" name="password" id="password"
+                               value="{{obj.password}}">
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="specialization">Sepcialization</label>
-                        <select class="form-control" id="specialization" name="specialization" value="{{obj.specialization}}">
-                        {% for spec in specializations %}
+                        <select class="form-control" id="specialization" name="specialization"
+                                value="{{obj.specialization}}">
+                            {% for spec in specializations %}
                             <option id="spec_{{spec.id}}" value="{{spec.id}}">{{spec.name}}</option>
-                        {% endfor %}
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -65,7 +68,7 @@
 
                 <br>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-block btn-primary" >
+                    <button type="submit" class="btn btn-block btn-primary">
                         Sign Up
                     </button>
                 </div>
@@ -73,13 +76,13 @@
             <br/>
             <form action="{% url 'login' %}">
                 <div class="text-center">
-                    <button type="submit" class="btn btn-block btn-success" >Log In</button>
+                    <button type="submit" class="btn btn-block btn-success">Log In</button>
                 </div>
             </form>
         </div>
     </div>
 
-<script>
+    <script>
     $(document).ready(function(){
         $("#specialization").on("change", function(e) {
             // Set selected option as variable
@@ -127,5 +130,6 @@
             return indices;
         }
     });
-</script>
-    </div>
+
+    </script>
+</div>

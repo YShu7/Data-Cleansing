@@ -1,5 +1,5 @@
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager, Group
 
 
 class Specialization(models.Model):
@@ -86,7 +86,7 @@ class CustomUser(AbstractUser):
         # Simplest possible answer: Yes, always
         return True
 
-    def ans_is(self, correct:bool):
+    def ans_is(self, correct: bool):
         CORRECT_POINT = 3
         INCORRECT_POINT = 1
         self.num_ans += 1

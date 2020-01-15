@@ -1,16 +1,15 @@
-from django.shortcuts import render
-from django.http import *
 from django.contrib import auth, messages
-from .backends import CustomBackend
-from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm
-from django.contrib.auth.views import PasswordChangeView, PasswordResetView, LoginView
-from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required
-from django.template.defaulttags import register
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView, LoginView
+from django.http import *
+from django.shortcuts import render
 from django.template import loader
-from .models import *
+from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
 
+from .backends import CustomBackend
+from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm
+from .models import *
 
 MSG_SUCCESS = "User registration succeed"
 MSG_FAIL_EMAIL = "Email {} has been used"
@@ -28,7 +27,8 @@ class CustomLoginView(LoginView):
             form_obj = CustomLoginForm(data=self.request.POST)
             context.update(csrf(self.request))
             if form_obj.is_valid():
-                user = auth.authenticate(self.request, username=form_obj.username, password=form_obj.password, backend=CustomBackend)
+                user = auth.authenticate(self.request, username=form_obj.username, password=form_obj.password,
+                                         backend=CustomBackend)
 
                 if user is not None:
                     auth.login(self.request, user, backend=CustomBackend)
@@ -39,7 +39,7 @@ class CustomLoginView(LoginView):
         else:
             form_obj = CustomLoginForm()
             context["form_obj"] = form_obj
-        context['next']="/"
+        context['next'] = "/"
         return context
 
 
@@ -102,6 +102,7 @@ def add_user(request):
             request.session['obj'] = request.POST
             return False
         return True
+
     if request.method == "POST":
         # if any of the necessary fields is empty, return error message
         fields = ['username', 'certificate', 'email', 'specialization', 'group', 'password']
@@ -188,11 +189,3 @@ def password_forget(request):
             token = auth.tokens.PasswordResetTokenGenerator()
             return
     return render(request, "authentication/reset_pwd.html", {"form_obj": form_obj})
-
-@register.filter
-def get_item(dictionary, key):
-    res = dictionary.get(key)
-    if not res:
-        return ""
-    else:
-        return res

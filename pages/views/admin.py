@@ -22,8 +22,8 @@ def index(request):
         template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
 
         context = {
-            'pending_users': get_user_model().objects.filter(is_approved=False),
-            'approved_users': get_user_model().objects.filter(is_approved=True),
+            'pending_users': get_user_model().objects.filter(is_approved=False).order_by('date_joined'),
+            'approved_users': get_user_model().objects.filter(is_approved=True).order_by('date_joined'),
             'login_user': request.user,
         }
         return HttpResponse(template.render(context=context, request=request))

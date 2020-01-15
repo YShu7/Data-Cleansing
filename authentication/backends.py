@@ -1,8 +1,7 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import check_password
-from .models import CustomUser
-from django.contrib.auth.backends import ModelBackend
 import logging
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
 
 
 class CustomBackend(ModelBackend):

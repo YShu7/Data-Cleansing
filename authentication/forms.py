@@ -1,14 +1,16 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordResetForm, PasswordChangeForm, AuthenticationForm
-from django.contrib.auth import get_user_model, authenticate
-from .backends import CustomBackend
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordResetForm, PasswordChangeForm, \
+    AuthenticationForm
 
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email",
-                                widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
-    password = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'},
-                                                                  render_value=True))
+                                widget=forms.widgets.EmailInput(
+                                    attrs={'class': 'form-control', 'placeholder': 'Email'}))
+    password = forms.CharField(
+        widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'},
+                                           render_value=True))
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -24,19 +26,22 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
-    old_password = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True))
-    new_password1 = forms.CharField(label="New Password",min_length=8,
-                              widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True),
-                              error_messages={
-                                  "required": "Password cannot be empty",
-                                  "min_length": "Password should have at least 8 characters."
-                              })
+    old_password = forms.CharField(
+        widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True))
+    new_password1 = forms.CharField(label="New Password", min_length=8,
+                                    widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
+                                                                       render_value=True),
+                                    error_messages={
+                                        "required": "Password cannot be empty",
+                                        "min_length": "Password should have at least 8 characters."
+                                    })
     new_password2 = forms.CharField(label="Confirm New Password", min_length=8,
-                                 widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True),
-                                 error_messages={
-                                     "required": "Password cannot be empty",
-                                     "min_length": "Password should have at least 8 characters."
-                                 })
+                                    widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
+                                                                       render_value=True),
+                                    error_messages={
+                                        "required": "Password cannot be empty",
+                                        "min_length": "Password should have at least 8 characters."
+                                    })
 
 
 class CustomPasswordResetForm(PasswordResetForm):
