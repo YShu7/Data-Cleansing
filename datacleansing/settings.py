@@ -134,8 +134,8 @@ AUTHENTICATION_BACKENDS = ('authentication.backends.CustomBackend',)
 
 # Set the redirect links for login and logout to home template
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'tasks'
-LOGOUT_REDIRECT_URL = 'logout'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'login'
 
 # EMAIL_HOST变量为smtp服务器
 EMAIL_HOST = "smtp.163.com"

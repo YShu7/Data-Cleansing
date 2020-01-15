@@ -9,12 +9,15 @@
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
     <title>{% block title %}Data Cleansing{% endblock %}</title>
 </head>
+<style>
+</style>
 <body>
     <div>
         <nav class="navbar navbar-light bg-light" style="height:10vh">
             {% include "pages/partial/header.html" with user_name=login_user %}
         </nav>
 
+        {% if login_user.is_approved %}
         <div class="row flex-xl-nowrap">
             <div class="col-md-3 col-xl-2">
                 <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top" style="height:100vh; top:0vh">
@@ -34,6 +37,11 @@
                 <div>{% block content %}{% endblock %}</div>
             </div>
         </div>
+        {% else %}
+        <div class="text-center">
+            Sorry, your account is still pending for admin's approval.</div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
