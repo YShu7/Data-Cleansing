@@ -6,16 +6,16 @@
 <table type="table" class="table table-hover">
     <thead class="thead-light">
         <tr>
-            <th scope="col">Username</th>
-            <th scope="col">Certificate</th>
-            <th scope="col">Email</th>
-            <th scope="col"></th>
+            <th scope="col" width="20%">Username</th>
+            <th scope="col" width="20%">Certificate</th>
+            <th scope="col" width="30%">Email</th>
+            <th scope="col" width="30%"></th>
         </tr>
     </thead>
     <tbody>
         {% for user in users %}
-            <form action="{% url 'add_user' %}" method="post">
-                <input type="hidden" value="{{user.id}}">
+            <form action="{% url 'modify_users' %}" method="post">
+                <input type="hidden" name="id" value="{{user.id}}">
                 {% csrf_token %}
                 <tr>
                     <td>{{user.username}}</td>

@@ -9,7 +9,6 @@ import csv
 import time
 import datetime
 import json
-from django.contrib import messages
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
@@ -19,35 +18,33 @@ AUTH_DIR = 'authentication'
 @login_required
 def index(request):
     """A view that provides necessary input fields for registering new users."""
-    user = request.user
-    if user is not None:
-        if user.is_superuser:
-            template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
+    if request.user.is_admin:
+        template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
 
-            context = {
-                'users': get_user_model().objects.all(),
-                'login_user': request.user,
-            }
-            return HttpResponse(template.render(context=context, request=request))
-        else:
-            return HttpResponseRedirect('/')
-    else:
-        template = loader.get_template('{}/login.html'.format(AUTH_DIR))
         context = {
-            'title': 'Log In',
-            'error': "Invalid Log In"
+            'pending_users': get_user_model().objects.filter(is_approved=False),
+            'approved_users': get_user_model().objects.filter(is_approved=True),
+            'login_user': request.user,
         }
+        return HttpResponse(template.render(context=context, request=request))
+    else:
+        return HttpResponseRedirect('/')
     return HttpResponse(template.render(context))
 
 
 @login_required
 @csrf_exempt
-def add_user(request):
+def modify_users(request):
     user = get_user_model().objects.get(id=request.POST["id"])
     if 'approve' in request.POST:
         user.approve(True)
-    else:
-        user.approve(False)
+    if 'activate' in request.POST:
+        user.activate(True)
+    if 'deactivate' in request.POST:
+        user.activate(False)
+    if 'reject' in request.POST:
+        user.delete()
+    return HttpResponseRedirect('/')
 
 
 @login_required

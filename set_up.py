@@ -41,13 +41,14 @@ for i in range(2):
     user.approve(True)
 inactive_user = CustomUser.objects.create_user(email="inactive@gmail.com", certificate="G11111111", username="Inactive",
                                    group=test_group_21, password="inactive")
+inactive_user.approve(True)
 inactive_user.activate(False)
 
 pending_user = CustomUser.objects.create_user(email="pending@gmail.com", certificate="G99999999", username="Pending",
                                    group=test_group_21, password="pending")
 
 test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
-                                                 password="guy123456")
+                                                 password="admin")
 
 from pages.models import *
 
