@@ -23,15 +23,12 @@
                 {% if form_obj.errors %}
                 <div class="alert alert-danger" role="alert">
                     Your username and password didn't match. Please try again.
-                    {{ form_obj.errors }}
                 </div>
                 {% endif %}
 
                 <button class="btn-success btn-lg btn-block" type="submit">
                     Log in
                 </button>
-
-                <input type="hidden" name="next" value="{{ next }}">
             </form>
             <br/>
             <form action="{% url 'signup' %}">

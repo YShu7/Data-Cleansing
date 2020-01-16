@@ -1,4 +1,4 @@
-from django.contrib import auth, messages
+from django.contrib import auth
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, LoginView
@@ -7,7 +7,6 @@ from django.shortcuts import render
 from django.template import loader
 from django.template.context_processors import csrf
 from django.template.defaulttags import register
-from django.utils import log
 
 from .backends import CustomBackend
 from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
@@ -35,13 +34,11 @@ class CustomLoginView(LoginView):
                 if user is not None:
                     auth.login(self.request, user, backend=CustomBackend)
                 else:
-                    print("Password incorrect")
+                    context["form_obj"] = form_obj  # Password incorrect
             else:
-                context["form_obj"] = form_obj
+                context["form_obj"] = form_obj  # Form is invalid
         else:
-            form_obj = CustomLoginForm()
-            context["form_obj"] = form_obj
-        context['next'] = "/"
+            context["form_obj"] = CustomLoginForm()
         return context
 
 
@@ -58,14 +55,15 @@ def password_change(request):
             request.session['success'] = False
             request.session['data'] = form_obj.cleaned_data
             return HttpResponseRedirect("/profile")
-    return HttpResponseRedirect(request.path)
+    else:
+        return HttpResponse("HTTP Request method is not POST.")
 
 
 def signup(request):
     """A view that provides necessary input fields for registering new users."""
     template = loader.get_template('authentication/signup.html')
     form = CustomUserCreationForm(request.POST)
-    print(request)
+
     if request.method == "POST":
         if form.is_valid():
             user = None
