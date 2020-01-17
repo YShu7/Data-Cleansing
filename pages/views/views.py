@@ -90,7 +90,7 @@ def validate(request):
                 # if enough user has disapprove the answer
                 # the better answer should be selected by activating VotingData
                 for data in datas:
-                    data.activate = True
+                    data.is_active = True
                     data.save()
                 task.delete()
             assign.done = True

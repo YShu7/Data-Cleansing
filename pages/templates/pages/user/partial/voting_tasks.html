@@ -1,64 +1,58 @@
-{% if questions %}
-    {% load staticfiles %}
-    <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
-    
-    <div id="taskList">
-        <table type="table" class="table table-hover">
-            <thead class="thead-light">
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Question</th>
-                    <th scope="col">Answer</th>
-                    <th scope="col" width="30%"> </th>
-                </tr>
-            </thead>
-            <tbody id="voting_tasks">
-                {% for question in questions %}
-                <form action="{% url 'vote' question.question_id %}" method="post">
-                {% csrf_token %}
-                <tr>
-                    <th scope="row">{{question.question_id}}</th>
-                    <input type="hidden" name="choice" id="choice" value="0">
-                    <td>{{question.question.question_text}}</td>
-                    <td>
-                        <div class="dropdown">
-                            <a id="selected_answer_{{question.question_id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{question.answer_text_1}}
-                            </a>
-                            <div id="dropdown_voting_{{question.question_id}}" value="{{question.question_id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
-                                {% for ans in question.answers %}
-                                    <button id="answer_{{ans.id}}" class="dropdown-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <button id="vote_{{question.question_id}}" value="0" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
-                            Vote
-                        </button>
-                    </td>
-                </tr>
-                </form>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
+{%load static%}
+<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+
+<div id="taskList">
+    <table type="table" class="table table-hover">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col" width="5%">ID</th>
+                <th scope="col" width="30%">Question</th>
+                <th scope="col" width="30%">Answer</th>
+                <th scope="col" width="30%"> </th>
+            </tr>
+        </thead>
+        <tbody id="voting_tasks">
+            {% for question in questions %}
+            <form action="{% url 'vote' question.question_id %}" method="post">
+            {% csrf_token %}
+            <tr>
+                <th scope="row">{{question.question_id}}</th>
+                <input type="hidden" name="choice" id="choice" value="0">
+                <td>{{question.question.question_text}}</td>
+                <td>
+                    {% for ans in question.answers %}
+                    <div class="custom-control custom-radio" value="{{question.question_id}}">
+                        <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
+                        <label class="custom-control-label" for="answer_{{ans.id}}">{{ans.answer}}</label>
+                    </div>
+                    {% endfor %}
+                </td>
+                <td>
+                    <button id="vote_{{question.question_id}}" value="0" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
+                        Vote
+                    </button>
+                </td>
+            </tr>
+            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <script>
-    $(document).ready(function(){
-        $(".dropdown_voting .dropdown-item").on("click", function(e) {
-            var selectedAnswer= $(this).text();
-            var id = $(this).parent().attr('value');
-            var ans_id = $(this).attr('value');
-            $("#selected_answer_" + id).text(selectedAnswer);
-            $("#vote_" + id).val(ans_id);
-        });
-        $(".vote").on('click', function(e) {
-            var choice = $(this).attr('value');
-            $("#choice").val(choice);
-        });
+$(document).ready(function(){
+    $(".custom-radio .custom-control-input").on("click", function(e) {
+        var id = $(this).parent().attr('value');
+        var ans_id = $(this).attr('value');
+        $("#vote_" + id).val(ans_id);
+        var idVal = $(this).attr("id");
+        $(".custom-radio label").css('color','black');
+        var label = $("label[for='"+idVal+"']");
+        label.css('color','green');
     });
+    $(".vote").on('click', function(e) {
+        var choice = $(this).attr('value');
+        $("#choice").val(choice);
+    });
+});
 </script>

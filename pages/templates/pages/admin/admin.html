@@ -1,6 +1,6 @@
 {% extends "pages/admin/base.html" %}
 
-{% block page %}User Registration{% endblock %}
+{% block page %}Users{% endblock %}
 
 {% block content %}
 {% if error %}
@@ -17,5 +17,15 @@
         {{ message }}
     </div>
 {% endfor %}
-{% include 'pages/admin/partial/user.html' with specializations=specs groups=spec_groups%}
+
+<div id="pending">
+    <h5><a href="/#pending" class="link-dark">Pending Users</a></h5>
+    {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
+</div>
+
+<div id="approved">
+    <h5><a href="/#approved" class="link-dark">Approved Users</a></h5>
+    {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
+</div>
+
 {% endblock %}

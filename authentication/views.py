@@ -1,35 +1,44 @@
-from django.shortcuts import render
-from django.http import *
 from django.contrib import auth
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from .backends import CustomBackend
-from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, PasswordChangeForm
-from django.contrib.auth.views import PasswordChangeView, PasswordResetView
-from django.template.context_processors import csrf
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetView, LoginView
+from django.http import *
+from django.shortcuts import render
+from django.template import loader
+from django.template.context_processors import csrf
 from django.template.defaulttags import register
 
+from .backends import CustomBackend
+from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
 
-def login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = CustomBackend.authenticate(CustomBackend, request, username=username, password=password)
+MSG_SUCCESS = "User registration succeed"
+MSG_FAIL_EMAIL = "Email {} has been used"
+MSG_FAIL_CERTI = "Certificate {} has been used"
+MSG_FAIL_FILL = "Please fill in {}."
 
-        if user is not None:
-            auth.login(request, user)
-            if user.is_admin:
-                return HttpResponseRedirect('/admin')
+
+class CustomLoginView(LoginView):
+    template_name = "authentication/login.html"
+    form_class = CustomLoginForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == "POST":
+            form_obj = CustomLoginForm(data=self.request.POST)
+            if form_obj.is_valid():
+                user = auth.authenticate(self.request, username=form_obj.cleaned_data['username'],
+                                         password=form_obj.cleaned_data['password'],
+                                         backend=CustomBackend)
+
+                if user is not None:
+                    auth.login(self.request, user, backend=CustomBackend)
+                else:
+                    context["form_obj"] = form_obj  # Password incorrect
             else:
-                return HttpResponseRedirect('/')
+                context["form_obj"] = form_obj  # Form is invalid
         else:
-            return render(request, 'authentication/login.html')
-    return render(request, 'authentication/login.html')
-
-
-def logout(request):
-    auth.logout(request)
-    return HttpResponseRedirect('authentication/login')
+            context["form_obj"] = CustomLoginForm()
+        return context
 
 
 @login_required
@@ -37,39 +46,38 @@ def password_change(request):
     if request.method == "POST":
         form_obj = CustomPasswordChangeForm(data=request.POST, user=request.user)
         if form_obj.is_valid():
-            new_pwd = request.POST['new_password1']
-            user = request.user
-            user.set_password(new_pwd)
-            user.save()
+            user = form_obj.save()
+            update_session_auth_hash(request, user)
             request.session['success'] = True
             return HttpResponseRedirect("/profile")
         else:
             request.session['success'] = False
-            request.session['data'] = form_obj.data
+            request.session['data'] = form_obj.cleaned_data
             return HttpResponseRedirect("/profile")
-    return HttpResponseRedirect(request.path)
+    else:
+        return HttpResponse("HTTP Request method is not POST.")
 
 
-class CustomPasswordChangeView(PasswordChangeView):
-    template_name = "pages/user/profile.html"
-    form_class = CustomPasswordChangeForm
+def signup(request):
+    """A view that provides necessary input fields for registering new users."""
+    template = loader.get_template('authentication/signup.html')
+    form = CustomUserCreationForm(request.POST)
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        if self.request.method == "POST":
-            form_obj = CustomPasswordChangeForm(self.request.POST)
-            context.update(csrf(self.request))
-            if form_obj.is_valid():
-                new_pwd = self.request.POST['new_pwd']
-                user = self.request.user
-                user.set_password(new_pwd)
-                user.save()
+    if request.method == "POST":
+        if form.is_valid():
+            user = None
+
+            if user:
+                return HttpResponse(template.render(context={'form_obj': form}, request=request))
             else:
-                context["form_obj"] = form_obj
+                user = form.save()
+                auth.login(request, user, backend='authentication.backends.CustomBackend')
+                return HttpResponseRedirect('/')
         else:
-            form_obj = CustomPasswordChangeForm()
-            context["form_obj"] = form_obj
-        return context
+            return HttpResponse(template.render(context={'form_obj': form}, request=request))
+    else:
+        form = CustomUserCreationForm()
+    return HttpResponse(template.render(context={'form_obj': form}, request=request))
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -77,7 +85,7 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     subject_template_name = "authentication/password_reset_subject.txt"
     email_template_name = "authentication/password_reset_email.html"
-    token_generator = PasswordResetTokenGenerator
+    token_generator = auth.tokens.PasswordResetTokenGenerator
     success_url = "authentication/login.html"
 
     def get_context_data(self, **kwargs):
@@ -94,9 +102,10 @@ def password_forget(request):
     if request.method == "POST":
         form_obj = CustomPasswordResetForm(request.POST)
         if form_obj.is_valid():
-            token = PasswordResetTokenGenerator()
+            token = auth.tokens.PasswordResetTokenGenerator()
             return
     return render(request, "authentication/reset_pwd.html", {"form_obj": form_obj})
+
 
 @register.filter
 def get_item(dictionary, key):

@@ -26,6 +26,7 @@ class Data(models.Model):
 
 class TaskData(models.Model):
     question_text = models.CharField(max_length=200, unique=True, null=False)
+    type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
 
 
 class ValidatingData(models.Model):
@@ -33,7 +34,6 @@ class ValidatingData(models.Model):
     answer_text = models.TextField()
     num_approved = models.IntegerField(default=0)
     num_disapproved = models.IntegerField(default=0)
-    type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return "Q: {}, A: {}, T: {}, N: {}/{}".format(self.question.question_text, self.answer_text, self.type,
@@ -47,8 +47,7 @@ class ValidatingData(models.Model):
 
 class VotingData(models.Model):
     question = models.ForeignKey(TaskData, related_name='voting_question', on_delete=models.CASCADE, primary_key=True)
-    type = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
-    activate = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
     def __str__(self):
         return "Q: {}, T: {}".format(self.question.question_text, self.type)

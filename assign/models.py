@@ -1,9 +1,8 @@
 from django.db import models
-from authentication.models import CustomUser
-from pages.models import VotingData, ValidatingData, TaskData
+from django.contrib.auth import get_user_model
 
 
 class Assignment(models.Model):
-    tasker = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="tasker_id")
-    task = models.ForeignKey(TaskData, on_delete=models.CASCADE, verbose_name="task_id")
+    tasker = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name="tasker_id")
+    task = models.ForeignKey('pages.taskdata', on_delete=models.CASCADE, verbose_name="task_id")
     done = models.BooleanField(default=False)
