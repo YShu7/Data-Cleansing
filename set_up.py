@@ -2,6 +2,13 @@ import sys
 import os
 import django
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datacleansing.settings')
+django.setup()
+
+from authentication.models import *
+from pages.models import *
+from assign.models import Assignment
+from assign.views import assign
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
@@ -9,55 +16,40 @@ sys.path.append(BASE_DIR)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datacleansing.settings')
 django.setup()
 
-from authentication.models import *
-from pages.models import Log
 Log.objects.all().delete()
-Specialization.objects.all().delete()
-test_spec_1, _ = Specialization.objects.update_or_create(name="Nurse")
-test_spec_2, _ = Specialization.objects.update_or_create(name="General")
-test_spec_3, _ = Specialization.objects.update_or_create(name="Nutrition")
 
 CustomGroup.objects.all().delete()
-test_group_11, _ = CustomGroup.objects.update_or_create(name="Nurse-A", main_group=test_spec_1)
-test_group_12, _ = CustomGroup.objects.update_or_create(name="Nurse-B", main_group=test_spec_1)
-test_group_21, _ = CustomGroup.objects.update_or_create(name="General-A", main_group=test_spec_2)
-test_group_22, _ = CustomGroup.objects.update_or_create(name="General-B", main_group=test_spec_2)
-test_group_23, _ = CustomGroup.objects.update_or_create(name="General-C", main_group=test_spec_2)
-test_group_31, _ = CustomGroup.objects.update_or_create(name="Nutrition-A", main_group=test_spec_3)
+group_names = ["KKH", "TPH", "AAH", "BH"]
+groups = []
+for group_name in group_names:
+    group, _ = CustomGroup.objects.update_or_create(name=group_name)
+    groups.append(group)
 
 CustomUser.objects.all().delete()
 test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", username="Alice",
-                                           group=test_group_11, password="alice")
+                                           group=groups[0], password="alice")
 test_user.approve(True)
 
 for i in range(2):
     user = CustomUser.objects.create_user(email="1{}@gmail.com".format(i), certificate="G1234567{}".format(i), username="Alice",
-                                   group=test_group_12, password="{}".format(i))
+                                   group=groups[1], password="{}".format(i))
     user.approve(True)
 
 for i in range(2):
     user = CustomUser.objects.create_user(email="2{}@gmail.com".format(i), certificate="G2234567{}".format(i), username="Alice",
-                                   group=test_group_21, password="{}".format(i))
+                                   group=groups[2], password="{}".format(i))
     user.approve(True)
 inactive_user = CustomUser.objects.create_user(email="inactive@gmail.com", certificate="G11111111", username="Inactive",
-                                   group=test_group_21, password="inactive")
+                                   group=groups[0], password="inactive")
 inactive_user.approve(True)
 inactive_user.activate(False)
 
 pending_user = CustomUser.objects.create_user(email="pending@gmail.com", certificate="G99999999", username="Pending",
-                                   group=test_group_21, password="pending")
+                                   group=groups[0], password="pending")
 
 test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
                                                  password="admin")
 
-from pages.models import *
-
-
-Type.objects.all().delete()
-types = []
-for i in range(5):
-    type,  _ = Type.objects.update_or_create(type="Type_{}".format(i))
-    types.append(type)
 
 TaskData.objects.all().delete()
 
@@ -142,8 +134,8 @@ voting_qas = {
 VotingData.objects.all().delete()
 Choice.objects.all().delete()
 for q in voting_qas:
-    task_data, _ = TaskData.objects.update_or_create(question_text=q)
-    voting_data, _ = VotingData.objects.update_or_create(question=task_data, type=types[1], is_active=True)
+    task_data, _ = TaskData.objects.update_or_create(title=q)
+    voting_data, _ = VotingData.objects.update_or_create(taskdata_ptr=task_data, group=groups[0], is_active=True)
     for a in voting_qas[q]:
         choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
@@ -188,12 +180,10 @@ validating_ans = [
 ]
 ValidatingData.objects.all().delete()
 for q, a in zip(validating_qns, validating_ans):
-    task_data, _ = TaskData.objects.update_or_create(question_text=q)
-    validating_data,  _ = ValidatingData.objects.update_or_create(question=task_data,
-                                                                  answer_text=a, type=types[0])
+    task_data, _ = TaskData.objects.update_or_create(title=q)
+    validating_data,  _ = ValidatingData.objects.update_or_create(taskdata_ptr=task_data,
+                                                                  answer_text=a, group=groups[0])
 
-from assign.models import Assignment
-from assign.views import assign
 Assignment.objects.all().delete()
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))

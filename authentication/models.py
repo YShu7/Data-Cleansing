@@ -27,28 +27,26 @@ class CustomUserManager(UserManager):
 
     def create_superuser(self, email, username, certificate, password):
         user = self.create_user(
-            email=self.normalize_email(email),
+            email=email,
             username=username,
             certificate=certificate,
+            password=password,
             group=None,
         )
         user.is_superuser = True
         user.is_approved = True
-
-        user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_admin(self, email, username, certificate, password, group):
         user = self.create_user(
-            email=self.normalize_email(email),
+            email=email,
             username=username,
             certificate=certificate,
+            password=password,
             group=group,
         )
         user.is_admin = True
-
-        user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -57,12 +55,12 @@ class CustomUser(AbstractUser):
     email = models.CharField(max_length=40, unique=True)
     certificate = models.CharField(max_length=20, unique=True)
     username = models.CharField(max_length=20)
-    group = models.ForeignKey(CustomGroup, on_delete=models.SET_NULL, null=True)
+    group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE, null=True)
     point = models.IntegerField(default=0)
     correct_num_ans = models.IntegerField(default=0)
     num_ans = models.IntegerField(default=0)
-    is_approved = models.BooleanField(default=False)
 
+    is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -70,7 +68,7 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'certificate', 'group']
+    REQUIRED_FIELDS = ['username', 'certificate', 'group', 'password']
 
     def __str__(self):
         return self.email

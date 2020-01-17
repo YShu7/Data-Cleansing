@@ -54,7 +54,7 @@ def dataset(request):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
 
     # get all VotingData ids that are not allocated to any user
-    ids = [i.question_id for i in VotingData.objects.all()]
+    ids = [i.id for i in VotingData.objects.all()]
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
     for exclude_id in exclude_ids:
         if exclude_id in ids:
