@@ -4,11 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from pages.views.helper import *
 from authentication.models import *
+from authentication.utils import get_pending_users
 from assign.views import assign
 import csv
 import time
 import datetime
 import json
+
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
@@ -22,8 +24,8 @@ def index(request):
         template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
 
         context = {
-            'pending_users': get_user_model().objects.filter(is_approved=False).order_by('date_joined'),
-            'approved_users': get_user_model().objects.filter(is_approved=True).order_by('date_joined'),
+            'pending_users': get_pending_users(request.user.group),
+            'approved_users': get_approved_users(request.user.group),
             'login_user': request.user,
         }
         return HttpResponse(template.render(context=context, request=request))

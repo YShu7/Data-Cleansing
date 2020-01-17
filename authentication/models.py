@@ -2,23 +2,15 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 
-class Specialization(models.Model):
+class CustomGroup(models.Model):
     name = models.CharField(max_length=32, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class CustomGroup(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    main_group = models.ForeignKey(to=Specialization, null=False, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-
 class CustomUserManager(UserManager):
-    def create_user(self, email, username, certificate, group=None, password=None):
+    def create_user(self, email, username, certificate, password, group):
         if not email:
             raise ValueError('Users must have an email address')
 
@@ -33,17 +25,28 @@ class CustomUserManager(UserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, certificate, password=None):
+    def create_superuser(self, email, username, certificate, password):
         user = self.create_user(
             email=self.normalize_email(email),
             username=username,
             certificate=certificate,
             group=None,
         )
-        user.is_admin = True
-        user.is_staff = True
         user.is_superuser = True
         user.is_approved = True
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_admin(self, email, username, certificate, password, group):
+        user = self.create_user(
+            email=self.normalize_email(email),
+            username=username,
+            certificate=certificate,
+            group=group,
+        )
+        user.is_admin = True
 
         user.set_password(password)
         user.save(using=self._db)
@@ -62,6 +65,7 @@ class CustomUser(AbstractUser):
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 

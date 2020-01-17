@@ -22,10 +22,9 @@ class CustomLoginView(LoginView):
     form_class = CustomLoginForm
 
     def get_context_data(self, **kwargs):
-        context = {}
+        context = super().get_context_data(**kwargs)
         if self.request.method == "POST":
             form_obj = CustomLoginForm(data=self.request.POST)
-            context.update(csrf(self.request))
             if form_obj.is_valid():
                 user = auth.authenticate(self.request, username=form_obj.cleaned_data['username'],
                                          password=form_obj.cleaned_data['password'],

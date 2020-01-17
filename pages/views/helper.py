@@ -1,6 +1,6 @@
 from pages.models import *
 from authentication.models import *
-from authentication.helper import *
+from authentication.utils import *
 from assign.models import Assignment
 
 
