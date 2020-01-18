@@ -16,12 +16,12 @@ AUTH_DIR = 'authentication'
 @login_required
 def index(request):
     user = request.user
-    if not user.is_admin:
+    if user.is_superuser or user.is_admin:
+        return HttpResponseRedirect('/admin')
+    else:
         template = loader.get_template('{}/tasks.html'.format(USER_DIR))
         context = get_tasks_context(user)
         return HttpResponse(template.render(context))
-    else:
-        return HttpResponseRedirect('/admin')
 
 
 @login_required

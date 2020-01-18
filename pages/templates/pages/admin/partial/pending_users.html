@@ -9,6 +9,9 @@
             <th scope="col" width="20%">Username</th>
             <th scope="col" width="20%">Certificate</th>
             <th scope="col" width="30%">Email</th>
+            {% if login_user.is_superuser %}
+                <th scope="col" width="20%">Group</th>
+            {% endif %}
             <th scope="col" width="30%"></th>
         </tr>
     </thead>
@@ -21,6 +24,9 @@
                     <td>{{user.username}}</td>
                     <td>{{user.certificate}}</td>
                     <td>{{user.email}}</td>
+                    {% if login_user.is_superuser %}
+                        <td>{{user.group.name}}</td>
+                    {% endif %}
                     <td>
                         <button class="btn btn-success" name="approve" type="submit">Approve</button>
                         <button class="btn btn-danger" name="reject" type="submit">Reject</button>

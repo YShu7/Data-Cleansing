@@ -58,6 +58,14 @@ def compute_group_point():
     return context
 
 
+def get_finalized_data(group_name):
+    finalized_data = FinalizedData.objects.all()
+    if group_name and group_name != "all":
+        group = CustomGroup.objects.get(name=group_name)
+        finalized_data = finalized_data.filter(group=group)
+    return finalized_data
+
+
 class Echo:
     """An object that implements just the write method of the file-like
     interface.

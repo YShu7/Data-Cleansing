@@ -4,9 +4,28 @@
 <div>
     <h4><a href="#num" class="link-dark">Summary</a></h4>
     <div class="col-xs-12">
-        <div>
-            <strong>Current Data #: </strong>
-            <span id="num_all_data" value="{{num_data}}">{{num_data}}</span>
+        <div class="dropdown">
+            <div>
+                <strong>Current Data #: </strong>
+                <span id="num_all_data" value="{{num_data}}">{{num_data}}</span>
+            </div>
+
+            {% if login_user.is_superuser %}
+                <strong>Number of Data for </strong>
+                <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{group_name}}
+                </a>
+                <strong>:</strong>
+                <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for group in groups %}
+                        <a id="filter_btn" href="/dataset/{{group.name}}" class="dropdown-item" type="button">{{group}}</a>
+                    {% endfor %}
+                    <button class="dropdown-item" type="button">all</button>
+                </div>
+                <label id="num_data" value="{{num_data}}">{{num_data}}</label>
+            {% endif %}
+
+            <a id="download_btn" href="/download_dataset/{{group_name}}" class="btn btn-primary float-right">Download All Data</a>
         </div>
         {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
     </div>
