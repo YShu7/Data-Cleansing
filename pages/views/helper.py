@@ -18,7 +18,7 @@ def get_tasks_context(user):
             voting_data.append(voting_d)
 
     for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.question_id)
+        data.answers = Choice.objects.filter(data_id=data.taskdata_ptr_id)
 
     context = {
         'question_list_validating': validating_data,

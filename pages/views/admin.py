@@ -19,7 +19,6 @@ AUTH_DIR = 'authentication'
 
 @login_required
 def index(request):
-    """A view that provides necessary input fields for registering new users."""
     if request.user.is_admin:
         template = loader.get_template('{}/admin.html'.format(ADMIN_DIR))
 
@@ -31,7 +30,6 @@ def index(request):
         return HttpResponse(template.render(context=context, request=request))
     else:
         return HttpResponseRedirect('/')
-    return HttpResponse(template.render(context))
 
 
 @login_required
@@ -68,17 +66,17 @@ def dataset(request):
         data.answers = Choice.objects.filter(data_id=data.question_id)
 
     # calculate num of data of each type
-    types = Type.objects.all()
+    groups = CustomGroup.objects.all()
     num_data = {}
-    num_data["all"] = Data.objects.all().count()
-    for type in types:
-        num_data[type.type] = Data.objects.all().filter(type=type).count()
+    num_data["all"] = FinalizedData.objects.all().count()
+    for group in groups:
+        num_data[group.name] = FinalizedData.objects.all().filter(group=group).count()
 
     context = {
         'title': 'Data Set',
         'num_data': num_data,
         'data': voting_data,
-        'types': types,
+        'types': groups,
         'login_user': request.user,
     }
     return HttpResponse(template.render(context=context))

@@ -17,27 +17,35 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datacleansing.settings')
 django.setup()
 
 Log.objects.all().delete()
-
+Assignment.objects.all().delete()
+TaskData.objects.all().delete()
+VotingData.objects.all().delete()
+Choice.objects.all().delete()
+ValidatingData.objects.all().delete()
+FinalizedData.objects.all().delete()
 CustomGroup.objects.all().delete()
+CustomUser.objects.all().delete()
+
+# Create Groups
 group_names = ["KKH", "TPH", "AAH", "BH"]
 groups = []
 for group_name in group_names:
     group, _ = CustomGroup.objects.update_or_create(name=group_name)
     groups.append(group)
 
-CustomUser.objects.all().delete()
+# Create Users
 test_user = CustomUser.objects.create_user(email="alice@gmail.com", certificate="G12345678", username="Alice",
                                            group=groups[0], password="alice")
 test_user.approve(True)
 
 for i in range(2):
     user = CustomUser.objects.create_user(email="1{}@gmail.com".format(i), certificate="G1234567{}".format(i), username="Alice",
-                                   group=groups[1], password="{}".format(i))
+                                   group=groups[0], password="{}".format(i))
     user.approve(True)
 
 for i in range(2):
     user = CustomUser.objects.create_user(email="2{}@gmail.com".format(i), certificate="G2234567{}".format(i), username="Alice",
-                                   group=groups[2], password="{}".format(i))
+                                   group=groups[1], password="{}".format(i))
     user.approve(True)
 inactive_user = CustomUser.objects.create_user(email="inactive@gmail.com", certificate="G11111111", username="Inactive",
                                    group=groups[0], password="inactive")
@@ -47,12 +55,12 @@ inactive_user.activate(False)
 pending_user = CustomUser.objects.create_user(email="pending@gmail.com", certificate="G99999999", username="Pending",
                                    group=groups[0], password="pending")
 
-test_admin = CustomUser.objects.create_superuser(email="admin@gmail.com", username="Admin", certificate="G00000000",
-                                                 password="admin")
+test_admin = CustomUser.objects.create_admin(email="admin@gmail.com", username="Admin", certificate="G00000000",
+                                                 group=groups[0], password="admin")
+test_superuser = CustomUser.objects.create_superuser(email="superuser@gmail.com", username="SuperUser", certificate="",
+                                                     password="superuser")
 
-
-TaskData.objects.all().delete()
-
+# Create VotingData
 voting_qas = {
     """
     I have competing offers from startups with 190k base and ~400k equity - all vesting over four years. 
@@ -131,11 +139,10 @@ voting_qas = {
         """
     ]
 }
-VotingData.objects.all().delete()
-Choice.objects.all().delete()
+
 for q in voting_qas:
-    task_data, _ = TaskData.objects.update_or_create(title=q)
-    voting_data, _ = VotingData.objects.update_or_create(taskdata_ptr=task_data, group=groups[0], is_active=True)
+    task_data = TaskData.create(title=q, group=groups[0])
+    voting_data = VotingData.create(data=task_data, is_active=True)
     for a in voting_qas[q]:
         choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
@@ -178,13 +185,14 @@ validating_ans = [
     We in general can see a pattern to how moat things work to where we can say it's not magic there is a logical explanation to something.
     """
 ]
-ValidatingData.objects.all().delete()
-for q, a in zip(validating_qns, validating_ans):
-    task_data, _ = TaskData.objects.update_or_create(title=q)
-    validating_data,  _ = ValidatingData.objects.update_or_create(taskdata_ptr=task_data,
-                                                                  answer_text=a, group=groups[0])
 
-Assignment.objects.all().delete()
+for q, a in zip(validating_qns, validating_ans):
+    task_data = TaskData.create(title=q, group=groups[0])
+    validating_data = ValidatingData.create(data=task_data, ans=a)
+
+for q, a in zip(validating_qns, validating_ans):
+    fianlized_data = FinalizedData.create(title=q, group=groups[0], ans=a)
+
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
 assign(users, Assignment, ValidatingData.objects.all(), TaskData, NUM_USER_PER_TASK=3)

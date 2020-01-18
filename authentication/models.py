@@ -47,6 +47,7 @@ class CustomUserManager(UserManager):
             group=group,
         )
         user.is_admin = True
+        user.is_approved = True
         user.save(using=self._db)
         return user
 
