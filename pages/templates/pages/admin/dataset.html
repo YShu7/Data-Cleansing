@@ -3,27 +3,12 @@
 {% block content %}
 <div>
     <h4><a href="#num" class="link-dark">Summary</a></h4>
-    <div col-lg-5>
+    <div class="col-xs-12">
         <div>
             <strong>Current Data #: </strong>
-            <span id="num_all_data" value="{{num_data}}">{{num_data.all}}</span>
+            <span id="num_all_data" value="{{num_data}}">{{num_data}}</span>
         </div>
-
-        <div class="dropdown">
-            <strong>Number of Data for </strong>
-            <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                all
-            </a>
-            <strong>:</strong>
-            <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                {% for type in types %}
-                    <button class="dropdown-item" type="button">{{type}}</button>
-                {% endfor %}
-                <button class="dropdown-item" type="button">all</button>
-            </div>
-            <label id="num_data" value="{{num_data}}">{{num_data.all}}</label>
-            <a href="/download_dataset" class="btn btn-primary float-right">Download All Data</a>
-        </div>
+        {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
     </div>
 </div>
 
@@ -31,30 +16,4 @@
     <h4><a href="#setting" class="link-dark">Data To Be Validate</a></h4>
     {% include 'pages/admin/partial/setting_tasks.html' with questions=data %}
 </div>
-
-<script>
-    $(document).ready(function(){
-        $("#filter .dropdown-item").on("click", function(e) {
-            var selectedType = $(this).text();
-
-            $("#selected_type").text(selectedType);
-            var num_data = $("#num_data").attr('value');
-
-            var start = num_data.indexOf(selectedType);
-            var substring = num_data.substring(start);
-
-            start = substring.indexOf(':');
-            substring = substring.substring(start);
-
-            start = substring.indexOf(' ');
-            end = substring.indexOf(',');
-            if (end == -1) {
-                end = substring.indexOf('}');
-            }
-            var num = substring.substring(start, end-start+1);
-
-            $("#num_data").text(num);
-        });
-    });
-</script>
 {% endblock %}

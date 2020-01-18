@@ -1,12 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from pages.views.helper import *
-from authentication.forms import CustomPasswordChangeForm
+from django.http import QueryDict
 from django.middleware.csrf import get_token
 from django.shortcuts import *
-from django.http import QueryDict
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
+from authentication.forms import CustomPasswordChangeForm
+from pages.views.helper import *
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
@@ -67,7 +67,8 @@ def validate(request):
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
-                data, _ = VotingData.objects.update_or_create(taskdata_ptr=task.taskdata_ptr, group=task.taskdata_ptr.group)
+                data, _ = VotingData.objects.update_or_create(taskdata_ptr=task.taskdata_ptr,
+                                                              group=task.taskdata_ptr.group)
                 Choice.objects.update_or_create(data=data, answer=new_ans)
 
             datas = VotingData.objects.filter(taskdata_ptr_id=task.taskdata_ptr_id, group=task.taskdata_ptr.group)
@@ -126,11 +127,13 @@ def vote(request, taskdata_ptr_id):
             # if enough users have made responses to this question and this choice has the maximum num of votes,
             # this question is done
             if sum_votes >= 5 and selected_choice.num_votes == max_votes:
-                Data.objects.update_or_create(question_text=data.question_text, answer_text=selected_choice.answer, group=data.group)
+                Data.objects.update_or_create(question_text=data.question_text, answer_text=selected_choice.answer,
+                                              group=data.group)
                 data.delete()
             assign.done = True
             assign.save()
-            Log.objects.update_or_create(user=request.user, task=assign, action='vote', response=choice, timestamp=timezone.now())
+            Log.objects.update_or_create(user=request.user, task=assign, action='vote', response=choice,
+                                         timestamp=timezone.now())
     else:
         return HttpResponse("Request method is not allowed.")
 

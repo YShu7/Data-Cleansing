@@ -1,7 +1,5 @@
-from pages.models import *
-from authentication.models import *
 from authentication.utils import *
-from assign.models import Assignment
+from pages.models import *
 
 
 def get_tasks_context(user):
