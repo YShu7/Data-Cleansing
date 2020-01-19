@@ -161,12 +161,23 @@ def download_report(request):
     return response
 
 
+@admin_login_required
 def log(request):
     template = loader.get_template('{}/log.html'.format(ADMIN_DIR))
+    all_logs = Log.objects.all()
+    logs = []
+    if request.user.is_superuser:
+        for log in logs:
+            if log.user.is_superuser or log.user.is_admin:
+                logs.append(log)
+    else:
+        for log in logs:
+            if log.user.is_admin and log.user.group == request.user.group:
+                logs.append(log)
     context = {
         'title': "Admin Log",
         'login_user': request.user,
-        'logs': Log.objects.all(),
+        'logs': logs,
     }
     return HttpResponse(template.render(context=context))
 
