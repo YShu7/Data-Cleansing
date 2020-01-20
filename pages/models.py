@@ -5,7 +5,7 @@ from assign.models import Assignment
 
 
 class Data(models.Model):
-    title = models.CharField(max_length=200, blank=False)
+    title = models.CharField(max_length=200, blank=False, unique=True)
     group = models.ForeignKey(CustomGroup, on_delete=models.DO_NOTHING, blank=False)
 
     class Meta:

@@ -66,6 +66,13 @@ def get_finalized_data(group_name):
     return finalized_data
 
 
+def get_pre_url(request):
+    try:
+        next = request.META.get('HTTP_REFERER')
+        return next
+    except:
+        return '/'
+
 class Echo:
     """An object that implements just the write method of the file-like
     interface.

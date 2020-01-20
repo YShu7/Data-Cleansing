@@ -1,13 +1,16 @@
 from django.urls import path
 
-from pages.views import views, admin
+from pages.views import views, user, admin
 
 urlpatterns = [
     path('', views.index, name='tasks'),
-    path('tasks', views.index, name='tasks'),
-    path('profile', views.profile, name='profile'),
-    path('validate', views.validate, name='validate'),
-    path('<int:taskdata_ptr_id>/vote', views.vote, name='vote'),
+
+    path('user', user.index, name='user'),
+    path('tasks', user.index, name='tasks'),
+    path('profile', user.profile, name='profile'),
+    path('validate', user.validate, name='validate'),
+    path('<int:taskdata_ptr_id>/vote', user.vote, name='vote'),
+
     path('admin', admin.modify_users, name='admin'),
     path('modify_users', admin.modify_users, name='modify_users'),
     path('dataset', admin.dataset, name='dataset'),

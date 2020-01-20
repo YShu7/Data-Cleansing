@@ -3,13 +3,14 @@ from datetime import datetime
 import json
 
 from django.core.paginator import Paginator
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
 
 from assign.views import assign
-from pages.views.helper import *
-from pages.decorators import admin_login_required, login_required
+from pages.views.utils import *
+from pages.decorators import superuser_admin_login_required, admin_login_required
 
 
 ADMIN_DIR = 'pages/admin'
@@ -17,7 +18,7 @@ USER_DIR = 'pages/user'
 AUTH_DIR = 'authentication'
 
 
-@admin_login_required
+@superuser_admin_login_required
 def modify_users(request):
     if request.method == "POST":
         user = get_user_model().objects.get(id=request.POST["id"])
@@ -33,8 +34,8 @@ def modify_users(request):
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
         user = request.user
-        pending_users = get_pending_users(user.group)
-        approved_users = get_approved_users(user.group)
+        pending_users = get_pending_users(user.group, user.is_superuser)
+        approved_users = get_approved_users(user.group, user.is_superuser)
 
         context = {
             'login_user': user,
@@ -44,7 +45,7 @@ def modify_users(request):
         return HttpResponse(template.render(context=context, request=request))
 
 
-@admin_login_required
+@superuser_admin_login_required
 def dataset(request, group_name="all"):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
     group = request.user.group
@@ -87,7 +88,7 @@ def dataset(request, group_name="all"):
     return HttpResponse(template.render(request=request, context=context))
 
 
-@admin_login_required
+@superuser_admin_login_required
 def download_dataset(request, group_name=""):
     """A view that streams a large CSV file."""
     # Generate a sequence of rows. The range is based on the maximum number of
@@ -106,7 +107,7 @@ def download_dataset(request, group_name=""):
     return response
 
 
-@admin_login_required
+@superuser_admin_login_required
 @csrf_protect
 def update(request, taskdata_ptr_id):
     if request.method == 'POST':
@@ -115,10 +116,12 @@ def update(request, taskdata_ptr_id):
         ans = request.POST["choice"]
         FinalizedData.objects.update_or_create(title=data.title, answer_text=ans, group=data.group)
         data.delete()
+
+    messages.success(request, "Summarize Succeed")
     return HttpResponseRedirect("/dataset")
 
 
-@admin_login_required
+@superuser_admin_login_required
 def report(request):
     template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
     i = datetime.now()
@@ -147,7 +150,7 @@ def report(request):
     return HttpResponse(template.render(context=context))
 
 
-@admin_login_required
+@superuser_admin_login_required
 def download_report(request):
     """A view that streams a large CSV file."""
     rows = [["id", "username", "certificate", "point", "accuracy"]]
@@ -161,7 +164,7 @@ def download_report(request):
     return response
 
 
-@admin_login_required
+@superuser_admin_login_required
 def log(request):
     template = loader.get_template('{}/log.html'.format(ADMIN_DIR))
     all_logs = Log.objects.all()
@@ -195,7 +198,9 @@ def assign_tasks(request):
         voting_data = voting_data.filter(group=group)
     assign(users, Assignment, validating_data, TaskData)
     assign(users, Assignment, voting_data, TaskData)
-    return HttpResponse("Assign Tasks Succeed")
+
+    messages.success(request, "Assign Tasks Succeed")
+    return HttpResponseRedirect(get_pre_url(request))
 
 
 @admin_login_required
@@ -206,9 +211,14 @@ def summarize(request):
         user_logs = logs.filter(user=user)
         for user_log in user_logs:
             user_response = user_log.response
-            data = FinalizedData.objects.get(title=user_log.task.task.title)
-            if data and user_response == data.answer_text:
-                user.ans_is(True)
-            else:
-                user.ans_is(False)
-    return HttpResponse("Summarize Succeed")
+            try:
+                data = FinalizedData.objects.get(title=user_log.task.task.title)
+                if data and user_response == data.answer_text:
+                    user.ans_is(True)
+                else:
+                    user.ans_is(False)
+            except:
+                pass
+
+    messages.success(request, "Summarize Succeed")
+    return HttpResponseRedirect(get_pre_url(request))

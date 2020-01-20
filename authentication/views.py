@@ -5,7 +5,6 @@ from django.contrib.auth.views import PasswordResetView, LoginView
 from django.http import *
 from django.shortcuts import render
 from django.template import loader
-from django.template.context_processors import csrf
 from django.template.defaulttags import register
 
 from .backends import CustomBackend
