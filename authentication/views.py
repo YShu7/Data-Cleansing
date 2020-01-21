@@ -2,7 +2,7 @@ from django.contrib import auth
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, LoginView
-from django.http import *
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import loader
 from django.template.defaulttags import register
@@ -80,7 +80,6 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     subject_template_name = "authentication/password_reset_subject.txt"
     email_template_name = "authentication/password_reset_email.html"
-    token_generator = auth.tokens.PasswordResetTokenGenerator
     success_url = "authentication/login.html"
 
     def get_context_data(self, **kwargs):
@@ -97,7 +96,6 @@ def password_forget(request):
     if request.method == "POST":
         form_obj = CustomPasswordResetForm(request.POST)
         if form_obj.is_valid():
-            token = auth.tokens.PasswordResetTokenGenerator()
             return
     return render(request, "authentication/reset_pwd.html", {"form_obj": form_obj})
 

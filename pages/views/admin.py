@@ -3,16 +3,21 @@ import json
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
 
+from assign.models import Assignment
 from assign.views import assign
-from datacleansing.settings import *
+from authentication.models import CustomGroup
+from authentication.utils import get_approved_users, get_pending_users
+from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM
 from datacleansing.utils import get_pre_url, Echo
 from pages.decorators import superuser_admin_login_required, admin_login_required
-from pages.views.utils import *
+from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
+from pages.views.utils import get_unassigned_voting_data, get_finalized_data, compute_group_point
 
 
 @superuser_admin_login_required

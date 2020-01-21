@@ -163,3 +163,6 @@ MSG_SUCCESS_SUM = "Summarize Succeed"
 
 VAL = "validate"
 VOT = "vote"
+
+CORRECT_POINT = 3
+INCORRECT_POINT = 1

@@ -1,8 +1,8 @@
 from django.utils import timezone
 
 from assign.models import Assignment
-from authentication.utils import *
-from pages.models import *
+from authentication.utils import get_group_report
+from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log
 
 
 def get_assigned_tasks_context(user):
@@ -14,7 +14,7 @@ def get_assigned_tasks_context(user):
         try:
             validating_d = ValidatingData.objects.get(pk=d)
             validating_data.append(validating_d)
-        except:
+        except ValidatingData.DoesNotExist:
             voting_d = VotingData.objects.get(pk=d)
             voting_data.append(voting_d)
 
@@ -44,19 +44,19 @@ def compute_group_point():
     names = []
     points = []
     num_ans = []
-    accu = []
+    accuracy = []
     for group in groups:
         names.append(group.name)
-        dict = get_group_report(group)
-        points.append(dict["point"])
-        num_ans.append(dict["num_ans"])
-        accu.append(dict["accuracy"])
+        group_dict = get_group_report(group)
+        points.append(group_dict["point"])
+        num_ans.append(group_dict["num_ans"])
+        accuracy.append(group_dict["accuracy"])
 
     context = {
         'names': names,
         'points': points,
         'num_ans': num_ans,
-        'accuracy': accu,
+        'accuracy': accuracy,
     }
     return context
 

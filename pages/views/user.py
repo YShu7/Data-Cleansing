@@ -1,13 +1,16 @@
 from django.contrib import messages
 from django.http import QueryDict
-from django.shortcuts import *
+from django.http.response import HttpResponse, HttpResponseRedirect
+from django.shortcuts import loader
 from django.views.decorators.csrf import csrf_protect
 
+from assign.models import Assignment
 from authentication.forms import CustomPasswordChangeForm
-from datacleansing.settings import *
+from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
-from pages.views.utils import *
+from pages.models import ValidatingData, VotingData, Choice
+from pages.views.utils import get_assigned_tasks_context, get_profile_context, log
 
 
 @user_login_required
@@ -43,7 +46,8 @@ def validate(request):
             try:
                 task = ValidatingData.objects.get(pk=validate_id)
             except ValidatingData.DoesNotExist:
-                messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_DATA_NONEXIST.format(validate_id),
+                messages.add_message(request, level=messages.ERROR,
+                                     message=MSG_FAIL_DATA_NONEXIST.format(validate_id),
                                      extra_tags="danger")
                 continue
 
@@ -71,21 +75,23 @@ def validate(request):
 
 @user_login_required
 @csrf_protect
-def vote(request, id):
+def vote(request, vote_id):
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
-            data = VotingData.objects.get(pk=id)
-            selected_choice = Choice.objects.get(data_id=id, pk=choice)
+            data = VotingData.objects.get(pk=vote_id)
+            selected_choice = Choice.objects.get(data_id=vote_id, pk=choice)
         except VotingData.DoesNotExist:
-            messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
             return HttpResponseRedirect(get_pre_url(request))
         except Choice.DoesNotExist:
-            messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_CHOICE, extra_tags="danger")
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_CHOICE, extra_tags="danger")
             return HttpResponseRedirect(get_pre_url(request))
 
         try:
-            assign = Assignment.objects.get(task_id=id, tasker_id=request.user.id)
+            assign = Assignment.objects.get(task_id=vote_id, tasker_id=request.user.id)
             assign.done()
         except Assignment.DoesNotExist:
             pass

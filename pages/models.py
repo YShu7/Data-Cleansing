@@ -20,13 +20,14 @@ class FinalizedData(Data):
         try:
             data = Data.objects.get(title=title, group=group)
             finalized_data = cls(pk=data.id, answer_text=ans, title=title, group=group)
-        except Exception:
+        except Data.DoesNotExist:
             finalized_data = cls(title=title, answer_text=ans, group=group)
         finalized_data.save()
         return finalized_data
 
 
 class ValidatingData(Data):
+    data_ptr = models.OneToOneField(to=Data, on_delete=models.CASCADE, parent_link=True)
     answer_text = models.TextField(blank=False, null=False)
     num_approved = models.IntegerField(default=0)
     num_disapproved = models.IntegerField(default=0)
@@ -39,11 +40,11 @@ class ValidatingData(Data):
     def create(cls, title, group, ans, num_app=0, num_dis=0):
         try:
             data = Data.objects.get(title=title, group=group)
-            validating_data = cls(pk=data.id, title=title, group=group, answer_text=ans, num_approved=num_app,
-                                  num_disapproved=num_dis)
-        except Exception:
-            validating_data = cls(title=title, group=group, answer_text=ans, num_approved=num_app,
-                                  num_disapproved=num_dis)
+            validating_data = cls(pk=data.id, title=title, group=group, answer_text=ans,
+                                  num_approved=num_app, num_disapproved=num_dis)
+        except Data.DoesNotExist:
+            validating_data = cls(title=title, group=group, answer_text=ans,
+                                  num_approved=num_app, num_disapproved=num_dis)
         validating_data.save()
         return validating_data
 
@@ -62,7 +63,7 @@ class ValidatingData(Data):
         if self.num_approved >= 2:
             # if enough user has approve the answer
             # the origin answer is considered to be correct
-            Data.objects.update_or_create(title=self.data_ptr.question_text,
+            Data.objects.update_or_create(title=self.data_ptr.title,
                                           group=self.data_ptr.group)
             for data in datas:
                 Choice.objects.filter(data=data).delete()
@@ -77,6 +78,7 @@ class ValidatingData(Data):
 
 
 class VotingData(Data):
+    data_ptr = models.OneToOneField(to=Data, on_delete=models.CASCADE, parent_link=True)
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -87,7 +89,7 @@ class VotingData(Data):
         try:
             data = Data.objects.filter(title=title, group=group)
             voting_data = cls(pk=data.id, title=title, group=group, is_active=is_active)
-        except Exception:
+        except Data.DoesNotExist:
             voting_data = cls(title=title, group=group, is_active=is_active)
         voting_data.save()
         return voting_data
@@ -107,7 +109,7 @@ class VotingData(Data):
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
         if sum_votes >= 5 and selected_choice.num_votes == max_votes:
-            Data.objects.update_or_create(question_text=self.question_text, answer_text=selected_choice.answer,
+            Data.objects.update_or_create(question_text=self.data_ptr.title, answer_text=selected_choice.answer,
                                           group=self.group)
             self.delete()
 
