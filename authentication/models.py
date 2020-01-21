@@ -110,3 +110,7 @@ class CustomUser(AbstractUser):
     def activate(self, active):
         self.is_active = active
         self.save()
+
+    def assign_admin(self, is_admin):
+        self.is_admin = is_admin
+        self.save()

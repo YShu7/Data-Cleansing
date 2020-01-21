@@ -27,6 +27,12 @@ def modify_users(request):
             user.activate(False)
         if 'reject' in request.POST:
             user.approve(False)
+
+        if request.user.is_superuser:
+            if 'is_admin' in request.POST:
+                user.assign_admin(True)
+            else:
+                user.assign_admin(False)
         return HttpResponseRedirect(get_pre_url(request))
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
