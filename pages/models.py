@@ -47,6 +47,34 @@ class ValidatingData(Data):
         validating_data.save()
         return validating_data
 
+    def approve(self):
+        self.num_approved += 1
+        self.save()
+
+    def disapprove(self, new_ans):
+        self.num_disapproved += 1
+        data, _ = VotingData.objects.update_or_create(data_ptr=self.data_ptr,
+                                                      group=self.data_ptr.group)
+        Choice.objects.update_or_create(data=data, answer=new_ans)
+
+    def validate(self):
+        datas = VotingData.objects.filter(pk=self.id, group=self.data_ptr.group)
+        if self.num_approved >= 2:
+            # if enough user has approve the answer
+            # the origin answer is considered to be correct
+            Data.objects.update_or_create(title=self.data_ptr.question_text,
+                                          group=self.data_ptr.group)
+            for data in datas:
+                Choice.objects.filter(data=data).delete()
+            self.delete()
+        elif self.num_disapproved >= 2:
+            # if enough user has disapprove the answer
+            # the better answer should be selected by activating VotingData
+            for data in datas:
+                data.is_active = True
+                data.save()
+            self.delete()
+
 
 class VotingData(Data):
     is_active = models.BooleanField(default=False)
@@ -64,6 +92,25 @@ class VotingData(Data):
         voting_data.save()
         return voting_data
 
+    def vote(self, selected_choice):
+        # update num of votes of the selected choice
+        selected_choice.vote()
+
+        # get the number of choices that have been made for this question
+        choices = Choice.objects.filter(data_id=self.id)
+        sum_votes = 0
+        max_votes = selected_choice.num_votes
+        for c in choices:
+            sum_votes += c.num_votes
+            max_votes = max(max_votes, c.num_votes)
+
+        # if enough users have made responses to this question and this choice has the maximum num of votes,
+        # this question is done
+        if sum_votes >= 5 and selected_choice.num_votes == max_votes:
+            Data.objects.update_or_create(question_text=self.question_text, answer_text=selected_choice.answer,
+                                          group=self.group)
+            self.delete()
+
 
 class Choice(models.Model):
     data = models.ForeignKey(VotingData, models.CASCADE)
@@ -78,6 +125,10 @@ class Choice(models.Model):
         data = cls(data=data, answer=ans, num_votes=num_votes)
         data.save()
         return data
+
+    def vote(self):
+        self.num_votes += 1
+        self.save()
 
 
 class Log(models.Model):

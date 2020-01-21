@@ -31,7 +31,7 @@
         </tr>
         <tr>
             <th>Overall Accuracy</th>
-            <td>{% widthratio login_user.accuracy 1 100%}%</td>
+            <td>{% widthratio login_user.accuracy 1.0 100%}%</td>
         </tr>
     </tbody>
 </table>
@@ -42,7 +42,7 @@
     </button>
 </span>
 
-{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show%}
+{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show %}
 
 <script>
     $(document).ready(function(){

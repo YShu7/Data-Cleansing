@@ -6,8 +6,7 @@
 <div class="modal" id="{{modal_id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <form action="{% url 'password_change' %}" method="POST" novalidate autocomplete="off">
-            <input name="next" type="hidden" value="{{next}}">
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{token}}">
+            {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="myModalLabel">Reset Password</h4>
@@ -15,7 +14,6 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
 
                 <div class="modal-body">
                     <div class="form-group">
@@ -52,38 +50,11 @@
 
 <script>
     $(document).ready(function() {
-
         $("#close").on('click', function() {
             $('#new_pwd').val("");
             $('#re_new_pwd').val("");
             var label = document.getElementById("error");
             label.innerHTML = "";
         });
-        $("#update_pwd_1").on('click', function() {
-            var new_pwd =  $('#new_pwd').val();
-            var re_new_pwd = $('#re_new_pwd').val();
-            var label = document.getElementById("error");
-
-            if (new_pwd != re_new_pwd) {
-                label.innerHTML = "Password doesn't match";
-            } else {
-                label.innerHTML = "";
-                $('#new_pwd').val("");
-                $('#re_new_pwd').val("");
-                $(".modal").modal('hide');
-
-                $.ajax({
-                    url: "authentication/password_reset",
-                    type: "post",
-                    headers:{'X-CSRFToken':$.cookie('csrftoken')},
-                    data: {"new_pwd": new_pwd},
-                    success: function(response) {
-                        alert("Password reset succeed. Please log in again.");
-                        window.location.href="/authentication/login";
-                    }
-                });
-            }
-        });
     });
-
 </script>

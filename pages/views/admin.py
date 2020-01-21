@@ -9,7 +9,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_protect
 
 from assign.views import assign
-from assign.models import Assignment
+from datacleansing.utils import get_pre_url
 from pages.views.utils import *
 from pages.decorators import superuser_admin_login_required, admin_login_required
 

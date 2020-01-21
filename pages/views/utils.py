@@ -1,8 +1,11 @@
 from authentication.utils import *
 from pages.models import *
+from assign.models import Assignment
+
+from django.utils import timezone
 
 
-def get_tasks_context(user):
+def get_assigned_tasks_context(user):
     data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
 
     validating_data = []
@@ -16,7 +19,7 @@ def get_tasks_context(user):
             voting_data.append(voting_d)
 
     for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.taskdata_ptr_id)
+        data.answers = Choice.objects.filter(data_id=data.id)
 
     context = {
         'question_list_validating': validating_data,
@@ -66,18 +69,6 @@ def get_finalized_data(group_name):
     return finalized_data
 
 
-def get_pre_url(request):
-    try:
-        next = request.META.get('HTTP_REFERER')
-        return next
-    except:
-        return '/'
-
-class Echo:
-    """An object that implements just the write method of the file-like
-    interface.
-    """
-
-    def write(self, value):
-        """Write the value by returning it, instead of storing in a buffer."""
-        return value
+def log(user, task, action, response):
+    Log.objects.update_or_create(user=user, task=task, action=action,
+                                 response=response, timestamp=timezone.now())

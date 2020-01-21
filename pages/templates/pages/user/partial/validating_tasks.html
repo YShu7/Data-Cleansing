@@ -26,20 +26,20 @@
             <tbody id="validating_tasks">
                 {% for question in questions %}
                 <tr>
-                    <th scope="row">{{question.taskdata_ptr_id}}</th>
+                    <th scope="row">{{question.id}}</th>
                     <td>{{question.data_ptr.title}}</td>
-                    <td id="ans_{{question.taskdata_ptr_id}}">{{question.answer_text}}</td>
-                    <td id="type_{{question.taskdata_ptr_id}}">?</td>
+                    <td id="ans_{{question.id}}">{{question.answer_text}}</td>
+                    <td id="type_{{question.id}}">?</td>
                     <td>
-                        <input type="hidden" name="approve_value_{{question.taskdata_ptr_id}}" id="approve_value_{{question.taskdata_ptr_id}}" value="">
-                        <input type="hidden" name="old_ans_{{question.taskdata_ptr_id}}" id="old_ans_{{question.taskdata_ptr_id}}" value="{{question.answer_text}}">
-                        <input type="hidden" name="new_ans_{{question.taskdata_ptr_id}}" id="new_ans_{{question.taskdata_ptr_id}}" value="">
+                        <input type="hidden" name="approve_value_{{question.id}}" id="approve_value_{{question.id}}" value="">
+                        <input type="hidden" name="old_ans_{{question.id}}" id="old_ans_{{question.id}}" value="{{question.answer_text}}">
+                        <input type="hidden" name="new_ans_{{question.id}}" id="new_ans_{{question.id}}" value="">
                         <div class="btn-group btn-block">
-                            <button id="approve_{{question.taskdata_ptr_id}}" value="{{question.taskdata_ptr_id}}" type="button" name="choice_{{question.taskdata_ptr_id}}" class="approve btn btn-outline-success btn-sm">
+                            <button id="approve_{{question.id}}" value="{{question.id}}" type="button" name="choice_{{question.id}}" class="approve btn btn-outline-success btn-sm">
                             Approve
                         </button>
 
-                        <button id="change_{{question.taskdata_ptr_id}}" value="{{question.taskdata_ptr_id}}" type="button" data-toggle="modal" data-target="#dialog" class="change btn btn-outline-primary btn-sm">
+                        <button id="change_{{question.id}}" value="{{question.id}}" type="button" data-toggle="modal" data-target="#dialog" class="change btn btn-outline-primary btn-sm">
                             Change
                         </button>
                         </div>

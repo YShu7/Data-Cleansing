@@ -14,7 +14,7 @@
             {% csrf_token %}
             <tr>
                 <th scope="row">{{question.id}}</th>
-                <input type="hidden" name="choice" id="choice" value="">
+                <input type="hidden" name="choice" id="choice" value="0">
                 <td>{{question.title}}</td>
                 <td>
                     {% for ans in question.answers %}

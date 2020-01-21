@@ -7,13 +7,9 @@ from django.shortcuts import render
 from django.template import loader
 from django.template.defaulttags import register
 
+from datacleansing.utils import get_pre_url
 from .backends import CustomBackend
 from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
-
-MSG_SUCCESS = "User registration succeed"
-MSG_FAIL_EMAIL = "Email {} has been used"
-MSG_FAIL_CERTI = "Certificate {} has been used"
-MSG_FAIL_FILL = "Please fill in {}."
 
 
 class CustomLoginView(LoginView):
@@ -51,10 +47,10 @@ def password_change(request):
             return HttpResponseRedirect("/profile")
         else:
             request.session['success'] = False
-            request.session['data'] = form_obj.cleaned_data
+            request.session['data'] = form_obj.data
             return HttpResponseRedirect("/profile")
     else:
-        return HttpResponse("HTTP Request method is not POST.")
+        return HttpResponseRedirect(get_pre_url(request))
 
 
 def signup(request):

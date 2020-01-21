@@ -5,11 +5,11 @@ from pages.views import views, user, admin
 urlpatterns = [
     path('', views.index, name='tasks'),
 
-    path('user', user.index, name='user'),
-    path('tasks', user.index, name='tasks'),
+    path('user', user.task_list, name='user'),
+    path('tasks', user.task_list, name='tasks'),
     path('profile', user.profile, name='profile'),
     path('validate', user.validate, name='validate'),
-    path('<int:taskdata_ptr_id>/vote', user.vote, name='vote'),
+    path('<int:id>/vote', user.vote, name='vote'),
 
     path('admin', admin.modify_users, name='admin'),
     path('modify_users', admin.modify_users, name='modify_users'),
