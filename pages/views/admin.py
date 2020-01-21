@@ -9,6 +9,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_protect
 
 from assign.views import assign
+from assign.models import Assignment
 from pages.views.utils import *
 from pages.decorators import superuser_admin_login_required, admin_login_required
 
@@ -112,12 +113,15 @@ def download_dataset(request, group_name=""):
 def update(request, taskdata_ptr_id):
     if request.method == 'POST':
         # update VotingData to Data directly
-        data = VotingData.objects.get(id=taskdata_ptr_id)
-        ans = request.POST["choice"]
-        FinalizedData.objects.update_or_create(title=data.title, answer_text=ans, group=data.group)
-        data.delete()
+        voting_data = VotingData.objects.get(data_ptr_id=taskdata_ptr_id)
 
-    messages.success(request, "Summarize Succeed")
+        ans = request.POST["choice"]
+        if ans == "":
+            messages.add_message(request, level=messages.ERROR, extra_tags="danger", message="Please choose an answer.")
+        else:
+            FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
+            voting_data.delete(keep_parents=True)
+            messages.success(request, "Update Succeed.")
     return HttpResponseRedirect("/dataset")
 
 
@@ -196,8 +200,9 @@ def assign_tasks(request):
         users = users.filter(group=group)
         validating_data = validating_data.filter(group=group)
         voting_data = voting_data.filter(group=group)
-    assign(users, Assignment, validating_data, TaskData)
-    assign(users, Assignment, voting_data, TaskData)
+    Assignment.objects.filter(done=False).delete()
+    assign(users, Assignment, validating_data, Data)
+    assign(users, Assignment, voting_data, Data)
 
     messages.success(request, "Assign Tasks Succeed")
     return HttpResponseRedirect(get_pre_url(request))

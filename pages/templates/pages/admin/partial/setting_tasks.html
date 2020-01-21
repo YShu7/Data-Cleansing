@@ -10,7 +10,7 @@
         </thead>
         <tbody>
             {% for question in questions %}
-            <form action="{% url 'update' question.taskdata_ptr_id %}" method="post">
+            <form action="{% url 'update' question.id %}" method="post">
             {% csrf_token %}
             <tr>
                 <th scope="row">{{question.id}}</th>
@@ -18,7 +18,7 @@
                 <td>{{question.title}}</td>
                 <td>
                     {% for ans in question.answers %}
-                    <div class="custom-control custom-radio" value="{{question.taskdata_ptr_id}}">
+                    <div class="custom-control custom-radio" value="{{question.id}}">
                         <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
                         <label class="custom-control-label" for="answer_{{ans.id}}">{{ans.answer}}</label>
                     </div>

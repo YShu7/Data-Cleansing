@@ -27,7 +27,7 @@
                 {% for question in questions %}
                 <tr>
                     <th scope="row">{{question.taskdata_ptr_id}}</th>
-                    <td>{{question.taskdata_ptr.title}}</td>
+                    <td>{{question.data_ptr.title}}</td>
                     <td id="ans_{{question.taskdata_ptr_id}}">{{question.answer_text}}</td>
                     <td id="type_{{question.taskdata_ptr_id}}">?</td>
                     <td>

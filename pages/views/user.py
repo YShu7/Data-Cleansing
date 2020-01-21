@@ -64,16 +64,16 @@ def validate(request):
                 task.num_disapproved += 1
                 task.save()
                 new_ans = request.POST["new_ans_{}".format(id)]
-                data, _ = VotingData.objects.update_or_create(taskdata_ptr=task.taskdata_ptr,
-                                                              group=task.taskdata_ptr.group)
+                data, _ = VotingData.objects.update_or_create(data_ptr=task.data_ptr,
+                                                              group=task.data_ptr.group)
                 Choice.objects.update_or_create(data=data, answer=new_ans)
 
-            datas = VotingData.objects.filter(taskdata_ptr_id=task.taskdata_ptr_id, group=task.taskdata_ptr.group)
+            datas = VotingData.objects.filter(taskdata_ptr_id=task.taskdata_ptr_id, group=task.data_ptr.group)
             if task.num_approved >= 2:
                 # if enough user has approve the answer
                 # the origin answer is considered to be correct
-                Data.objects.update_or_create(title=task.taskdata_ptr.question_text,
-                                              group=task.taskdata_ptr.group)
+                Data.objects.update_or_create(title=task.data_ptr.question_text,
+                                              group=task.data_ptr.group)
                 for data in datas:
                     Choice.objects.filter(data=data).delete()
                 task.delete()

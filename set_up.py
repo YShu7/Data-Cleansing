@@ -18,7 +18,7 @@ django.setup()
 
 Log.objects.all().delete()
 Assignment.objects.all().delete()
-TaskData.objects.all().delete()
+Data.objects.all().delete()
 VotingData.objects.all().delete()
 Choice.objects.all().delete()
 ValidatingData.objects.all().delete()
@@ -141,8 +141,7 @@ voting_qas = {
 }
 
 for q in voting_qas:
-    task_data = TaskData.create(title=q, group=groups[0])
-    voting_data = VotingData.create(data=task_data, is_active=True)
+    voting_data = VotingData.create(title=q, group=groups[0], is_active=True)
     for a in voting_qas[q]:
         choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
@@ -187,13 +186,12 @@ validating_ans = [
 ]
 
 for q, a in zip(validating_qns, validating_ans):
-    task_data = TaskData.create(title=q, group=groups[0])
-    validating_data = ValidatingData.create(data=task_data, ans=a)
+    validating_data = ValidatingData.create(title=q, group=groups[0], ans=a)
 
 for q, a in zip(validating_qns, validating_ans):
-    fianlized_data = FinalizedData.create(title=q, group=groups[0], ans=a)
+    fianlized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
 
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
-assign(users, Assignment, ValidatingData.objects.all(), TaskData, NUM_USER_PER_TASK=3)
-assign(users, Assignment, VotingData.objects.filter(is_active=True), TaskData, NUM_USER_PER_TASK=5)
+assign(users, Assignment, ValidatingData.objects.all(), Data, NUM_USER_PER_TASK=3)
+assign(users, Assignment, VotingData.objects.filter(is_active=True), Data, NUM_USER_PER_TASK=5)

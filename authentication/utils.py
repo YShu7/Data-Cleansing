@@ -1,4 +1,4 @@
-from django.contrib.auth import update_session_auth_hash, get_user_model
+from django.contrib.auth import get_user_model
 
 
 def get_group_report(group):
@@ -17,13 +17,32 @@ def get_group_report(group):
     return {"num_ans": num_ans, "point": point, "accuracy": accuracy}
 
 
-def get_pending_users(group=None):
+def get_pending_users(group=None, is_superuser=False):
     if not group:
-        return get_user_model().objects.filter(is_approved=False)
-    return get_user_model().objects.filter(is_approved=False, group=group).order_by('date_joined')
+        if is_superuser:
+            return get_user_model().objects.filter(is_approved=False, is_superuser=False).order_by('date_joined')
+        else:
+            return get_user_model().objects.filter(is_approved=False, is_superuser=False, is_admin=False).order_by('date_joined')
+    else:
+        if is_superuser:
+            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False).order_by('date_joined')
+        else:
+            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False, is_admin=False).order_by(
+                'date_joined')
 
 
-def get_approved_users(group=None):
+def get_approved_users(group=None, is_superuser=False):
     if not group:
-        return get_user_model().objects.filter(is_approved=True)
-    return get_user_model().objects.filter(is_approved=True, group=group).order_by('date_joined')
+        if is_superuser:
+            return get_user_model().objects.filter(is_approved=True, is_superuser=False).order_by('date_joined')
+        else:
+            return get_user_model().objects.filter(is_approved=True, is_superuser=False, is_admin=False).order_by(
+                'date_joined')
+    else:
+        if is_superuser:
+            return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False).order_by(
+                'date_joined')
+        else:
+            return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False,
+                                                   is_admin=False).order_by(
+                'date_joined')

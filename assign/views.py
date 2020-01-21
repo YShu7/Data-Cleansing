@@ -19,4 +19,4 @@ def assign(all_taskers, AssignModel, all_tasks, TaskModel=None, PREDEFINED_MAX=s
             if not TaskModel:
                 AssignModel.objects.update_or_create(tasker=tasker, task=random_tasks[j])
             else:
-                AssignModel.objects.update_or_create(tasker=tasker, task=TaskModel.objects.get(id=random_tasks[j].taskdata_ptr_id))
+                AssignModel.objects.update_or_create(tasker=tasker, task=TaskModel.objects.get(id=random_tasks[j].data_ptr_id))

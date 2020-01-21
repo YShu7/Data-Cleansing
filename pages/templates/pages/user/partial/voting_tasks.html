@@ -18,7 +18,7 @@
             <tr>
                 <th scope="row">{{question.taskdata_ptr_id}}</th>
                 <input type="hidden" name="choice" id="choice" value="0">
-                <td>{{question.taskdata_ptr.title}}</td>
+                <td>{{question.data_ptr.title}}</td>
                 <td>
                     {% for ans in question.answers %}
                     <div class="custom-control custom-radio" value="{{question.taskdata_ptr_id}}">
