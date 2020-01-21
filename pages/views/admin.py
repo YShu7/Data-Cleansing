@@ -115,14 +115,19 @@ def update(request, data_ptr_id):
 
 
 @superuser_admin_login_required
-def report(request):
+def report(request, from_date=None, to_date=None):
     template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
+
     i = datetime.now()
+    if not from_date:
+        from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
+    if not to_date:
+        to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     users = get_approved_users(request.user.group)
 
     context = {
         'title': 'Report',
-        'today': '{}-{}-{}'.format(i.year, i.month, i.day),
+        'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
         'users': users,
         'login_user': request.user,
     }
@@ -131,7 +136,7 @@ def report(request):
         groups = compute_group_point()
         context = {
             'title': 'Report',
-            'today': '{}-{}-{}'.format(i.year, i.month, i.day),
+            'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
             'users': users,
             'names': json.dumps(groups['names']),
             'points': json.dumps(groups['points']),
