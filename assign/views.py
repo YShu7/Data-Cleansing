@@ -17,7 +17,8 @@ def assign(all_users, AssignModel, all_tasks, TaskModel=None, PREDEFINED_MAX=sys
     for i, user in enumerate(all_users):
         for j in range(i * num_tasks_per_user, (i + 1) * num_tasks_per_user):
             if not TaskModel:
-                AssignModel.objects.update_or_create(tasker=user, task=random_tasks[j])
+                AssignModel.objects.update_or_create(tasker=user, task=random_tasks[j], done=False)
             else:
                 AssignModel.objects.update_or_create(tasker=user,
-                                                     task=TaskModel.objects.get(id=random_tasks[j].data_ptr_id))
+                                                     task=TaskModel.objects.get(id=random_tasks[j].data_ptr_id),
+                                                     done=False)

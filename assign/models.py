@@ -7,6 +7,6 @@ class Assignment(models.Model):
     task = models.ForeignKey('pages.data', on_delete=models.CASCADE, verbose_name="task_id")
     done = models.BooleanField(default=False)
 
-    def done(self):
+    def is_done(self):
         self.done = True
         self.save()

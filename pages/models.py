@@ -87,7 +87,7 @@ class VotingData(Data):
     @classmethod
     def create(cls, title, group, is_active):
         try:
-            data = Data.objects.filter(title=title, group=group)
+            data = Data.objects.get(title=title, group=group)
             voting_data = cls(pk=data.id, title=title, group=group, is_active=is_active)
         except Data.DoesNotExist:
             voting_data = cls(title=title, group=group, is_active=is_active)

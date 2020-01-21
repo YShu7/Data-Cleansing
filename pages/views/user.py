@@ -57,7 +57,7 @@ def validate(request):
             # User has done this assignment
             try:
                 assign = Assignment.objects.get(task_id=validate_id, tasker_id=request.user.id)
-                assign.done()
+                assign.is_done()
             except Assignment.DoesNotExist:
                 pass
 
@@ -92,7 +92,7 @@ def vote(request, vote_id):
 
         try:
             assign = Assignment.objects.get(task_id=vote_id, tasker_id=request.user.id)
-            assign.done()
+            assign.is_done()
         except Assignment.DoesNotExist:
             pass
 
