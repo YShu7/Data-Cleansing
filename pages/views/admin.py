@@ -26,7 +26,7 @@ def modify_users(request):
         if 'deactivate' in request.POST:
             user.activate(False)
         if 'reject' in request.POST:
-            user.delete()
+            user.approve(False)
         return HttpResponseRedirect(get_pre_url(request))
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))

@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+
 from authentication.models import CustomGroup
 
 
@@ -33,7 +34,6 @@ class ValidatingData(Data):
     def __str__(self):
         return "Q: {}, A: {}, T: {}, N: {}/{}".format(self.data_ptr.title, self.answer_text, self.data_ptr.group,
                                                       self.num_approved, self.num_disapproved)
-
 
     @classmethod
     def create(cls, title, group, ans, num_app=0, num_dis=0):

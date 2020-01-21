@@ -101,8 +101,11 @@ class CustomUser(AbstractUser):
         self.save()
 
     def approve(self, approved):
-        self.is_approved = approved
-        self.save()
+        if approved:
+            self.is_approved = approved
+            self.save()
+        else:
+            self.delete()
 
     def activate(self, active):
         self.is_active = active
