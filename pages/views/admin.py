@@ -1,22 +1,18 @@
 import csv
-from datetime import datetime
 import json
+from datetime import datetime
 
-from django.core.paginator import Paginator
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
 
 from assign.views import assign
-from datacleansing.utils import get_pre_url
-from pages.views.utils import *
+from datacleansing.settings import *
+from datacleansing.utils import get_pre_url, Echo
 from pages.decorators import superuser_admin_login_required, admin_login_required
-
-
-ADMIN_DIR = 'pages/admin'
-USER_DIR = 'pages/user'
-AUTH_DIR = 'authentication'
+from pages.views.utils import *
 
 
 @superuser_admin_login_required
@@ -31,7 +27,7 @@ def modify_users(request):
             user.activate(False)
         if 'reject' in request.POST:
             user.delete()
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(get_pre_url(request))
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
         user = request.user
@@ -51,31 +47,18 @@ def dataset(request, group_name="all"):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
     group = request.user.group
 
-    # get all VotingData ids that are not allocated to any user
-    voting_data = VotingData.objects.all()
-    if group:
-        voting_data = voting_data.filter(group=group)
-    ids = [i.id for i in voting_data]
-    #exclude_ids = [i.task.id for i in Assignment.objects.all()]
-    exclude_ids = []
-    for exclude_id in exclude_ids:
-        if exclude_id in ids:
-            ids.remove(exclude_id)
-
-    # get all VotingData objects and combine them with their respective choices
-    voting_data = []
-    for id in ids:
-        voting_data.append(VotingData.objects.get(id=id))
-    for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
-
+    # Retrieve data
+    voting_data = get_unassigned_voting_data(group)
     finalized_data = get_finalized_data(group_name)
+    groups = CustomGroup.objects.all()
+
+    # Initiate paginator
     paginator = Paginator(finalized_data, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Compute num of finalized data
     num_data = finalized_data.count()
-    groups = CustomGroup.objects.all()
 
     context = {
         'title': 'Data Set',
@@ -110,10 +93,10 @@ def download_dataset(request, group_name=""):
 
 @superuser_admin_login_required
 @csrf_protect
-def update(request, taskdata_ptr_id):
+def update(request, data_ptr_id):
     if request.method == 'POST':
         # update VotingData to Data directly
-        voting_data = VotingData.objects.get(data_ptr_id=taskdata_ptr_id)
+        voting_data = VotingData.objects.get(data_ptr_id=data_ptr_id)
 
         ans = request.POST["choice"]
         if ans == "":
@@ -121,8 +104,8 @@ def update(request, taskdata_ptr_id):
         else:
             FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
             voting_data.delete(keep_parents=True)
-            messages.success(request, "Update Succeed.")
-    return HttpResponseRedirect("/dataset")
+            messages.success(request, MSG_SUCCESS_VOTE)
+    return HttpResponseRedirect(get_pre_url(request))
 
 
 @superuser_admin_login_required
@@ -158,7 +141,8 @@ def report(request):
 def download_report(request):
     """A view that streams a large CSV file."""
     rows = [["id", "username", "certificate", "point", "accuracy"]]
-    rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in get_approved_users(request.user.group))
+    rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in
+             get_approved_users(request.user.group))
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -174,11 +158,11 @@ def log(request):
     all_logs = Log.objects.all()
     logs = []
     if request.user.is_superuser:
-        for log in logs:
+        for log in all_logs:
             if log.user.is_superuser or log.user.is_admin:
                 logs.append(log)
     else:
-        for log in logs:
+        for log in all_logs:
             if log.user.is_admin and log.user.group == request.user.group:
                 logs.append(log)
     context = {
@@ -192,19 +176,15 @@ def log(request):
 @admin_login_required
 def assign_tasks(request):
     group = request.user.group
-    users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False)
-    validating_data = ValidatingData.objects.all()
-    voting_data = VotingData.objects.filter(is_active=True)
+    users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=group)
+    validating_data = ValidatingData.objects.filter(group=group)
+    voting_data = VotingData.objects.filter(is_active=True, group=group)
 
-    if request.user.group:
-        users = users.filter(group=group)
-        validating_data = validating_data.filter(group=group)
-        voting_data = voting_data.filter(group=group)
-    Assignment.objects.filter(done=False).delete()
+    Assignment.objects.delete()
     assign(users, Assignment, validating_data, Data)
     assign(users, Assignment, voting_data, Data)
 
-    messages.success(request, "Assign Tasks Succeed")
+    messages.success(request, MSG_SUCCESS_ASSIGN)
     return HttpResponseRedirect(get_pre_url(request))
 
 
@@ -225,5 +205,5 @@ def summarize(request):
             except:
                 pass
 
-    messages.success(request, "Summarize Succeed")
+    messages.success(request, MSG_SUCCESS_SUM)
     return HttpResponseRedirect(get_pre_url(request))

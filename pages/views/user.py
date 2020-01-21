@@ -43,7 +43,7 @@ def validate(request):
             try:
                 task = ValidatingData.objects.get(pk=validate_id)
             except ValidatingData.DoesNotExist:
-                messages.add_message(request, level=messages.ERROR, message=DATA_NONEXIST_ERR_MSG.format(validate_id),
+                messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_DATA_NONEXIST.format(validate_id),
                                      extra_tags="danger")
                 continue
 
@@ -62,7 +62,7 @@ def validate(request):
                 task.approve()
             else:
                 # if user disapprove the answer, create VotingData and the choice
-                task.disapprove(new_ans = request.POST["new_ans_{}".format(validate_id)])
+                task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
 
             task.validate()
             log(request.user, task, VAL, new_ans)
@@ -78,10 +78,10 @@ def vote(request, id):
             data = VotingData.objects.get(pk=id)
             selected_choice = Choice.objects.get(data_id=id, pk=choice)
         except VotingData.DoesNotExist:
-            messages.add_message(request, level=messages.ERROR, message=DATA_NONEXIST_ERR_MSG, extra_tags="danger")
+            messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
             return HttpResponseRedirect(get_pre_url(request))
         except Choice.DoesNotExist:
-            messages.add_message(request, level=messages.ERROR, message=CHOICE_ERR_MSG, extra_tags="danger")
+            messages.add_message(request, level=messages.ERROR, message=MSG_FAIL_CHOICE, extra_tags="danger")
             return HttpResponseRedirect(get_pre_url(request))
 
         try:

@@ -1,8 +1,8 @@
+from django.utils import timezone
+
+from assign.models import Assignment
 from authentication.utils import *
 from pages.models import *
-from assign.models import Assignment
-
-from django.utils import timezone
 
 
 def get_assigned_tasks_context(user):
@@ -72,3 +72,23 @@ def get_finalized_data(group_name):
 def log(user, task, action, response):
     Log.objects.update_or_create(user=user, task=task, action=action,
                                  response=response, timestamp=timezone.now())
+
+
+def get_unassigned_voting_data(group):
+    # get all VotingData ids that are not allocated to any user
+    voting_data = VotingData.objects.all()
+    if group:
+        voting_data = voting_data.filter(group=group)
+    voting_ids = [i.id for i in voting_data]
+
+    exclude_ids = [i.task.id for i in Assignment.objects.all()]
+    for exclude_id in exclude_ids:
+        if exclude_id in voting_ids:
+            voting_ids.remove(exclude_id)
+
+    # get all VotingData objects and combine them with their respective choices
+    voting_data = []
+    for voting_id in voting_ids:
+        voting_data.append(VotingData.objects.get(id=voting_id))
+    for data in voting_data:
+        data.answers = Choice.objects.filter(data_id=data.id)
