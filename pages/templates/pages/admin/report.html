@@ -2,25 +2,42 @@
 
 {% block content %}
 <div>
-    <label for="from">From</label>
+    <!--TODO: Allow date filtering-->
+    <!--label for="from">From</label>
     <input id="from" type="date" value="{{today}}" max="{{today}}"/>
     <label for="to">To</label>
     <input id="to" type="date" value="{{today}}" max="{{today}}"/>
-    <a href="/download_report" class="btn btn-primary float-right">Download</a>
-</div>
-<div class="btn-group">
-    <button id='group-toggle' class="btn btn-primary">Group</button>
-    <button id='individual-toggle' class="btn btn-outline-success">Individual</button>
-</div>
-<div id="individual_list" style="display: none">
-    {% include 'pages/admin/partial/individual_report.html' with users=users %}
-</div>
-<div id="group_list">
-    {% include 'pages/admin/partial/group_report.html' with groups=groups %}
+    <a href="/report" id="filter_btn" class="btn btn-primary">Filter</a-->
+    <a href="/download_report" id="download_btn"  class="btn btn-primary float-right">Download Individual Report</a>
 </div>
 
+{% if login_user.is_superuser %}
+<div class="btn-group">
+    <button id='group-toggle' class="btn btn-outline-primary">Group</button>
+    <button id='individual-toggle' class="btn btn-success">Individual</button>
+</div>
+<div id="group_list" style="display: none">
+    {% include 'pages/admin/partial/group_report.html' with groups=groups %}
+</div>
+{% endif %}
+
+<div id="individual_list">
+    {% include 'pages/admin/partial/individual_report.html' with users=users %}
+</div>
 <script>
     $(document).ready(function(){
+        $("#from").on('change', function(e) {
+            var from_date = $(this).val();
+            var to_date = $("#to").val();
+            $("#filter_btn").attr("href", "/report/" + from_date + "/" + to_date);
+            $("#download_btn").attr("href", "/report/" + from_date + "/" + to_date);
+        });
+        $("#to").on('change', function(e) {
+            var from_date = $("#from").val();
+            var to_date = $(this).val();
+            $("#filter_btn").attr("href", "/report/" + from_date + "/" + to_date);
+            $("#download_btn").attr("href", "/report/" + from_date + "/" + to_date);
+        });
         $("#group-toggle").on('click', function(e) {
             var group = document.getElementById('group_list');
             group.setAttribute('style', "display: block");
@@ -42,5 +59,6 @@
             btn.setAttribute('class', "btn btn-success");
         });
     });
+
 </script>
 {% endblock %}

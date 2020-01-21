@@ -4,4 +4,3 @@ from .models import *
 
 admin.site.register(VotingData)
 admin.site.register(ValidatingData)
-admin.site.register(Type)

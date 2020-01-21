@@ -4,7 +4,7 @@
 
 <ul class="navbar-nav">
     <li class="nav-item">
-        <a class="nav-link" href="/users">User List</a>
+        <a class="nav-link" href="/modify_users">User List</a>
     </li>
 
     <li class="nav-item">
@@ -19,6 +19,7 @@
         <a class="nav-link" href="/log">Admin Log</a>
     </li>
 
+    {% if not login_user.is_superuser %}
     <br/>
     <li class="nav-item">
         <a class="btn btn-primary" href="/assign_tasks">Assign Tasks</a>
@@ -28,4 +29,5 @@
     <li class="nav-item">
         <a class="btn btn-primary" href="/summarize">Summarize</a>
     </li>
+    {% endif %}
 </ul>

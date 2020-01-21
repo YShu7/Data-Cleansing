@@ -1,21 +1,28 @@
 from django.urls import path
 
-from pages.views import views, admin
+from pages.views import views, user, admin
 
 urlpatterns = [
     path('', views.index, name='tasks'),
-    path('tasks', views.index, name='tasks'),
-    path('profile', views.profile, name='profile'),
-    path('validate', views.validate, name='validate'),
-    path('<int:question_id>/vote', views.vote, name='vote'),
-    path('admin', admin.index, name='admin'),
-    path('users', admin.index, name='users'),
+
+    path('user', user.task_list, name='user'),
+    path('tasks', user.task_list, name='tasks'),
+    path('profile', user.profile, name='profile'),
+    path('validate', user.validate, name='validate'),
+    path('<int:id>/vote', user.vote, name='vote'),
+
+    path('admin', admin.modify_users, name='admin'),
     path('modify_users', admin.modify_users, name='modify_users'),
     path('dataset', admin.dataset, name='dataset'),
-    path('download_dataset', admin.download_dataset, name='download_dataset'),
-    path('download_report', admin.download_report, name='download_report'),
-    path('<int:question_id>/update', admin.update, name='update'),
+    path('dataset/', admin.dataset, name='dataset'),
+    path('dataset/<str:group_name>', admin.dataset, name='dataset'),
+    path('download_dataset/<str:group_name>', admin.download_dataset, name='download_dataset'),
+    path('download_dataset/', admin.download_dataset, name='download_dataset'),
+    path('<int:data_ptr_id>/update', admin.update, name='update'),
     path('report', admin.report, name='report'),
+    path('report/<str:from_date>/<str:to_date>', admin.report, name='report'),
+    path('download_report', admin.download_report, name='download_report'),
+    path('download_report/<str:from_date>/<str:to_date>', admin.download_report, name='download_report'),
     path('log', admin.log, name='log'),
     path('assign_tasks', admin.assign_tasks, name='assign_tasks'),
     path('summarize', admin.summarize, name='summarize'),

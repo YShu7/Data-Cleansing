@@ -18,10 +18,6 @@
             <td>{{login_user.certificate}}</td>
         </tr>
         <tr>
-            <th>Sepcialization</th>
-            <td>{{login_user.group.main_group.name}}</td>
-        </tr>
-        <tr>
             <th>Group</th>
             <td>{{login_user.group.name}}</td>
         </tr>
@@ -35,7 +31,7 @@
         </tr>
         <tr>
             <th>Overall Accuracy</th>
-            <td>{% widthratio login_user.accuracy 1 100%}%</td>
+            <td>{% widthratio login_user.accuracy 1.0 100%}%</td>
         </tr>
     </tbody>
 </table>
@@ -46,7 +42,7 @@
     </button>
 </span>
 
-{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show%}
+{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show %}
 
 <script>
     $(document).ready(function(){

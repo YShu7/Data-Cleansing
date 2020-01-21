@@ -1,6 +1,7 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 
 <table type="table" class="table table-hover">
@@ -8,13 +9,17 @@
         <tr>
             <th scope="col" width="20%">Username</th>
             <th scope="col" width="20%">Certificate</th>
-            <th scope="col" width="30%">Email</th>
-            <th scope="col" width="30%"></th>
+            <th scope="col" width="20%">Email</th>
+            {% if login_user.is_superuser %}
+                <th scope="col" width="10%">Group</th>
+                <th scope="col" width="10%"></th>
+            {% endif %}
+            <th scope="col" width="20%"></th>
         </tr>
     </thead>
     <tbody>
         {% for user in users %}
-            <form action="{% url 'modify_users' %}" method="post">
+            <form id="{{user.id}}_form" action="{% url 'modify_users' %}" method="post">
                 <input type="hidden" name="id" value="{{user.id}}">
                 {% csrf_token %}
                 {% if not user.is_active %}
@@ -23,6 +28,15 @@
                     <td>{{user.username}}</td>
                     <td>{{user.certificate}}</td>
                     <td>{{user.email}}</td>
+                    {% if login_user.is_superuser %}
+                        <td>{{user.group.name}}</td>
+                        <td>
+                            <div class="custom-control custom-switch">
+                                <input {%if user.is_admin %} checked {% endif %} type="checkbox" onchange="this.form.submit();" class="custom-control-input" name="is_admin" id="is_admin_{{user.id}}">
+                              <label class="custom-control-label" for="is_admin_{{user.id}}">Admin</label>
+                            </div>
+                        </td>
+                    {% endif %}
                     <td>
                         {% if user.is_active %}
                             <button class="btn btn-success" name="activate" type="submit" disabled="disabled">Activate</button>

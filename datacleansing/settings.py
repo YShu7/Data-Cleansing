@@ -145,3 +145,24 @@ EMAIL_HOST_PASSWORD = "xxxx"
 EMAIL_USE_TLS = False
 # 发件人, 与 EMAIL_HOST 保持一致
 EMAIL_FROM = "xxxx.com"
+
+ADMIN_DIR = 'pages/admin'
+USER_DIR = 'pages/user'
+AUTH_DIR = 'authentication'
+MSG_FAIL_CHOICE = "Please choose an answer."
+MSG_FAIL_DATA_NONEXIST = "Data #{} doesn't exist."
+
+MSG_SUCCESS_REG = "User registration succeed"
+MSG_FAIL_EMAIL = "Email {} has been used"
+MSG_FAIL_CERTI = "Certificate {} has been used"
+MSG_FAIL_FILL = "Please fill in {}."
+
+MSG_SUCCESS_VOTE = "Update Succeed."
+MSG_SUCCESS_ASSIGN = "Assign Tasks Succeed"
+MSG_SUCCESS_SUM = "Summarize Succeed"
+
+VAL = "validate"
+VOT = "vote"
+
+CORRECT_POINT = 3
+INCORRECT_POINT = 1

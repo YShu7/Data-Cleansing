@@ -10,22 +10,44 @@
     <title>{% block title %}Data Cleansing{% endblock %}</title>
 </head>
 <style>
+.sidbar-div {
+    width: 15%;
+}
+#content {
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 80%;
+}
+#sidebar {
+    height: 100vh;
+}
+@media screen and (max-width: 700px) {
+    #sidebar {
+        height: 100%;
+    }
+    .sidbar-div {
+        width: 100%;
+    }
+    #content {
+        width: 100%;
+    }
+}
 </style>
 <body>
     <div>
-        <nav class="navbar navbar-light bg-light" style="height:10vh">
+        <nav class="navbar navbar-light bg-light topbar">
             {% include "pages/partial/header.html" with user_name=login_user %}
         </nav>
 
         {% if login_user.is_approved %}
         <div class="row flex-xl-nowrap">
-            <div class="col-md-3 col-xl-2">
-                <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top" style="height:100vh; top:0vh">
+            <div class="sidbar-div">
+                <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">
                     {% block sidebar %}{% endblock %}
                 </nav>
             </div>
 
-            <div id="content" class="col-9">
+            <div id="content">
                 <div id="title">
                     </br>
                     <h3>
@@ -34,7 +56,24 @@
                     <hr/>
                 </div>
 
-                <div>{% block content %}{% endblock %}</div>
+                <div>
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+
+                    {% for message in messages %}
+                        <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
         {% else %}

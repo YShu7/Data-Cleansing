@@ -2,19 +2,14 @@ from django.contrib import auth
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, LoginView
-from django.http import *
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import loader
-from django.template.context_processors import csrf
 from django.template.defaulttags import register
 
+from datacleansing.utils import get_pre_url
 from .backends import CustomBackend
 from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
-
-MSG_SUCCESS = "User registration succeed"
-MSG_FAIL_EMAIL = "Email {} has been used"
-MSG_FAIL_CERTI = "Certificate {} has been used"
-MSG_FAIL_FILL = "Please fill in {}."
 
 
 class CustomLoginView(LoginView):
@@ -52,10 +47,10 @@ def password_change(request):
             return HttpResponseRedirect("/profile")
         else:
             request.session['success'] = False
-            request.session['data'] = form_obj.cleaned_data
+            request.session['data'] = form_obj.data
             return HttpResponseRedirect("/profile")
     else:
-        return HttpResponse("HTTP Request method is not POST.")
+        return HttpResponseRedirect(get_pre_url(request))
 
 
 def signup(request):
@@ -85,7 +80,6 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     subject_template_name = "authentication/password_reset_subject.txt"
     email_template_name = "authentication/password_reset_email.html"
-    token_generator = auth.tokens.PasswordResetTokenGenerator
     success_url = "authentication/login.html"
 
     def get_context_data(self, **kwargs):
@@ -102,7 +96,6 @@ def password_forget(request):
     if request.method == "POST":
         form_obj = CustomPasswordResetForm(request.POST)
         if form_obj.is_valid():
-            token = auth.tokens.PasswordResetTokenGenerator()
             return
     return render(request, "authentication/reset_pwd.html", {"form_obj": form_obj})
 

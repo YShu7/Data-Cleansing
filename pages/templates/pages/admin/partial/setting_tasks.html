@@ -2,32 +2,27 @@
     <table type="table" class="table table-hover">
         <thead class="thead-light">
             <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Question</th>
-                <th scope="col">Answer</th>
-                <th scope="col" width="30%"> </th>
+                <th scope="col" width="10%">ID</th>
+                <th scope="col" width="30%">Question</th>
+                <th scope="col" width="50%">Answer</th>
+                <th scope="col" width="10%"> </th>
             </tr>
         </thead>
         <tbody>
             {% for question in questions %}
-            <form action="{% url 'update' question.question_id %}" method="post">
+            <form action="{% url 'update' question.id %}" method="post">
             {% csrf_token %}
             <tr>
-                <th scope="row">{{question.question_id}}</th>
-                <input type="hidden" name="choice" id="choice" value="">
-                <td>{{question.question.question_text}}</td>
+                <th scope="row">{{question.id}}</th>
+                <input type="hidden" name="choice" id="choice" value="0">
+                <td>{{question.title}}</td>
                 <td>
-                    <div class="dropdown">
-                        <a id="selected_answer_{{question.id}}" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{question.answers.first.answer}}
-                        </a>
-                        <div id="dropdown_voting_{{question.id}}" value="{{question.id}}" class="dropdown-menu dropdown_voting" aria-labelledby="dropdownMenuButton">
-                            {% for ans in question.answers %}
-                                <button id="answer_{{ans.id}}" class="dropdown-item normal-item" type="button" value="{{ans.id}}">{{ans.answer}}</button>
-                            {% endfor %}
-                            <button id="answer_new" class="dropdown-item" data-toggle="modal" data-target="#dialog" type="button" value="{{question.id}}">Add New Answer</button>
-                        </div>
+                    {% for ans in question.answers %}
+                    <div class="custom-control custom-radio" value="{{question.id}}">
+                        <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
+                        <label class="custom-control-label" for="answer_{{ans.id}}">{{ans.answer}}</label>
                     </div>
+                    {% endfor %}
                 </td>
                 <td>
                     <button id="vote_{{question.id}}" value="" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
@@ -44,17 +39,14 @@
 
 <script>
     $(document).ready(function(){
-        $(".dropdown_voting .normal-item").on("click", function(e) {
+        $(".custom-radio .custom-control-input").on("click", function(e) {
             var id = $(this).parent().attr('value');
-            var selectedAnswer= $(this).text();
-            $("#selected_answer_" + id).text(selectedAnswer);
-            var ans = $(this).text();
-            $("#choice").val(ans);
-        });
-        $("#answer_new").on("click", function(e) {
-            var id = $(this).attr('value');
-            $("#update_btn").val(id);
-            $('#dialog').modal();
+            var ans_id = $(this).attr('value');
+            $("#vote_" + id).val(ans_id);
+            var idVal = $(this).attr("id");
+            $(".custom-radio label").css('color','black');
+            var label = $("label[for='"+idVal+"']");
+            label.css('color','green');
         });
         $("#update_btn").on('click', function(e) {
             var id = $("#update_btn").attr('value');
