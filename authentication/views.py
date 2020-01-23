@@ -1,4 +1,4 @@
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, LoginView
@@ -8,6 +8,7 @@ from django.template import loader
 from django.template.defaulttags import register
 
 from datacleansing.utils import get_pre_url
+from datacleansing.settings import MSG_SUCCESS_SIGN_UP, MSG_SUCCESS_PWD_CHANGE
 from .backends import CustomBackend
 from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
 
@@ -44,6 +45,8 @@ def password_change(request):
             user = form_obj.save()
             update_session_auth_hash(request, user)
             request.session['success'] = True
+
+            messages.success(request, MSG_SUCCESS_PWD_CHANGE)
             return HttpResponseRedirect("/profile")
         else:
             request.session['success'] = False
@@ -67,6 +70,8 @@ def signup(request):
             else:
                 user = form.save()
                 auth.login(request, user, backend='authentication.backends.CustomBackend')
+
+                messages.success(request, MSG_SUCCESS_SIGN_UP)
                 return HttpResponseRedirect('/')
         else:
             return HttpResponse(template.render(context={'form_obj': form}, request=request))

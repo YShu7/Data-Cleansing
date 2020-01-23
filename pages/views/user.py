@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
 from authentication.forms import CustomPasswordChangeForm
-from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL
+from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
 from pages.models import ValidatingData, VotingData, Choice
@@ -69,6 +69,7 @@ def validate(request):
                 task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
 
             task.validate()
+            messages.success(request, MSG_SUCCESS_VAL)
             log(request.user, task, VAL, new_ans)
     return HttpResponseRedirect(get_pre_url(request))
 
@@ -97,5 +98,6 @@ def vote(request, vote_id):
             pass
 
         data.vote(selected_choice)
+        messages.success(request, MSG_SUCCESS_VOTE)
         log(request.user, data, VOT, choice)
     return HttpResponseRedirect(get_pre_url(request))

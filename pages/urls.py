@@ -9,7 +9,7 @@ urlpatterns = [
     path('tasks', user.task_list, name='tasks'),
     path('profile', user.profile, name='profile'),
     path('validate', user.validate, name='validate'),
-    path('<int:id>/vote', user.vote, name='vote'),
+    path('<int:vote_id>/vote', user.vote, name='vote'),
 
     path('admin', admin.modify_users, name='admin'),
     path('modify_users', admin.modify_users, name='modify_users'),

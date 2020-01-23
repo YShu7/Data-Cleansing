@@ -158,6 +158,9 @@ MSG_FAIL_CERTI = "Certificate {} has been used"
 MSG_FAIL_FILL = "Please fill in {}."
 
 MSG_SUCCESS_VOTE = "Update Succeed."
+MSG_SUCCESS_VAL = "Update Succeed."
+MSG_SUCCESS_PWD_CHANGE = "Password was changed."
+MSG_SUCCESS_SIGN_UP = "Sign up successfully."
 MSG_SUCCESS_ASSIGN = "Assign Tasks Succeed"
 MSG_SUCCESS_SUM = "Summarize Succeed"
 
