@@ -6,7 +6,7 @@ from authentication.models import CustomGroup
 
 class Data(models.Model):
     title = models.CharField(max_length=200, blank=False)
-    group = models.ForeignKey(CustomGroup, on_delete=models.DO_NOTHING, blank=False)
+    group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE, blank=False)
 
     class Meta:
         unique_together = ("title", "group")

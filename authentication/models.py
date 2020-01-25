@@ -119,8 +119,8 @@ class Log(models.Model):
             (REJECT, 'reject'),
         ]
 
-    admin = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="account_log")
+    admin = models.ForeignKey(get_user_model(), models.CASCADE, related_name="account_log")
     action = models.CharField(max_length=32, choices=AccountAction.choices)
-    account = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="account_history")
+    account = models.ForeignKey(get_user_model(), models.CASCADE, related_name="account_history", null=True)
     extra_msg = models.TextField(max_length=200, blank=True, null=True)
     timestamp = models.DateTimeField()
