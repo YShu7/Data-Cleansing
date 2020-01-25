@@ -10,7 +10,7 @@
                 <span id="num_all_data" value="{{num_data}}">{{num_data}}</span>
             </div>
 
-            {% if login_user.is_superuser %}
+            {% if request.user.is_superuser %}
                 <strong>Number of Data for </strong>
                 <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{group_name}}

@@ -11,7 +11,7 @@
     <a href="/download_report" id="download_btn"  class="btn btn-primary float-right">Download Individual Report</a>
 </div>
 
-{% if login_user.is_superuser %}
+{% if request.user.is_superuser %}
 <div class="btn-group">
     <button id='group-toggle' class="btn btn-outline-primary">Group</button>
     <button id='individual-toggle' class="btn btn-success">Individual</button>

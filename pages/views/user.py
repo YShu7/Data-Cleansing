@@ -68,7 +68,6 @@ def validate(request):
         template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
         context = {
             'questions': get_assigned_tasks_context(request.user)['question_list_validating'],
-            'login_user': request.user,
             'title': 'Validating Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))
@@ -105,7 +104,6 @@ def vote(request, vote_id=None):
         template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
         context = context = {
             'questions': get_assigned_tasks_context(request.user)['question_list_voting'],
-            'login_user': request.user,
             'title': 'Voting Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))

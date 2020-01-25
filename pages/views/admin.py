@@ -46,7 +46,6 @@ def modify_users(request):
         approved_users = get_approved_users(user.group, user.is_superuser)
 
         context = {
-            'login_user': user,
             'pending_users': pending_users,
             'approved_users': approved_users,
         }
@@ -77,7 +76,6 @@ def dataset(request, group_name="all"):
         'page_obj': page_obj,
         'groups': groups,
         'data': voting_data,
-        'login_user': request.user,
         'group_name': group_name,
     }
     return HttpResponse(template.render(request=request, context=context))
@@ -134,7 +132,6 @@ def report(request, from_date=None, to_date=None):
         'title': 'Report',
         'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
         'users': users,
-        'login_user': request.user,
     }
 
     if request.user.is_superuser:
@@ -147,7 +144,6 @@ def report(request, from_date=None, to_date=None):
             'points': json.dumps(groups['points']),
             'num_ans': json.dumps(groups['num_ans']),
             'accuracy': json.dumps(groups['accuracy']),
-            'login_user': request.user,
         }
 
     return HttpResponse(template.render(context=context))
@@ -183,7 +179,6 @@ def log(request):
                 logs.append(log)
     context = {
         'title': "Admin Log",
-        'login_user': request.user,
         'logs': logs,
     }
     return HttpResponse(template.render(context=context))

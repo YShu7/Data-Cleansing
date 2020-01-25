@@ -14,10 +14,10 @@
 <body>
     <div>
         <nav class="navbar navbar-light bg-light topbar">
-            {% include "pages/partial/header.html" with user_name=login_user %}
+            {% include "pages/partial/header.html" with user_name=request.user %}
         </nav>
 
-        {% if login_user.is_approved %}
+        {% if request.user.is_approved %}
         <div class="row flex-xl-nowrap">
             <div class="sidbar-div">
                 <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">

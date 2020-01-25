@@ -31,7 +31,6 @@ def get_assigned_tasks_context(user):
 def get_profile_context(user):
     context = {
         'title': "Profile",
-        'login_user': user,
     }
     return context
 

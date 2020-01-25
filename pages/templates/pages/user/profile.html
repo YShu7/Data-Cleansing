@@ -11,27 +11,27 @@
     <tbody>
         <tr>
             <th >Name</th>
-            <td>{{login_user.username}}</td>
+            <td>{{request.user.username}}</td>
         </tr>
         <tr>
             <th>ID</th>
-            <td>{{login_user.certificate}}</td>
+            <td>{{request.user.certificate}}</td>
         </tr>
         <tr>
             <th>Group</th>
-            <td>{{login_user.group.name}}</td>
+            <td>{{request.user.group.name}}</td>
         </tr>
         <tr>
             <th>Email</th>
-            <td>{{login_user.email}}</td>
+            <td>{{request.user.email}}</td>
         </tr>
         <tr>
             <th>Current Point</th>
-            <td>{{login_user.point}}</td>
+            <td>{{request.user.point}}</td>
         </tr>
         <tr>
             <th>Overall Accuracy</th>
-            <td>{% widthratio login_user.accuracy 1.0 100%}%</td>
+            <td>{% widthratio request.user.accuracy 1.0 100%}%</td>
         </tr>
     </tbody>
 </table>
