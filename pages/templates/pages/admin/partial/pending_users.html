@@ -10,7 +10,7 @@
             <th scope="col" width="20%">Username</th>
             <th scope="col" width="20%">Certificate</th>
             <th scope="col" width="20%">Email</th>
-            {% if login_user.is_superuser %}
+            {% if request.user.is_superuser %}
                 <th scope="col" width="10%">Group</th>
             {% endif %}
             <th scope="col" width="20%"></th>
@@ -25,7 +25,7 @@
                     <td>{{user.username}}</td>
                     <td>{{user.certificate}}</td>
                     <td>{{user.email}}</td>
-                    {% if login_user.is_superuser %}
+                    {% if request.user.is_superuser %}
                         <td>{{user.group.name}}</td>
                     {% endif %}
                     <td>

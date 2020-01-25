@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.conf import settings
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
@@ -24,8 +25,6 @@ def get_assigned_tasks_context(user):
     context = {
         'question_list_validating': validating_data,
         'question_list_voting': voting_data,
-        'login_user': user,
-        'title': 'Tasks'
     }
     return context
 
@@ -33,7 +32,6 @@ def get_assigned_tasks_context(user):
 def get_profile_context(user):
     context = {
         'title': "Profile",
-        'login_user': user,
     }
     return context
 
@@ -82,6 +80,9 @@ def get_unassigned_voting_data(group):
     voting_ids = [i.id for i in voting_data]
 
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
+
+    if settings.DEBUG:
+        exclude_ids = []
     for exclude_id in exclude_ids:
         if exclude_id in voting_ids:
             voting_ids.remove(exclude_id)
@@ -92,3 +93,5 @@ def get_unassigned_voting_data(group):
         voting_data.append(VotingData.objects.get(id=voting_id))
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)
+
+    return voting_data

@@ -1,3 +1,8 @@
+{% extends "pages/user/base.html" %}
+
+{% block content %}
+<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+
 <div id="taskList">
      <form action="{% url 'validate' %}" method="post">
          {% csrf_token %}
@@ -28,7 +33,11 @@
                 <tr>
                     <th scope="row">{{question.id}}</th>
                     <td>{{question.data_ptr.title}}</td>
-                    <td id="ans_{{question.id}}">{{question.answer_text}}</td>
+                    <td class="module container">
+                        <p id="ans_{{question.id}}" class="collapse" aria-expanded="false">{{question.answer_text}}</p>
+                        <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{question.id}}" aria-expanded="false" aria-controls="ans_{{question.id}}"></a>
+                    </td>
+
                     <td id="type_{{question.id}}">?</td>
                     <td>
                         <input type="hidden" name="approve_value_{{question.id}}" id="approve_value_{{question.id}}" value="">
@@ -55,6 +64,12 @@
 
 <script>
     $(document).ready(function(){
+        $("#collapse_all").on("click", function () {
+            $('.module p.collapse').collapse('toggle');
+        });
+        $(".ans_collapse").on("click", function (e) {
+            $(this).toggleClass("overflow_hidden");
+        });
         $("#filter_validating .dropdown-item").on("click", function(e) {
             var selectedType = $(this).text();
             $("#validating_tasks tr").map(function() {
@@ -119,3 +134,4 @@
         };
     });
 </script>
+{% endblock %}

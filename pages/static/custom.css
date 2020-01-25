@@ -1,0 +1,65 @@
+/* responsive sidebar */
+.sidbar-div {
+    width: 15%;
+}
+#content {
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 80%;
+}
+#sidebar {
+    height: 100vh;
+}
+@media screen and (max-width: 700px) {
+    #sidebar {
+        height: 100%;
+    }
+    .sidbar-div {
+        width: 100%;
+    }
+    #content {
+        width: 100%;
+    }
+}
+
+/* modify collapse to partial collapse */
+.module .collapse, .module .collapsing {
+    height: 3rem;
+}
+
+.module .collapse {
+    position: relative;
+    display: block;
+    overflow: hidden;
+}
+
+.module .collapse:before {
+    content: ' ...';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.module .collapse.show {
+    height: auto;
+}
+
+.module .collapse.show:before {
+    display: none;
+}
+
+.module a.collapsed:after {
+    content: '+ Show More';
+}
+
+.module a:not(.collapsed):after {
+    content: '- Show Less';
+}
+
+.module a.collapsed:after {
+    content: '+ Show More';
+}
+
+.module a:not(.collapsed):after {
+    content: '- Show Less';
+}

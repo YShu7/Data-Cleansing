@@ -7,39 +7,17 @@
     <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css"/>
     <title>{% block title %}Data Cleansing{% endblock %}</title>
 </head>
-<style>
-.sidbar-div {
-    width: 15%;
-}
-#content {
-    margin-left: 20px;
-    margin-right: 20px;
-    width: 80%;
-}
-#sidebar {
-    height: 100vh;
-}
-@media screen and (max-width: 700px) {
-    #sidebar {
-        height: 100%;
-    }
-    .sidbar-div {
-        width: 100%;
-    }
-    #content {
-        width: 100%;
-    }
-}
-</style>
+
 <body>
     <div>
         <nav class="navbar navbar-light bg-light topbar">
-            {% include "pages/partial/header.html" with user_name=login_user %}
+            {% include "pages/partial/header.html" with user_name=request.user %}
         </nav>
 
-        {% if login_user.is_approved %}
+        {% if request.user.is_approved %}
         <div class="row flex-xl-nowrap">
             <div class="sidbar-div">
                 <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">
@@ -98,8 +76,8 @@
 
         for(var i=0;i<links.length;i++){
             var url=links[i].getAttribute("href");
-            if(currentURL.indexOf(url)!=-1 && url.indexOf("#") == -1) {
-                removeClass(links[0], "active");
+            if(currentURL.indexOf(url) != -1) {
+                removeClass(document.getElementById($(".index")[0].id), "active");
                 addClass(links[i], "active");
             }
         }
@@ -109,7 +87,7 @@
         if (!element.className){
             element.className = value;
         } else {
-            newClassName = element.className;
+            var newClassName = element.className;
             newClassName+= " ";
             newClassName+= value ;
             element.className = newClassName;
@@ -117,10 +95,8 @@
     }
 
     function removeClass(element, value ){
-        if (!element.className){
-            element.className = value;
-        } else {
-            newClassName = element.className.replace(/active/g, "");
+        if (element.className) {
+            let newClassName = element.className.replace(new RegExp(value,"g"), "");
             element.className = newClassName;
         }
     }

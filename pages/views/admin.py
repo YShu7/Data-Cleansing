@@ -46,7 +46,6 @@ def modify_users(request):
         approved_users = get_approved_users(user.group, user.is_superuser)
 
         context = {
-            'login_user': user,
             'pending_users': pending_users,
             'approved_users': approved_users,
         }
@@ -59,12 +58,11 @@ def dataset(request, group_name="all"):
     group = request.user.group
 
     # Retrieve data
-    voting_data = get_unassigned_voting_data(group)
     finalized_data = get_finalized_data(group_name)
     groups = CustomGroup.objects.all()
 
     # Initiate paginator
-    paginator = Paginator(finalized_data, 3)
+    paginator = Paginator(finalized_data, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -76,8 +74,6 @@ def dataset(request, group_name="all"):
         'num_data': num_data,
         'page_obj': page_obj,
         'groups': groups,
-        'data': voting_data,
-        'login_user': request.user,
         'group_name': group_name,
     }
     return HttpResponse(template.render(request=request, context=context))
@@ -104,7 +100,7 @@ def download_dataset(request, group_name=""):
 
 @superuser_admin_login_required
 @csrf_protect
-def update(request, data_ptr_id):
+def update(request, data_ptr_id=None):
     if request.method == 'POST':
         # update VotingData to Data directly
         voting_data = VotingData.objects.get(data_ptr_id=data_ptr_id)
@@ -116,7 +112,18 @@ def update(request, data_ptr_id):
             FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
             voting_data.delete(keep_parents=True)
             messages.success(request, MSG_SUCCESS_VOTE)
-    return HttpResponseRedirect(get_pre_url(request))
+        return HttpResponseRedirect(get_pre_url(request))
+    else:
+        template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
+        group = request.user.group
+
+        # Retrieve data
+        voting_data = get_unassigned_voting_data(group)
+        context = {
+            'title': 'Data Set',
+            'questions': voting_data,
+        }
+        return HttpResponse(template.render(request=request, context=context))
 
 
 @superuser_admin_login_required
@@ -134,7 +141,6 @@ def report(request, from_date=None, to_date=None):
         'title': 'Report',
         'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
         'users': users,
-        'login_user': request.user,
     }
 
     if request.user.is_superuser:
@@ -147,10 +153,9 @@ def report(request, from_date=None, to_date=None):
             'points': json.dumps(groups['points']),
             'num_ans': json.dumps(groups['num_ans']),
             'accuracy': json.dumps(groups['accuracy']),
-            'login_user': request.user,
         }
 
-    return HttpResponse(template.render(context=context))
+    return HttpResponse(template.render(context=context, request=request))
 
 
 @superuser_admin_login_required
@@ -183,10 +188,9 @@ def log(request):
                 logs.append(log)
     context = {
         'title': "Admin Log",
-        'login_user': request.user,
         'logs': logs,
     }
-    return HttpResponse(template.render(context=context))
+    return HttpResponse(template.render(context=context, request=request))
 
 
 @admin_login_required
@@ -196,7 +200,7 @@ def assign_tasks(request):
     validating_data = ValidatingData.objects.filter(group=group)
     voting_data = VotingData.objects.filter(is_active=True, group=group)
 
-    Assignment.objects.delete()
+    Assignment.objects.all().delete()
     assign(users, Assignment, validating_data, Data)
     assign(users, Assignment, voting_data, Data)
 
