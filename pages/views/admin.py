@@ -13,9 +13,11 @@ from assign.models import Assignment
 from assign.views import assign
 from authentication.models import CustomGroup, Log as auth_log
 from authentication.utils import get_approved_users, get_pending_users
-from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM
+from authentication.forms import CreateGroupForm
+from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM, \
+    MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP
 from datacleansing.utils import get_pre_url, Echo
-from pages.decorators import superuser_admin_login_required, admin_login_required
+from pages.decorators import superuser_admin_login_required, admin_login_required, superuser_login_required
 from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
 from pages.views.utils import get_unassigned_voting_data, get_finalized_data, compute_group_point, \
     account_log, get_data_log_msg, get_auth_log_msg
@@ -28,16 +30,16 @@ def modify_users(request):
         user = get_user_model().objects.get(id=request.POST["id"])
         if 'approve' in request.POST:
             user.approve(True)
-            account_log(admin, auth_log.AccountAction.APPROVE, user);
+            account_log(admin, auth_log.AccountAction.APPROVE, user)
         if 'activate' in request.POST:
             user.activate(True)
-            account_log(admin, auth_log.AccountAction.ACTIVATE, user);
+            account_log(admin, auth_log.AccountAction.ACTIVATE, user)
         if 'deactivate' in request.POST:
             user.activate(False)
-            account_log(admin, auth_log.AccountAction.DEACTIVATE, user);
+            account_log(admin, auth_log.AccountAction.DEACTIVATE, user)
         if 'reject' in request.POST:
             user.approve(False)
-            account_log(admin, auth_log.AccountAction.REJECT, user);
+            account_log(admin, auth_log.AccountAction.REJECT, user)
 
         if request.user.is_superuser:
             if 'is_admin' in request.POST:
@@ -236,4 +238,43 @@ def summarize(request):
                 pass
 
     messages.success(request, MSG_SUCCESS_SUM)
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@superuser_login_required
+def group(request):
+    template = loader.get_template('{}/group.html'.format(ADMIN_DIR))
+    context = {
+        'groups': CustomGroup.objects.all(),
+        'delete_check_id': 'group_name',
+        'delete_confirm_id': 'confirm_input',
+        'create_form': CreateGroupForm(),
+    }
+    return HttpResponse(template.render(context=context, request=request))
+
+
+@superuser_login_required
+def delete_group(request):
+    if request.method == "POST":
+        group_name = request.POST["group_name"]
+        if group_name == request.POST["confirm_input"]:
+            CustomGroup.objects.get(name=group_name).delete()
+            messages.success(request, MSG_SUCCESS_DEL_GRP.format(group_name))
+        else:
+            messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=MSG_FAIL_DEL_GRP)
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@superuser_login_required
+def create_group(request):
+    form_obj = CreateGroupForm(request.POST)
+    if form_obj.is_valid():
+        form_obj.save()
+        messages.success(request, MSG_SUCCESS_CRT_GRP.format(form_obj.data.get('name')))
+    else:
+        for error in form_obj.errors:
+            error = form_obj.errors[error][0]
+            if error:
+                break
+        messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=error)
     return HttpResponseRedirect(get_pre_url(request))

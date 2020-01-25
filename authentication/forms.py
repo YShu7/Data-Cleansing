@@ -23,8 +23,8 @@ class CustomUserCreationForm(UserCreationForm):
                              widget=forms.widgets.EmailInput(attrs={'class': 'form-control'}))
     username = forms.CharField(label="Username", widget=forms.widgets.Input(attrs={'class': 'form-control'}))
     certificate = forms.CharField(label="Certificate", widget=forms.widgets.Input(attrs={'class': 'form-control'}))
-    group = forms.ChoiceField(label="Group", choices=[(group.id, group.name) for group in CustomGroup.objects.all()],
-                              widget=forms.widgets.Select(attrs={'class': 'form-control'}))
+    group = forms.ModelChoiceField(label="Group", queryset=CustomGroup.objects.all(),
+                                   widget=forms.widgets.Select(attrs={'class': 'form-control'}), required=True)
 
     password = None
     password1 = forms.CharField(label="Password", min_length=8,
@@ -70,3 +70,12 @@ class CustomPasswordResetForm(PasswordResetForm):
                                  "required": "Email cannot be empty",
                                  "invalid": "Input is invalid email",
                              })
+
+
+class CreateGroupForm(forms.ModelForm):
+    name = forms.CharField(label="Group Name",
+                           widget=forms.widgets.Input(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = CustomGroup
+        fields = ['name']
