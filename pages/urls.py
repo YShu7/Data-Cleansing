@@ -28,4 +28,7 @@ urlpatterns = [
     path('log', admin.log, name='log'),
     path('assign_tasks', admin.assign_tasks, name='assign_tasks'),
     path('summarize', admin.summarize, name='summarize'),
+    path('group', admin.group, name='group'),
+    path('delete_group', admin.delete_group, name='delete_group'),
+    path('create_group', admin.create_group, name='create_group'),
 ]

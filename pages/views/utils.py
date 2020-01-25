@@ -111,7 +111,6 @@ def get_data_log_msg(log):
 
 
 def get_auth_log_msg(log):
-    print(1)
     return {
         "logger": "{}({})".format(log.admin.username, log.admin.certificate),
         "timestamp": log.timestamp,
