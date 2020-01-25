@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
@@ -103,3 +104,23 @@ class CustomUser(AbstractUser):
     def assign_admin(self, is_admin):
         self.is_admin = is_admin
         self.save()
+
+
+class Log(models.Model):
+    class AccountAction:
+        ACTIVATE = 'ACTIVATE'
+        DEACTIVATE = 'DEACTIVATE'
+        APPROVE = 'APPROVE'
+        REJECT = 'REJECT'
+        choices = [
+            (ACTIVATE, 'activate'),
+            (DEACTIVATE, 'deactivate'),
+            (APPROVE, 'approve'),
+            (REJECT, 'reject'),
+        ]
+
+    admin = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="account_log")
+    action = models.CharField(max_length=32, choices=AccountAction.choices)
+    account = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="account_history")
+    extra_msg = models.TextField(max_length=200, blank=True, null=True)
+    timestamp = models.DateTimeField()

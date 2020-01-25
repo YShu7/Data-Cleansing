@@ -13,13 +13,14 @@
         {% for log in logs%}
         <tr>
             <td>
-                {{log.user.username}}({{log.user.certificate}})
+                {{log.logger}}
             </td>
             <td>
                 {{log.timestamp}}
             </td>
             <td>
-                {{log.action}}&nbsp;{{log.task.id}} with response {{log.response}}
+                {{log.msg}}
+                <p style="color: grey; font-size: small">{{log.extra}}</p>
             </td>
         </tr>
         {% endfor %}

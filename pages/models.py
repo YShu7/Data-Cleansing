@@ -134,7 +134,7 @@ class Choice(models.Model):
 
 
 class Log(models.Model):
-    user = models.ForeignKey(get_user_model(), models.DO_NOTHING)
+    user = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="data_log")
     task = models.ForeignKey(Data, models.DO_NOTHING)
     action = models.CharField(max_length=32)
     response = models.TextField()

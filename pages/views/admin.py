@@ -11,27 +11,33 @@ from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
 from assign.views import assign
-from authentication.models import CustomGroup
+from authentication.models import CustomGroup, Log as auth_log
 from authentication.utils import get_approved_users, get_pending_users
 from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM
 from datacleansing.utils import get_pre_url, Echo
 from pages.decorators import superuser_admin_login_required, admin_login_required
 from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
-from pages.views.utils import get_unassigned_voting_data, get_finalized_data, compute_group_point
+from pages.views.utils import get_unassigned_voting_data, get_finalized_data, compute_group_point, \
+    account_log, get_data_log_msg, get_auth_log_msg
 
 
 @superuser_admin_login_required
 def modify_users(request):
+    admin = request.user
     if request.method == "POST":
         user = get_user_model().objects.get(id=request.POST["id"])
         if 'approve' in request.POST:
             user.approve(True)
+            account_log(admin, auth_log.AccountAction.APPROVE, user);
         if 'activate' in request.POST:
             user.activate(True)
+            account_log(admin, auth_log.AccountAction.ACTIVATE, user);
         if 'deactivate' in request.POST:
             user.activate(False)
+            account_log(admin, auth_log.AccountAction.DEACTIVATE, user);
         if 'reject' in request.POST:
             user.approve(False)
+            account_log(admin, auth_log.AccountAction.REJECT, user);
 
         if request.user.is_superuser:
             if 'is_admin' in request.POST:
@@ -181,11 +187,15 @@ def log(request):
     if request.user.is_superuser:
         for log in all_logs:
             if log.user.is_superuser or log.user.is_admin:
-                logs.append(log)
+                logs.append(get_data_log_msg(log))
     else:
         for log in all_logs:
             if log.user.is_admin and log.user.group == request.user.group:
-                logs.append(log)
+                logs.append(get_data_log_msg(log))
+
+    data_logs = auth_log.objects.all()
+    for log in data_logs:
+        logs.append(get_auth_log_msg(log))
     context = {
         'title': "Admin Log",
         'logs': logs,

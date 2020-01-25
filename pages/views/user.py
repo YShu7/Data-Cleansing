@@ -10,7 +10,7 @@ from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CH
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
 from pages.models import ValidatingData, VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, get_profile_context, log
+from pages.views.utils import get_assigned_tasks_context, get_profile_context, data_log
 
 
 @user_login_required
@@ -63,7 +63,7 @@ def validate(request):
 
             task.validate()
             messages.success(request, MSG_SUCCESS_VAL)
-            log(request.user, task, VAL, new_ans)
+            data_log(request.user, task, VAL, new_ans)
     else:
         template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
         context = {
@@ -99,7 +99,7 @@ def vote(request, vote_id=None):
 
         data.vote(selected_choice)
         messages.success(request, MSG_SUCCESS_VOTE)
-        log(request.user, data, VOT, choice)
+        data_log(request.user, data, VOT, choice)
     else:
         template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
         context = context = {

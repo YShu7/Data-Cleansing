@@ -3,7 +3,8 @@ from django.conf import settings
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log
+from authentication.models import Log as auth_log
+from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log as data_log
 
 
 def get_assigned_tasks_context(user):
@@ -67,9 +68,13 @@ def get_finalized_data(group_name):
     return finalized_data
 
 
-def log(user, task, action, response):
-    Log.objects.update_or_create(user=user, task=task, action=action,
+def data_log(user, task, action, response):
+    data_log.objects.update_or_create(user=user, task=task, action=action,
                                  response=response, timestamp=timezone.now())
+
+
+def account_log(admin, action, account, msg=""):
+    auth_log.objects.update_or_create(admin=admin, action=action, account=account, extra_msg=msg, timestamp=timezone.now())
 
 
 def get_unassigned_voting_data(group):
@@ -95,3 +100,21 @@ def get_unassigned_voting_data(group):
         data.answers = Choice.objects.filter(data_id=data.id)
 
     return voting_data
+
+
+def get_data_log_msg(log):
+    return {
+        "logger": "{}({})".format(log.user.username, log.user.certifacate),
+        "timestamp": log.timestamp,
+        "msg": "{} {} with response {}".format(log.action, log.task_id, log.response)
+    }
+
+
+def get_auth_log_msg(log):
+    print(1)
+    return {
+        "logger": "{}({})".format(log.admin.username, log.admin.certificate),
+        "timestamp": log.timestamp,
+        "msg": "{} {}({})".format(log.get_action_display(), log.account.username, log.account.certificate),
+        "extra": log.extra_msg,
+    }
