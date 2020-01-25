@@ -89,3 +89,5 @@ def get_unassigned_voting_data(group):
         voting_data.append(VotingData.objects.get(id=voting_id))
     for data in voting_data:
         data.answers = Choice.objects.filter(data_id=data.id)
+
+    return voting_data

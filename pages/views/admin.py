@@ -58,12 +58,11 @@ def dataset(request, group_name="all"):
     group = request.user.group
 
     # Retrieve data
-    voting_data = get_unassigned_voting_data(group)
     finalized_data = get_finalized_data(group_name)
     groups = CustomGroup.objects.all()
 
     # Initiate paginator
-    paginator = Paginator(finalized_data, 3)
+    paginator = Paginator(finalized_data, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -75,7 +74,6 @@ def dataset(request, group_name="all"):
         'num_data': num_data,
         'page_obj': page_obj,
         'groups': groups,
-        'data': voting_data,
         'group_name': group_name,
     }
     return HttpResponse(template.render(request=request, context=context))
@@ -102,7 +100,7 @@ def download_dataset(request, group_name=""):
 
 @superuser_admin_login_required
 @csrf_protect
-def update(request, data_ptr_id):
+def update(request, data_ptr_id=None):
     if request.method == 'POST':
         # update VotingData to Data directly
         voting_data = VotingData.objects.get(data_ptr_id=data_ptr_id)
@@ -114,7 +112,18 @@ def update(request, data_ptr_id):
             FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
             voting_data.delete(keep_parents=True)
             messages.success(request, MSG_SUCCESS_VOTE)
-    return HttpResponseRedirect(get_pre_url(request))
+        return HttpResponseRedirect(get_pre_url(request))
+    else:
+        template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
+        group = request.user.group
+
+        # Retrieve data
+        voting_data = get_unassigned_voting_data(group)
+        context = {
+            'title': 'Data Set',
+            'questions': voting_data,
+        }
+        return HttpResponse(template.render(request=request, context=context))
 
 
 @superuser_admin_login_required
@@ -146,7 +155,7 @@ def report(request, from_date=None, to_date=None):
             'accuracy': json.dumps(groups['accuracy']),
         }
 
-    return HttpResponse(template.render(context=context))
+    return HttpResponse(template.render(context=context, request=request))
 
 
 @superuser_admin_login_required
@@ -181,7 +190,7 @@ def log(request):
         'title': "Admin Log",
         'logs': logs,
     }
-    return HttpResponse(template.render(context=context))
+    return HttpResponse(template.render(context=context, request=request))
 
 
 @admin_login_required

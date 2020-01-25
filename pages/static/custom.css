@@ -24,32 +24,40 @@
 
 /* modify collapse to partial collapse */
 .module .collapse, .module .collapsing {
-  height: 3rem;
+    height: 3rem;
 }
 
 .module .collapse {
-  position: relative;
-  display: block;
-  overflow: hidden;
+    position: relative;
+    display: block;
+    overflow: hidden;
 }
 
 .module .collapse:before {
-  content: ' ...';
-  position: absolute;
-  right: 0;
-  bottom: 0;
+    content: ' ...';
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }
 
 .module .collapse.show {
-  height: auto;
+    height: auto;
 }
 
 .module .collapse.show:before {
-  display: none;
+    display: none;
 }
 
 .module a.collapsed:after {
-  content: '+ Show More';
+    content: '+ Show More';
+}
+
+.module a:not(.collapsed):after {
+    content: '- Show Less';
+}
+
+.module a.collapsed:after {
+    content: '+ Show More';
 }
 
 .module a:not(.collapsed):after {
