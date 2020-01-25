@@ -1,6 +1,6 @@
-{%load static%}
-<script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
+{% extends "pages/user/base.html" %}
 
+{% block content %}
 <div id="taskList">
     <table type="table" class="table table-hover">
         <thead class="thead-light">
@@ -21,9 +21,10 @@
                 <td>{{question.data_ptr.title}}</td>
                 <td>
                     {% for ans in question.answers %}
-                    <div class="custom-control custom-radio" value="{{question.id}}">
+                    <div class="custom-control custom-radio module container" value="{{question.id}}">
                         <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
-                        <label class="custom-control-label" for="answer_{{ans.id}}">{{ans.answer}}</label>
+                        <label id="ans_{{ans.id}}" class="custom-control-label collapse" for="answer_{{ans.id}}" aria-expanded="false">{{ans.answer}}</label>
+                        <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{ans.id}}" aria-expanded="false" aria-controls="ans_{{ans.id}}"></a>
                     </div>
                     {% endfor %}
                 </td>
@@ -56,3 +57,4 @@ $(document).ready(function(){
     });
 });
 </script>
+{% endblock %}

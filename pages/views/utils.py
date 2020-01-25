@@ -24,8 +24,6 @@ def get_assigned_tasks_context(user):
     context = {
         'question_list_validating': validating_data,
         'question_list_voting': voting_data,
-        'login_user': user,
-        'title': 'Tasks'
     }
     return context
 

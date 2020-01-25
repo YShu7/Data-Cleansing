@@ -5,8 +5,9 @@ from pages.views import views, user, admin
 urlpatterns = [
     path('', views.index, name='tasks'),
 
-    path('user', user.task_list, name='user'),
-    path('tasks', user.task_list, name='tasks'),
+    path('user', user.validate, name='user'),
+    path('tasks/validate', user.validate, name='tasks/validate'),
+    path('tasks/vote', user.vote, name='tasks/vote'),
     path('profile', user.profile, name='profile'),
     path('validate', user.validate, name='validate'),
     path('<int:vote_id>/vote', user.vote, name='vote'),
