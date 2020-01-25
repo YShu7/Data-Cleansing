@@ -5,13 +5,17 @@
     <table type="table" class="table table-hover">
         <thead class="thead-light">
             <tr>
-                <th scope="col" width="10%">Group</th>
-                <th scope="col" width="10%"> </th>
+                <th scope="col">Group</th>
+                <th scope="col"># of Accounts</th>
+                <th scope="col"># of Data</th>
+                <th scope="col" width="30%"> </th>
             </tr>
         </thead>
         {% for group in groups %}
             <tr>
                 <td>{{ group.name }}</td>
+                <td>{{ group.user_num }}</td>
+                <td>{{ group.data_num }}</td>
                 <td>
                     <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">Delete Group</button>
                 </td>
@@ -29,7 +33,9 @@
             $('#new_group_dialog').modal();
         });
        $(".delete_btn").on('click', function(e) {
-           $('#group_name').val($(this).val());
+           var group_name = $(this).val();
+           $('#{{ delete_check_id }}').val(group_name);
+           $('#{{ delete_confirm_id }}').attr('placeholder', group_name);
            $('#dialog').modal();
         });
     });

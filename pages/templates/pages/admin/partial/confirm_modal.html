@@ -14,8 +14,9 @@
                     {% if warning %}
                         <p class="text-danger"> <b>Warning:</b> {{ warning }}</p>
                     {% endif %}
+                    <p class="text-secondary"> <b>Note:</b> {{ msg }}</p>
                     <input type="hidden" id="{{ check_id }}" name="{{ check_id }}">
-                    <input class="form-control" id="{{ confirm_id }}" name="{{ confirm_id }}" placeholder="{{ msg }}">
+                    <input class="form-control" id="{{ confirm_id }}" name="{{ confirm_id }}">
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" type="submit" id="{{ btn_id }}">Confirm</button>
