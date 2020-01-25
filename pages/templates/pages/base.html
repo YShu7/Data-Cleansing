@@ -76,8 +76,8 @@
 
         for(var i=0;i<links.length;i++){
             var url=links[i].getAttribute("href");
-            if(currentURL.indexOf(url)!=-1 && url.indexOf("#") == -1) {
-                removeClass(links[0], "active");
+            if(currentURL.indexOf(url) != -1) {
+                removeClass(document.getElementById($(".index")[0].id), "active");
                 addClass(links[i], "active");
             }
         }
@@ -87,7 +87,7 @@
         if (!element.className){
             element.className = value;
         } else {
-            newClassName = element.className;
+            var newClassName = element.className;
             newClassName+= " ";
             newClassName+= value ;
             element.className = newClassName;
@@ -95,10 +95,8 @@
     }
 
     function removeClass(element, value ){
-        if (!element.className){
-            element.className = value;
-        } else {
-            newClassName = element.className.replace(/active/g, "");
+        if (element.className) {
+            let newClassName = element.className.replace(new RegExp(value,"g"), "");
             element.className = newClassName;
         }
     }

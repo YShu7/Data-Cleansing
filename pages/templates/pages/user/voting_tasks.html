@@ -1,6 +1,8 @@
 {% extends "pages/user/base.html" %}
 
 {% block content %}
+<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+
 <div id="taskList">
     <table type="table" class="table table-hover">
         <thead class="thead-light">
@@ -42,6 +44,9 @@
 
 <script>
 $(document).ready(function(){
+    $("#collapse_all").on("click", function () {
+        $('.module label.collapse').collapse('toggle');
+    });
     $(".custom-radio .custom-control-input").on("click", function(e) {
         var id = $(this).parent().attr('value');
         var ans_id = $(this).attr('value');

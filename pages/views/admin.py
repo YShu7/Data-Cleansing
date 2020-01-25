@@ -200,7 +200,7 @@ def assign_tasks(request):
     validating_data = ValidatingData.objects.filter(group=group)
     voting_data = VotingData.objects.filter(is_active=True, group=group)
 
-    Assignment.objects.delete()
+    Assignment.objects.all().delete()
     assign(users, Assignment, validating_data, Data)
     assign(users, Assignment, voting_data, Data)
 

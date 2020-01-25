@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.conf import settings
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
@@ -79,6 +80,9 @@ def get_unassigned_voting_data(group):
     voting_ids = [i.id for i in voting_data]
 
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
+
+    if settings.DEBUG:
+        exclude_ids = []
     for exclude_id in exclude_ids:
         if exclude_id in voting_ids:
             voting_ids.remove(exclude_id)
