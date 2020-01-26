@@ -240,7 +240,7 @@ def group(request):
 
     context = {
         'groups': groups_info,
-        'delete_check_id': 'group_name',
+        'delete_check_id': 'input',
         'delete_confirm_id': 'confirm_input',
         'create_form': CreateGroupForm(),
     }
@@ -250,7 +250,7 @@ def group(request):
 @superuser_login_required
 def delete_group(request):
     if request.method == "POST":
-        group_name = request.POST["group_name"]
+        group_name = request.POST["input"]
         if group_name == request.POST["confirm_input"]:
             CustomGroup.objects.get(name=group_name).delete()
             messages.success(request, MSG_SUCCESS_DEL_GRP.format(group_name))
