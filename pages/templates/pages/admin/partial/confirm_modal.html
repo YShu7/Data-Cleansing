@@ -1,0 +1,27 @@
+<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{modal_id}}" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">{{ title }}</h4>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form action="{% url url %}" method="POST" >
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% if warning %}
+                        <p class="text-danger"> <b>Warning:</b> {{ warning }}</p>
+                    {% endif %}
+                    <p class="text-secondary"> <b>Note:</b> {{ msg }}</p>
+                    <input type="hidden" id="{{ check_id }}" name="{{ check_id }}">
+                    <input class="form-control" id="{{ confirm_id }}" name="{{ confirm_id }}">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit" id="{{ btn_id }}">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

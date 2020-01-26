@@ -1,4 +1,7 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
+
+from .models import Log
 
 
 def get_group_report(group):
@@ -20,14 +23,14 @@ def get_group_report(group):
 def get_pending_users(group=None, is_superuser=False):
     if not group:
         if is_superuser:
-            return get_user_model().objects.filter(is_approved=False, is_superuser=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, is_superuser=False).order_by('date_joined')
         else:
-            return get_user_model().objects.filter(is_approved=False, is_superuser=False, is_admin=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, is_superuser=False, is_admin=False).order_by('date_joined')
     else:
         if is_superuser:
-            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False).order_by('date_joined')
         else:
-            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False, is_admin=False).order_by(
+            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False, is_admin=False).order_by(
                 'date_joined')
 
 
@@ -46,3 +49,16 @@ def get_approved_users(group=None, is_superuser=False):
             return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False,
                                                    is_admin=False).order_by(
                 'date_joined')
+
+
+def get_log_msg(log):
+    return {
+        "logger": "{}({})".format(log.admin.username, log.admin.certificate),
+        "timestamp": log.timestamp,
+        "msg": "{} {}({})".format(log.get_action_display(), log.account.username, log.account.certificate),
+        "extra": log.extra_msg,
+    }
+
+
+def log(admin, action, account, msg=""):
+    Log.objects.update_or_create(admin=admin, action=action, account=account, extra_msg=msg, timestamp=timezone.now())

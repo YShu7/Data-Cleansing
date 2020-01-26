@@ -6,19 +6,22 @@ from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
 from authentication.forms import CustomPasswordChangeForm
-from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE
+from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, \
+    MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
 from pages.models import ValidatingData, VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, get_profile_context, log
+from pages.views.utils import get_assigned_tasks_context, log as data_log
 
 
 @user_login_required
 def profile(request):
     template = loader.get_template('{}/profile.html'.format(USER_DIR))
-    context = get_profile_context(request.user)
-    context['form_obj'] = CustomPasswordChangeForm(user=request.user)
-    context['show'] = False
+    context = {
+        'title': "Profile",
+        'form_obj': CustomPasswordChangeForm(user=request.user),
+        'show': False
+    }
     success = request.session.pop('success', False)
     data = request.session.pop('data', False)
     if not success and data:
@@ -63,7 +66,7 @@ def validate(request):
 
             task.validate()
             messages.success(request, MSG_SUCCESS_VAL)
-            log(request.user, task, VAL, new_ans)
+            data_log(request.user, task, VAL, new_ans)
     else:
         template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
         context = {
@@ -99,7 +102,7 @@ def vote(request, vote_id=None):
 
         data.vote(selected_choice)
         messages.success(request, MSG_SUCCESS_VOTE)
-        log(request.user, data, VOT, choice)
+        data_log(request.user, data, VOT, choice)
     else:
         template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
         context = context = {
@@ -108,3 +111,9 @@ def vote(request, vote_id=None):
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
+
+
+def retry_sign_up(request):
+    request.user.approve(None)
+    messages.success(request, MSG_SUCCESS_RETRY)
+    return HttpResponseRedirect('/')

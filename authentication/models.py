@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
@@ -62,7 +63,7 @@ class CustomUser(AbstractUser):
     correct_num_ans = models.IntegerField(default=0)
     num_ans = models.IntegerField(default=0)
 
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=None, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -90,11 +91,8 @@ class CustomUser(AbstractUser):
         self.save()
 
     def approve(self, approved):
-        if approved:
-            self.is_approved = approved
-            self.save()
-        else:
-            self.delete()
+        self.is_approved = approved
+        self.save()
 
     def activate(self, active):
         self.is_active = active
@@ -103,3 +101,23 @@ class CustomUser(AbstractUser):
     def assign_admin(self, is_admin):
         self.is_admin = is_admin
         self.save()
+
+
+class Log(models.Model):
+    class AccountAction:
+        ACTIVATE = 'ACTIVATE'
+        DEACTIVATE = 'DEACTIVATE'
+        APPROVE = 'APPROVE'
+        REJECT = 'REJECT'
+        choices = [
+            (ACTIVATE, 'activate'),
+            (DEACTIVATE, 'deactivate'),
+            (APPROVE, 'approve'),
+            (REJECT, 'reject'),
+        ]
+
+    admin = models.ForeignKey(get_user_model(), models.CASCADE, related_name="account_log")
+    action = models.CharField(max_length=32, choices=AccountAction.choices)
+    account = models.ForeignKey(get_user_model(), models.CASCADE, related_name="account_history", null=True)
+    extra_msg = models.TextField(max_length=200, blank=True, null=True)
+    timestamp = models.DateTimeField()

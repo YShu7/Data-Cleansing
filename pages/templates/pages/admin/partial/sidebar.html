@@ -7,6 +7,12 @@
         <a class="nav-link active index" id="/modify_users" href="/modify_users">User List</a>
     </li>
 
+    {% if request.user.is_superuser %}
+    <li class="nav-item">
+        <a class="nav-link" id="/group" href="/group">Groups</a>
+    </li>
+    {% endif %}
+
     <li class="nav-item">
         <a class="nav-link" id="/dataset" href="/dataset">Dataset</a>
     </li>

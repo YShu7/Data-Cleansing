@@ -11,27 +11,36 @@ from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
 from assign.views import assign
-from authentication.models import CustomGroup
-from authentication.utils import get_approved_users, get_pending_users
-from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM
+from authentication.models import CustomGroup, Log as AuthLog
+from authentication.utils import get_approved_users, get_pending_users, \
+    log as account_log, get_log_msg as get_auth_log_msg
+from authentication.forms import CreateGroupForm
+from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM, \
+    MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP
 from datacleansing.utils import get_pre_url, Echo
-from pages.decorators import superuser_admin_login_required, admin_login_required
+from pages.decorators import superuser_admin_login_required, admin_login_required, superuser_login_required
 from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
-from pages.views.utils import get_unassigned_voting_data, get_finalized_data, compute_group_point
+from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context,\
+    get_log_msg as get_data_log_msg, get_admin_logs, get_num_per_group_dict, get_group_info_context
 
 
 @superuser_admin_login_required
 def modify_users(request):
+    admin = request.user
     if request.method == "POST":
         user = get_user_model().objects.get(id=request.POST["id"])
         if 'approve' in request.POST:
             user.approve(True)
+            account_log(admin, AuthLog.AccountAction.APPROVE, user)
         if 'activate' in request.POST:
             user.activate(True)
+            account_log(admin, AuthLog.AccountAction.ACTIVATE, user)
         if 'deactivate' in request.POST:
             user.activate(False)
+            account_log(admin, AuthLog.AccountAction.DEACTIVATE, user)
         if 'reject' in request.POST:
             user.approve(False)
+            account_log(admin, AuthLog.AccountAction.REJECT, user)
 
         if request.user.is_superuser:
             if 'is_admin' in request.POST:
@@ -42,8 +51,8 @@ def modify_users(request):
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
         user = request.user
-        pending_users = get_pending_users(user.group, user.is_superuser)
-        approved_users = get_approved_users(user.group, user.is_superuser)
+        pending_users = get_pending_users(getattr(user, 'group'), user.is_superuser)
+        approved_users = get_approved_users(getattr(user, 'group'), user.is_superuser)
 
         context = {
             'pending_users': pending_users,
@@ -55,7 +64,6 @@ def modify_users(request):
 @superuser_admin_login_required
 def dataset(request, group_name="all"):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
-    group = request.user.group
 
     # Retrieve data
     finalized_data = get_finalized_data(group_name)
@@ -80,7 +88,7 @@ def dataset(request, group_name="all"):
 
 
 @superuser_admin_login_required
-def download_dataset(request, group_name=""):
+def download_dataset(_, group_name=""):
     """A view that streams a large CSV file."""
     # Generate a sequence of rows. The range is based on the maximum number of
     # rows that can be handled by a single sheet in most spreadsheet
@@ -115,10 +123,9 @@ def update(request, data_ptr_id=None):
         return HttpResponseRedirect(get_pre_url(request))
     else:
         template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
-        group = request.user.group
 
         # Retrieve data
-        voting_data = get_unassigned_voting_data(group)
+        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'))
         context = {
             'title': 'Data Set',
             'questions': voting_data,
@@ -135,7 +142,7 @@ def report(request, from_date=None, to_date=None):
         from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     if not to_date:
         to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
-    users = get_approved_users(request.user.group)
+    users = get_approved_users(getattr(request.user, 'group'),)
 
     context = {
         'title': 'Report',
@@ -144,7 +151,7 @@ def report(request, from_date=None, to_date=None):
     }
 
     if request.user.is_superuser:
-        groups = compute_group_point()
+        groups = get_group_report_context()
         context = {
             'title': 'Report',
             'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
@@ -163,7 +170,7 @@ def download_report(request):
     """A view that streams a large CSV file."""
     rows = [["id", "username", "certificate", "point", "accuracy"]]
     rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in
-             get_approved_users(request.user.group))
+             get_approved_users(getattr(request.user, 'group')))
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -176,16 +183,9 @@ def download_report(request):
 @superuser_admin_login_required
 def log(request):
     template = loader.get_template('{}/log.html'.format(ADMIN_DIR))
-    all_logs = Log.objects.all()
-    logs = []
-    if request.user.is_superuser:
-        for log in all_logs:
-            if log.user.is_superuser or log.user.is_admin:
-                logs.append(log)
-    else:
-        for log in all_logs:
-            if log.user.is_admin and log.user.group == request.user.group:
-                logs.append(log)
+    logs = get_admin_logs(request.user, Log.objects.all(), get_data_log_msg, 'user')
+    data_logs = get_admin_logs(request.user, AuthLog.objects.all(), get_auth_log_msg, 'admin')
+    logs.extend(data_logs)
     context = {
         'title': "Admin Log",
         'logs': logs,
@@ -195,10 +195,10 @@ def log(request):
 
 @admin_login_required
 def assign_tasks(request):
-    group = request.user.group
-    users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=group)
-    validating_data = ValidatingData.objects.filter(group=group)
-    voting_data = VotingData.objects.filter(is_active=True, group=group)
+    grp = getattr(request.user, 'group')
+    users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=grp)
+    validating_data = ValidatingData.objects.filter(group=grp)
+    voting_data = VotingData.objects.filter(is_active=True, group=grp)
 
     Assignment.objects.all().delete()
     assign(users, Assignment, validating_data, Data)
@@ -210,7 +210,7 @@ def assign_tasks(request):
 
 @admin_login_required
 def summarize(request):
-    users = get_approved_users(request.user.group)
+    users = get_approved_users(getattr(request.user, 'group'))
     logs = Log.objects.all().filter(checked=False)
     for user in users:
         user_logs = logs.filter(user=user)
@@ -222,8 +222,54 @@ def summarize(request):
                     user.ans_is(True)
                 else:
                     user.ans_is(False)
-            except:
+            except FinalizedData.DoesNotExist:
                 pass
 
     messages.success(request, MSG_SUCCESS_SUM)
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@superuser_login_required
+def group(request):
+    template = loader.get_template('{}/group.html'.format(ADMIN_DIR))
+
+    user_per_groups_dict = get_num_per_group_dict(get_user_model())
+    data_per_group_dict = get_num_per_group_dict(FinalizedData)
+    groups_info = get_group_info_context(CustomGroup.objects.all(),
+                                         {'user_num': user_per_groups_dict, 'data_num': data_per_group_dict})
+
+    context = {
+        'groups': groups_info,
+        'delete_check_id': 'group_name',
+        'delete_confirm_id': 'confirm_input',
+        'create_form': CreateGroupForm(),
+    }
+    return HttpResponse(template.render(context=context, request=request))
+
+
+@superuser_login_required
+def delete_group(request):
+    if request.method == "POST":
+        group_name = request.POST["group_name"]
+        if group_name == request.POST["confirm_input"]:
+            CustomGroup.objects.get(name=group_name).delete()
+            messages.success(request, MSG_SUCCESS_DEL_GRP.format(group_name))
+        else:
+            messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=MSG_FAIL_DEL_GRP)
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@superuser_login_required
+def create_group(request):
+    form_obj = CreateGroupForm(request.POST)
+    if form_obj.is_valid():
+        form_obj.save()
+        messages.success(request, MSG_SUCCESS_CRT_GRP.format(form_obj.data.get('name')))
+    else:
+        error = ""
+        for error in form_obj.errors:
+            error = form_obj.errors[error][0]
+            if error:
+                break
+        messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=error)
     return HttpResponseRedirect(get_pre_url(request))

@@ -27,7 +27,7 @@
 
             <div id="content">
                 <div id="title">
-                    </br>
+                    <br/>
                     <h3>
                         {% block page %}{{ title }}{% endblock %}
                     </h3>
@@ -54,25 +54,40 @@
                 </div>
             </div>
         </div>
+        {% elif request.user.is_approved == None %}
+        <div class="text-center">
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            Your account is still pending for admin's approval.
+        </div>
         {% else %}
         <div class="text-center">
-            Sorry, your account is still pending for admin's approval.</div>
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            Sorry, your account is rejected to be activated.
+            <a href="/retry_sign_up">Try again.</a>
         </div>
         {% endif %}
     </div>
 </body>
 </html>
 
-<style>
-    .active {
-        background: lightgray;
-    }
-</style>
-
 <script>
     $(document).ready(function(){
-        var links = document.getElementById("sidebar").getElementsByTagName("a");
-        var currentURL = document.location.href;
+        let links = document.getElementById("sidebar").getElementsByTagName("a");
+        let currentURL = document.location.href;
 
         for(var i=0;i<links.length;i++){
             var url=links[i].getAttribute("href");

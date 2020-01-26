@@ -1,37 +1,36 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css"/>
 
-<div id="taskList">
-    <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+<a id="download_btn" href="/download_dataset/{{group_name}}" class="btn btn-primary">Download All Data</a>
+<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
-    <table type="table" class="table table-hover">
-        <thead class="thead-light">
-            <tr>
-                <th scope="col" width="5%">ID</th>
-                {% if request.user.is_superuser %}
-                    <th scope="col" width="5%">Group</th>
-                {% endif %}
-                <th scope="col" width="40%">Question</th>
-                <th scope="col" width="50%">Answer</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for data in page_obj %}
-            <tr class="data">
-                <th scope="row">{{data.id}}</th>
-                {% if request.user.is_superuser %}
-                    <td class="data_group">{{data.group.name}}</td>
-                {% endif %}
-                <td>{{data.title}}</td>
-                <td class="module container">
-                    <p id="ans_{{data.id}}" class="collapse" aria-expanded="false">{{data.answer_text}}</p>
-                    <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{data.id}}" aria-expanded="false" aria-controls="ans_{{data.id}}"></a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<table type="table" class="table table-hover">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col" width="5%">ID</th>
+            {% if request.user.is_superuser %}
+                <th scope="col" width="5%">Group</th>
+            {% endif %}
+            <th scope="col" width="40%">Question</th>
+            <th scope="col" width="50%">Answer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in page_obj %}
+        <tr class="data">
+            <th scope="row">{{data.id}}</th>
+            {% if request.user.is_superuser %}
+                <td class="data_group">{{data.group.name}}</td>
+            {% endif %}
+            <td>{{data.title}}</td>
+            <td class="module container">
+                <p id="ans_{{data.id}}" class="collapse" aria-expanded="false">{{data.answer_text}}</p>
+                <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{data.id}}" aria-expanded="false" aria-controls="ans_{{data.id}}"></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 <div class="col-xs-4 col-xs-offset-4">
     <div class="pagination">
