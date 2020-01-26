@@ -20,14 +20,14 @@ def get_group_report(group):
 def get_pending_users(group=None, is_superuser=False):
     if not group:
         if is_superuser:
-            return get_user_model().objects.filter(is_approved=False, is_superuser=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, is_superuser=False).order_by('date_joined')
         else:
-            return get_user_model().objects.filter(is_approved=False, is_superuser=False, is_admin=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, is_superuser=False, is_admin=False).order_by('date_joined')
     else:
         if is_superuser:
-            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False).order_by('date_joined')
+            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False).order_by('date_joined')
         else:
-            return get_user_model().objects.filter(is_approved=False, group=group, is_superuser=False, is_admin=False).order_by(
+            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False, is_admin=False).order_by(
                 'date_joined')
 
 

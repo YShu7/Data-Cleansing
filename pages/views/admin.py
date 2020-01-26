@@ -30,16 +30,16 @@ def modify_users(request):
         user = get_user_model().objects.get(id=request.POST["id"])
         if 'approve' in request.POST:
             user.approve(True)
-            account_log(admin, auth_log.AccountAction.APPROVE, user)
+            account_log(admin, AuthLog.AccountAction.APPROVE, user)
         if 'activate' in request.POST:
             user.activate(True)
-            account_log(admin, auth_log.AccountAction.ACTIVATE, user)
+            account_log(admin, AuthLog.AccountAction.ACTIVATE, user)
         if 'deactivate' in request.POST:
             user.activate(False)
-            account_log(admin, auth_log.AccountAction.DEACTIVATE, user)
+            account_log(admin, AuthLog.AccountAction.DEACTIVATE, user)
         if 'reject' in request.POST:
             user.approve(False)
-            account_log(admin, auth_log.AccountAction.REJECT, user)
+            account_log(admin, AuthLog.AccountAction.REJECT, user)
 
         if request.user.is_superuser:
             if 'is_admin' in request.POST:

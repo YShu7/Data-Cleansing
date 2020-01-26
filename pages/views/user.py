@@ -108,3 +108,9 @@ def vote(request, vote_id=None):
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
+
+
+def retry_sign_up(request):
+    request.user.approve(None)
+    messages.success(request, MSG_SUCCESS_RETRY)
+    return HttpResponseRedirect('/')

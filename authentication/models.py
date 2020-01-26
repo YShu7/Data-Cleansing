@@ -63,7 +63,7 @@ class CustomUser(AbstractUser):
     correct_num_ans = models.IntegerField(default=0)
     num_ans = models.IntegerField(default=0)
 
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=None, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -91,11 +91,8 @@ class CustomUser(AbstractUser):
         self.save()
 
     def approve(self, approved):
-        if approved:
-            self.is_approved = approved
-            self.save()
-        else:
-            self.delete()
+        self.is_approved = approved
+        self.save()
 
     def activate(self, active):
         self.is_active = active
