@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import QueryDict
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import loader
@@ -69,8 +70,15 @@ def validate(request):
             data_log(request.user, task, VAL, new_ans)
     else:
         template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
+
+        # Initiate paginator
+        data = get_assigned_tasks_context(request.user, ValidatingData)
+        paginator = Paginator(data, 1)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         context = {
-            'questions': get_assigned_tasks_context(request.user)['question_list_validating'],
+            'page_obj': page_obj,
             'title': 'Validating Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))
@@ -105,8 +113,17 @@ def vote(request, vote_id=None):
         data_log(request.user, data, VOT, choice)
     else:
         template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
-        context = context = {
-            'questions': get_assigned_tasks_context(request.user)['question_list_voting'],
+
+        # Initiate paginator
+        data = get_assigned_tasks_context(request.user, VotingData)
+        for d in data:
+            d.answers = Choice.objects.filter(data_id=d.id)
+        paginator = Paginator(data, 1)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = {
+            'page_obj': page_obj,
             'title': 'Voting Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))

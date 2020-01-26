@@ -9,12 +9,12 @@
             <tr>
                 <th scope="col" width="5%">ID</th>
                 <th scope="col" width="30%">Question</th>
-                <th scope="col" width="30%">Answer</th>
-                <th scope="col" width="30%"> </th>
+                <th scope="col" width="40%">Answer</th>
+                <th scope="col" width="25%"> </th>
             </tr>
         </thead>
         <tbody id="voting_tasks">
-            {% for question in questions %}
+            {% for question in page_obj %}
             <form action="{% url 'vote' question.id %}" method="post">
             {% csrf_token %}
             <tr>
@@ -40,6 +40,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
 </div>
 
 <script>

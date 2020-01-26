@@ -157,6 +157,8 @@ def report(request, from_date=None, to_date=None):
     context = {
         'title': 'Report',
         'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
+        'from_date': from_date,
+        'to_date': to_date,
         'users': users,
     }
 

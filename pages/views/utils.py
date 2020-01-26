@@ -4,30 +4,21 @@ from django.db.models import Count
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
+from pages.models import VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
 
 
-def get_assigned_tasks_context(user):
-    data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+def get_assigned_tasks_context(user, model):
+    all_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
 
-    validating_data = []
-    voting_data = []
-    for d in data:
+    data = []
+    for d in all_data:
         try:
-            validating_d = ValidatingData.objects.get(pk=d)
-            validating_data.append(validating_d)
-        except ValidatingData.DoesNotExist:
-            voting_d = VotingData.objects.get(pk=d)
-            voting_data.append(voting_d)
+            d_obj = model.objects.get(pk=d)
+            data.append(d_obj)
+        except model.DoesNotExist:
+            pass
 
-    for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
-
-    context = {
-        'question_list_validating': validating_data,
-        'question_list_voting': voting_data,
-    }
-    return context
+    return data
 
 
 def get_group_report_context():
