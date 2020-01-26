@@ -66,11 +66,13 @@ def log(user, task, action, response):
                                      response=response, timestamp=timezone.now())
 
 
-def get_unassigned_voting_data(group):
+def get_unassigned_voting_data(group, search_term=None):
     # get all VotingData ids that are not allocated to any user
     voting_data = VotingData.objects.all()
     if group:
         voting_data = voting_data.filter(group=group)
+    if search_term:
+        voting_data = voting_data.filter(title__icontains=search_term)
     voting_ids = [i.id for i in voting_data]
 
     exclude_ids = [i.task.id for i in Assignment.objects.all()]

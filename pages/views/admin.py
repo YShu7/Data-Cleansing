@@ -125,10 +125,20 @@ def update(request, data_ptr_id=None):
         template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
 
         # Retrieve data
-        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'))
+        search_term = None
+        if 'search' in request.GET:
+            search_term = request.GET['search']
+        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'), search_term)
+
+        # Initiate paginator
+        paginator = Paginator(voting_data, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         context = {
             'title': 'Data Set',
-            'questions': voting_data,
+            'page_obj': page_obj,
+            'data': VotingData.objects.all(),
         }
         return HttpResponse(template.render(request=request, context=context))
 
