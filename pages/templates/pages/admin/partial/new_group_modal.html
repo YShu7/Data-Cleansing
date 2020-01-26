@@ -10,7 +10,6 @@
             <form action="{% url 'create_group' %}" method="POST" novalidate autocomplete="off">
                 {% csrf_token %}
                 <div class="modal-body">
-                    {{ form_obj.name.label }}
                     {{ form_obj.name }}
                 </div>
                 <div class="modal-footer">

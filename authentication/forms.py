@@ -74,7 +74,8 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 class CreateGroupForm(forms.ModelForm):
     name = forms.CharField(label="Group Name",
-                           widget=forms.widgets.Input(attrs={'class': 'form-control'}))
+                           widget=forms.widgets.Input(attrs={'class': 'form-control',
+                                                             'placeholder': 'Input group name here'}))
 
     class Meta:
         model = CustomGroup

@@ -1,10 +1,10 @@
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Count
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from authentication.models import Log as auth_log
-from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log as data_log
+from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
 
 
 def get_assigned_tasks_context(user):
@@ -30,14 +30,7 @@ def get_assigned_tasks_context(user):
     return context
 
 
-def get_profile_context(user):
-    context = {
-        'title': "Profile",
-    }
-    return context
-
-
-def compute_group_point():
+def get_group_report_context():
     groups = CustomGroup.objects.all()
 
     names = []
@@ -68,13 +61,9 @@ def get_finalized_data(group_name):
     return finalized_data
 
 
-def data_log(user, task, action, response):
-    data_log.objects.update_or_create(user=user, task=task, action=action,
-                                 response=response, timestamp=timezone.now())
-
-
-def account_log(admin, action, account, msg=""):
-    auth_log.objects.update_or_create(admin=admin, action=action, account=account, extra_msg=msg, timestamp=timezone.now())
+def log(user, task, action, response):
+    DataLog.objects.update_or_create(user=user, task=task, action=action,
+                                     response=response, timestamp=timezone.now())
 
 
 def get_unassigned_voting_data(group):
@@ -102,18 +91,40 @@ def get_unassigned_voting_data(group):
     return voting_data
 
 
-def get_data_log_msg(log):
+def get_log_msg(log_obj):
     return {
-        "logger": "{}({})".format(log.user.username, log.user.certifacate),
-        "timestamp": log.timestamp,
-        "msg": "{} {} with response {}".format(log.action, log.task_id, log.response)
+        "logger": "{}({})".format(log_obj.user.username, log_obj.user.certifacate),
+        "timestamp": log_obj.timestamp,
+        "msg": "{} {} with response {}".format(log_obj.action, log_obj.task_id, log_obj.response)
     }
 
 
-def get_auth_log_msg(log):
-    return {
-        "logger": "{}({})".format(log.admin.username, log.admin.certificate),
-        "timestamp": log.timestamp,
-        "msg": "{} {}({})".format(log.get_action_display(), log.account.username, log.account.certificate),
-        "extra": log.extra_msg,
-    }
+def get_admin_logs(user, logs, func, logger):
+    if user.is_superuser:
+        return [func(this_log) for this_log in logs
+                if getattr(this_log, logger).is_superuser or getattr(this_log, logger).is_admin]
+    else:
+        return [func(this_log) for this_log in logs
+                if getattr(this_log, logger).is_admin and getattr(this_log, logger).group == user.group]
+
+
+def get_num_per_group_dict(model):
+    num_per_groups = model.objects.values('group').annotate(dcount=Count('group'))
+    num_per_groups_dict = {}
+    for num_per_group in num_per_groups:
+        num_per_groups_dict[num_per_group['group']] = num_per_group['dcount']
+    return num_per_groups_dict
+
+
+def get_group_info_context(groups, info_dict):
+    groups_info = []
+    for grp in groups:
+        group_info = {'name': grp.name}
+        for k in info_dict:
+            v = 0
+            if grp.id in info_dict[k]:
+                v = info_dict[k][grp.id]
+
+            group_info[k] = v
+        groups_info.append(group_info)
+    return groups_info
