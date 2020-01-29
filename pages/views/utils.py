@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Count
+from django.template.defaulttags import register
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
@@ -121,3 +122,40 @@ def get_group_info_context(groups, info_dict):
             group_info[k] = v
         groups_info.append(group_info)
     return groups_info
+
+
+def merge_validate_context(new_data, old_data):
+    if isinstance(old_data['validate_ids'], list):
+        validate_ids = old_data['validate_ids']
+    else:
+        validate_ids = old_data['validate_ids'].split(',')
+    validate_ids.extend(new_data['validate_ids'].split(','))
+
+    old_data.update(new_data)
+    new_data = old_data
+    new_data['validate_ids'] = validate_ids
+
+    return new_data
+
+
+@register.filter
+def is_true(dictionary, key):
+    res = dictionary.get(key)
+    if not res:
+        return False
+    else:
+        return res[0] == 'true' or res == 'true'
+
+
+@register.filter
+def get_first_item(dictionary, key):
+    res = dictionary.get(key)
+    if not res:
+        return ""
+    else:
+        return res[0]
+
+
+@register.filter
+def s_format(string, f):
+    return string.format(f)

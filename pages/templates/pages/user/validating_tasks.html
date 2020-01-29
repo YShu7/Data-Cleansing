@@ -6,7 +6,7 @@
 <div id="taskList">
      <form id="validate_form" action="{% url 'validate' %}" method="post">
          {% csrf_token %}
-         <input type="hidden" name="validate_ids" id="validate_ids" value="">
+         <input type="hidden" name="validate_ids" id="validate_ids">
          <table type="table" class="table table-hover" id="tasks_table">
             <thead class="thead-light">
                 <tr>
@@ -58,7 +58,7 @@
             </tbody>
         </table>
         {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
-        <span class="d-flex"><input class="btn btn-primary btn ml-auto" type="submit" value="Submit"></span>
+        <span class="d-flex"><input class="btn btn-primary btn ml-auto" name="submit" type="submit" value="Submit"></span>
     </form>
 </div>
 {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn"%}
@@ -68,17 +68,17 @@
         $("#collapse_all").on("click", function () {
             $('.module p.collapse').collapse('toggle');
         });
-        $(".ans_collapse").on("click", function (e) {
+        $(".ans_collapse").on("click", function () {
             $(this).toggleClass("overflow_hidden");
         });
-        $("#filter_validating .dropdown-item").on("click", function(e) {
+        $("#filter_validating .dropdown-item").on("click", function() {
             var selectedType = $(this).text();
             $("#validating_tasks tr").map(function() {
                 var id = $(this).children("th").text();
                 $(this).toggle($("#type_" + id).text() == selectedType);
             })
         });
-        $(".approve").on('click', function(e) {
+        $(".approve").on('click', function() {
             $(this).attr('disabled', true);
             var id = $(this).attr('value');
             $("#change_" + id).attr('disabled', false);
@@ -87,14 +87,14 @@
 
             approve(id, true);
         });
-        $(".change").on('click', function(e) {
+        $(".change").on('click', function() {
             var id = $(this).attr('value');
             $("#validate_ids").val(getNewIds(id));
             $("#update_btn").val(id);
             $("#new_ans").val("");
             $('#dialog').modal();
         });
-        $("#update_btn").on('click', function(e) {
+        $("#update_btn").on('click', function() {
             var id = $("#update_btn").attr('value');
             approve(id, false);
 
@@ -103,12 +103,20 @@
             var x = document.getElementById('dialog');
             x.setAttribute('style', "display: none");
         });
-        $(".pagination a").on('click', function(e) {
-            $("#validate_form").submit();
+        $(".pagination a").on('click', function() {
+            $.ajax({
+                url: 'validate',
+                type: 'post',
+                dataType: 'json',
+                data: $('#validate_form').serialize(),
+                success: function() {
+                           window.location.href = $(this).attr("href");
+                         }
+            });
         });
         function getNewIds(id) {
             var ids = $("#validate_ids").attr('value');
-            if(ids!="") {
+            if ( ids != "" ) {
                 ids = ids + "," + id;
             } else {
                 ids = id;
@@ -116,24 +124,45 @@
             return ids;
         }
         function approve(id, approved) {
+            var ans_element = $("#ans_"+id);
+            var type_element = $("#type_" + id);
             if (approved) {
                 var old_ans = $("#old_ans_" + id).val();
 
-                $("#ans_"+id).text(old_ans);
-                $("#ans_"+id).css('color', 'green');
-                $("#type_" + id).text("Approved");
-                $("#type_" + id).css('color', 'green');
-
+                ans_element.text(old_ans);
+                ans_element.css('color', 'green');
+                type_element.text("Approved");
+                type_element.css('color', 'green');
             } else {
                 var new_ans = $("#new_ans").val();
 
                 $("#new_ans_" + id).val(new_ans);
-                $("#ans_"+id).text(new_ans);
-                $("#ans_"+id).css('color', 'red');
-                $("#type_" + id).text("Disapproved");
-                $("#type_" + id).css('color', 'red');
+                ans_element.text(new_ans);
+                ans_element.css('color', 'red');
+                type_element.text("Disapproved");
+                type_element.css('color', 'red');
             }
         }
+        {% for question in page_obj %}
+            {% with val='approve_value_{}'|s_format:question.id %}
+                {% if request.session.data|get_item:val != "" %}
+                    {% if request.session.data|is_true:val %}
+                        $("#approve_{{question.id}}").click();
+                    {% else %}
+                        $("#validate_ids").val(getNewIds({{ question.id }}));
+                        $("#update_btn").val("{{question.id}}");
+
+                        {% with new_ans_key='new_ans_{}'|s_format:question.id %}
+                            {% with new_ans=request.session.data|get_first_item:new_ans_key %}
+                                $("#new_ans").val("{{ new_ans }}");
+                            {% endwith %}
+                        {% endwith %}
+
+                        $("#update_btn").click();
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
     });
 </script>
 {% endblock %}

@@ -210,7 +210,8 @@ validating_ans = [
 ]
 
 for q, a in zip(validating_qns, validating_ans):
-    validating_data = ValidatingData.create(title=q, group=groups[0], ans=a)
+    for i in range(5):
+        validating_data = ValidatingData.create(title="{}-{}".format(i, q), group=groups[0], ans=a)
 
 for q, a in zip(validating_qns, validating_ans):
     fianlized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
