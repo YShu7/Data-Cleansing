@@ -1,6 +1,9 @@
 {% extends "pages/user/base.html" %}
 
 {% block content %}
+{% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
+
+{% if page_obj %}
 <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
 <div id="taskList">
@@ -171,4 +174,10 @@
         {% endfor %}
     });
 </script>
+{% else %}
+    <br/>
+    <div class="alert alert-success" role="alert">
+          You have complete all validating tasks.
+    </div>
+{% endif %}
 {% endblock %}

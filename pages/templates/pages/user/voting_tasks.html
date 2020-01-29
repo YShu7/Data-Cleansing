@@ -1,6 +1,9 @@
 {% extends "pages/user/base.html" %}
 
 {% block content %}
+{% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
+
+{% if page_obj %}
 <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
 <div id="taskList">
@@ -19,6 +22,7 @@
             {% csrf_token %}
             <tr>
                 <th scope="row">{{question.id}}</th>
+                <input type="hidden" id="door" value=1>
                 <input type="hidden" name="choice" id="choice" value="0">
                 <td>{{question.data_ptr.title}}</td>
                 <td>
@@ -48,7 +52,7 @@ $(document).ready(function(){
     $("#collapse_all").on("click", function () {
         $('.module label.collapse').collapse('toggle');
     });
-    $(".custom-radio .custom-control-input").on("click", function(e) {
+    $(".custom-radio .custom-control-input").on("click", function() {
         var id = $(this).parent().attr('value');
         var ans_id = $(this).attr('value');
         $("#vote_" + id).val(ans_id);
@@ -56,11 +60,26 @@ $(document).ready(function(){
         $(".custom-radio label").css('color','black');
         var label = $("label[for='"+idVal+"']");
         label.css('color','green');
+
+        $("#door").val(0);
     });
-    $(".vote").on('click', function(e) {
+    $(".vote").on('click', function() {
         var choice = $(this).attr('value');
         $("#choice").val(choice);
+        $("#door").val(1);
     });
+    window.onbeforeunload = function(event)
+    {
+        if ($("#door").val() == 0) {
+            return confirm("Confirm refresh");
+        }
+    };
 });
 </script>
+{% else %}
+    <br/>
+    <div class="alert alert-success" role="alert">
+          You have complete all validating tasks.
+    </div>
+{% endif %}
 {% endblock %}

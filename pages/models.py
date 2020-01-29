@@ -62,11 +62,10 @@ class ValidatingData(Data):
         if self.num_approved >= 2:
             # if enough user has approve the answer
             # the origin answer is considered to be correct
-            FinalizedData.objects.update_or_create(title=self.data_ptr.title,
-                                                   group=self.data_ptr.group)
+            FinalizedData.create(title=self.data_ptr.title, group=self.data_ptr.group, ans=self.answer_text)
             for data in datas:
                 Choice.objects.filter(data=data).delete()
-            self.delete()
+            self.delete(keep_parents=True)
         elif self.num_disapproved >= 2:
             # if enough user has disapprove the answer
             # the better answer should be selected by activating VotingData

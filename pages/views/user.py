@@ -12,7 +12,8 @@ from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CH
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
 from pages.models import ValidatingData, VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, s_format, is_true
+from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, get_ids, \
+    s_format, is_true
 
 
 @user_login_required
@@ -40,14 +41,25 @@ def validate(request):
     template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
 
     # Initiate paginator
-    data = get_assigned_tasks_context(request.user, ValidatingData)
+    data, task_num = get_assigned_tasks_context(request.user, ValidatingData)
     paginator = Paginator(data, 1)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    per_task_ratio = 0
+    if task_num["todo"] != 0:
+        per_task_ratio = 100 / task_num["todo"]
+    doing = 0
+    if 'data' in request.session:
+        doing = len(get_ids(request.session['data']['validate_ids']))
+
     context = {
         'page_obj': page_obj,
         'title': 'Validating Tasks',
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': doing,
+        'per_task_ratio': per_task_ratio,
     }
 
     if request.method == 'POST':
@@ -97,7 +109,7 @@ def validate(request):
                 task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
 
             task.validate()
-            data_log(request.user, task, VAL, new_ans)
+            data_log(request.user, task.data_ptr, VAL, new_ans)
         messages.success(request, MSG_SUCCESS_VAL)
         return HttpResponseRedirect(request.path)
 
@@ -134,15 +146,21 @@ def vote(request, vote_id=None):
         template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
 
         # Initiate paginator
-        data = get_assigned_tasks_context(request.user, VotingData)
+        data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
         for d in data:
             d.answers = d.choice_set.all()
         paginator = Paginator(data, 1)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
+        per_task_ratio = 0
+        if task_num["todo"] != 0:
+            per_task_ratio = 100 / task_num["todo"]
         context = {
             'page_obj': page_obj,
+            'num_done': task_num["done"],
+            'num_total': task_num["total"],
+            'num_doing': 0,
             'title': 'Voting Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))

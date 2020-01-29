@@ -8,18 +8,39 @@ from authentication.utils import get_group_report
 from pages.models import VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
 
 
-def get_assigned_tasks_context(user, model):
-    all_data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
+    all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+    all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
+
+    todo_num = len(all_data_todo)
+    done_num = len(all_data_done)
 
     data = []
-    for d in all_data:
+    for d in all_data_todo:
         try:
             d_obj = model.objects.get(pk=d)
-            data.append(d_obj)
+            if condition(d_obj):
+                data.append(d_obj)
+            else:
+                todo_num -= 1
         except model.DoesNotExist:
-            pass
+            todo_num -= 1
 
-    return data
+    for d in all_data_done:
+        try:
+            d_obj = model.objects.get(pk=d)
+            if not condition(d_obj):
+                done_num -= 1
+        except model.DoesNotExist:
+            done_num -= 1
+
+    total_num = todo_num + done_num
+    num = {
+        'todo': todo_num,
+        'done': done_num,
+        'total': total_num,
+    }
+    return data, num
 
 
 def get_group_report_context():
@@ -134,9 +155,22 @@ def merge_validate_context(new_data, old_data):
     for k in new_data:
         old_data[k] = new_data[k]
     new_data = old_data
-    new_data['validate_ids'] = list(set(validate_ids))
+
+    new_data['validate_ids'] = get_ids(validate_ids)
 
     return new_data
+
+
+def get_ids(validate_ids):
+    if not isinstance(validate_ids, list):
+        validate_ids = validate_ids.split(',')
+
+    id_set = set(validate_ids)
+    id_list = []
+    for id in id_set:
+        if id.isdigit():
+            id_list.append(id)
+    return id_list
 
 
 @register.filter
