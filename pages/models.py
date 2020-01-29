@@ -54,8 +54,7 @@ class ValidatingData(Data):
 
     def disapprove(self, new_ans):
         self.num_disapproved += 1
-        data, _ = VotingData.objects.update_or_create(data_ptr=self.data_ptr,
-                                                      group=self.data_ptr.group)
+        data = VotingData.create(title=self.title, group=self.group)
         Choice.objects.update_or_create(data=data, answer=new_ans)
 
     def validate(self):
@@ -63,8 +62,8 @@ class ValidatingData(Data):
         if self.num_approved >= 2:
             # if enough user has approve the answer
             # the origin answer is considered to be correct
-            Data.objects.update_or_create(title=self.data_ptr.title,
-                                          group=self.data_ptr.group)
+            FinalizedData.objects.update_or_create(title=self.data_ptr.title,
+                                                   group=self.data_ptr.group)
             for data in datas:
                 Choice.objects.filter(data=data).delete()
             self.delete()
@@ -85,7 +84,7 @@ class VotingData(Data):
         return "Q: {}, T: {}".format(self.data_ptr.title, self.data_ptr.group)
 
     @classmethod
-    def create(cls, title, group, is_active):
+    def create(cls, title, group, is_active=False):
         try:
             data = Data.objects.get(title=title, group=group)
             voting_data = cls(pk=data.id, title=title, group=group, is_active=is_active)
@@ -134,8 +133,8 @@ class Choice(models.Model):
 
 
 class Log(models.Model):
-    user = models.ForeignKey(get_user_model(), models.DO_NOTHING, related_name="data_log")
-    task = models.ForeignKey(Data, models.DO_NOTHING)
+    user = models.ForeignKey(get_user_model(), models.CASCADE, related_name="data_log")
+    task = models.ForeignKey(Data, models.CASCADE)
     action = models.CharField(max_length=32)
     response = models.TextField()
     timestamp = models.DateTimeField()

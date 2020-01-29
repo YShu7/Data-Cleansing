@@ -67,7 +67,8 @@ def validate(request):
         # merge session and post
         request.POST = merge_validate_context(new_data=request.POST, old_data=data)
 
-        for validate_id in request.POST['validate_ids']:
+        validate_ids = set(request.POST['validate_ids'])
+        for validate_id in validate_ids:
             try:
                 task = ValidatingData.objects.get(pk=validate_id)
             except ValidatingData.DoesNotExist:
@@ -91,13 +92,13 @@ def validate(request):
             if approve == "true":
                 # if user approve the answer, add votes
                 task.approve()
-            else:
+            elif approve == "false":
                 # if user disapprove the answer, create VotingData and the choice
                 task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
 
             task.validate()
-            messages.success(request, MSG_SUCCESS_VAL)
             data_log(request.user, task, VAL, new_ans)
+        messages.success(request, MSG_SUCCESS_VAL)
         return HttpResponseRedirect(request.path)
 
     return HttpResponse(template.render(request=request, context=context))

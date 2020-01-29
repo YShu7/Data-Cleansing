@@ -131,9 +131,10 @@ def merge_validate_context(new_data, old_data):
         validate_ids = old_data['validate_ids'].split(',')
     validate_ids.extend(new_data['validate_ids'].split(','))
 
-    old_data.update(new_data)
+    for k in new_data:
+        old_data[k] = new_data[k]
     new_data = old_data
-    new_data['validate_ids'] = validate_ids
+    new_data['validate_ids'] = list(set(validate_ids))
 
     return new_data
 

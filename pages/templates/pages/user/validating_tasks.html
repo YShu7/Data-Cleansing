@@ -15,14 +15,14 @@
                     <th scope="col" width="30%">Answer</th>
                     <th scope="col" width="10%">
                         <div class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Status
-                        </a>
-                        <div id="filter_validating" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <button class="dropdown-item" type="button">Approved</button>
-                            <button class="dropdown-item" type="button">Disapproved</button>
-                            <button class="dropdown-item" type="button">?</button>
-                        </div>
+                            <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Status
+                            </a>
+                            <div id="filter_validating" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <button class="dropdown-item" type="button">Approved</button>
+                                <button class="dropdown-item" type="button">Disapproved</button>
+                                <button class="dropdown-item" type="button">?</button>
+                            </div>
                         </div>
                     </th>
                     <th scope="col" width="25%"> </th>
@@ -41,16 +41,16 @@
                     <td id="type_{{question.id}}"> </td>
                     <td>
                         <input type="hidden" name="approve_value_{{question.id}}" id="approve_value_{{question.id}}" value="">
-                        <input type="hidden" name="old_ans_{{question.id}}" id="old_ans_{{question.id}}" value="{{question.answer_text}}">
+                        <param type="hidden" name="old_ans_{{question.id}}" id="old_ans_{{question.id}}" value="{{question.answer_text}}">
                         <input type="hidden" name="new_ans_{{question.id}}" id="new_ans_{{question.id}}" value="">
                         <div class="btn-group btn-block">
                             <button id="approve_{{question.id}}" value="{{question.id}}" type="button" name="choice_{{question.id}}" class="approve btn btn-outline-success btn-sm">
-                            Approve
-                        </button>
+                                Approve
+                            </button>
 
-                        <button id="change_{{question.id}}" value="{{question.id}}" type="button" data-toggle="modal" data-target="#dialog" class="change btn btn-outline-primary btn-sm">
-                            Change
-                        </button>
+                            <button id="change_{{question.id}}" value="{{question.id}}" type="button" data-toggle="modal" data-target="#dialog" class="change btn btn-outline-primary btn-sm">
+                                Change
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -62,7 +62,7 @@
     </form>
 </div>
 {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn"%}
-
+{{ request.session.data }}
 <script>
     $(document).ready(function(){
         $("#collapse_all").on("click", function () {
@@ -79,31 +79,20 @@
             })
         });
         $(".approve").on('click', function() {
-            $(this).attr('disabled', true);
-            var id = $(this).attr('value');
-            $("#change_" + id).attr('disabled', false);
-            $("#approve_value_" + id).val(true);
-            $("#validate_ids").val(getNewIds(id));
-
-            approve(id, true);
+            approve_onclick($(this));
         });
         $(".change").on('click', function() {
             var id = $(this).attr('value');
+            $("#new_ans_" + id).attr('disabled', false);
             $("#validate_ids").val(getNewIds(id));
             $("#update_btn").val(id);
             $("#new_ans").val("");
             $('#dialog').modal();
         });
         $("#update_btn").on('click', function() {
-            var id = $("#update_btn").attr('value');
-            approve(id, false);
-
-            $("#approve_" + id).attr('disabled', false);
-            $("#approve_value_" + id).val(false);
-            var x = document.getElementById('dialog');
-            x.setAttribute('style', "display: none");
+            update_onclick($(this));
         });
-        $(".pagination a").on('click', function() {
+        $(".approve, #update_btn").on('click', function() {
             $.ajax({
                 url: 'validate',
                 type: 'post',
@@ -143,11 +132,28 @@
                 type_element.css('color', 'red');
             }
         }
+        function approve_onclick(element) {
+            element.attr('disabled', true);
+            var id = element.attr('value');
+            $("#change_" + id).attr('disabled', false);
+            $("#approve_value_" + id).val(true);
+            $("#new_ans_" + id).attr('disabled', true);
+            $("#validate_ids").val(getNewIds(id));
+
+            approve(id, true);
+        }
+        function update_onclick(element) {
+            var id = element.attr('value');
+            approve(id, false);
+
+            $("#approve_" + id).attr('disabled', false);
+            $("#approve_value_" + id).val(false);
+        }
         {% for question in page_obj %}
             {% with val='approve_value_{}'|s_format:question.id %}
                 {% if request.session.data|get_item:val != "" %}
                     {% if request.session.data|is_true:val %}
-                        $("#approve_{{question.id}}").click();
+                        approve_onclick($("#approve_{{question.id}}"));
                     {% else %}
                         $("#validate_ids").val(getNewIds({{ question.id }}));
                         $("#update_btn").val("{{question.id}}");
@@ -158,7 +164,7 @@
                             {% endwith %}
                         {% endwith %}
 
-                        $("#update_btn").click();
+                        update_onclick($("#update_btn"));
                     {% endif %}
                 {% endif %}
             {% endwith %}
