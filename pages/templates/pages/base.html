@@ -6,6 +6,7 @@
     {% load staticfiles %}
     <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/main.css' %}" type="text/css"/>
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
     <link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css"/>
@@ -13,75 +14,67 @@
 </head>
 
 <body>
-    <div>
-        <nav class="navbar navbar-light bg-light topbar">
-            {% include "pages/partial/header.html" with user_name=request.user %}
-        </nav>
+    <nav class="navbar navbar-light bg-light topbar">
+        {% include "pages/partial/header.html" with user_name=request.user %}
+    </nav>
 
-        {% if request.user.is_approved %}
-        <div class="row flex-xl-nowrap">
-            <div class="sidbar-div">
-                <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">
-                    {% block sidebar %}{% endblock %}
-                </nav>
+    {% if request.user.is_approved %}
+    <div class="row flex-xl-nowrap">
+        <div class="sidbar-div">
+            <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">
+                {% block sidebar %}{% endblock %}
+            </nav>
+        </div>
+
+        <div id="content">
+            <div id="title">
+                <br/>
+                <h3>{% block page %}{{ title }}{% endblock %}</h3>
+                <hr/>
             </div>
 
-            <div id="content">
-                <div id="title">
-                    <br/>
-                    <h3>
-                        {% block page %}{{ title }}{% endblock %}
-                    </h3>
-                    <hr/>
-                </div>
+            <div>
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">{{ error }}</div>
+                {% endif %}
 
-                <div>
-                    {% if error %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ error }}
-                        </div>
-                    {% endif %}
+                {% for message in messages %}
+                    <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
 
-                    {% for message in messages %}
-                        <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-
-                    {% block content %}{% endblock %}
-                </div>
+                {% block content %}{% endblock %}
             </div>
         </div>
-        {% elif request.user.is_approved == None %}
-        <div class="text-center">
-            {% for message in messages %}
-                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
-            Your account is still pending for admin's approval.
-        </div>
-        {% else %}
-        <div class="text-center">
-            {% for message in messages %}
-                <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
-            Sorry, your account is rejected to be activated.
-            <a href="/retry_sign_up">Try again.</a>
-        </div>
-        {% endif %}
     </div>
+    {% else %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="row align-items-center justify-content-center" style="height:50%">
+            <div class="card" style="width: 50%">
+                <div class="card-header"></div>
+                <div class="card-body text-center">
+                    {% if request.user.is_approved == None  %}
+                        Your account is still pending for admin's approval.
+                    {% else %}
+                        Sorry, your account is rejected to be activated.
+                        <a href="/retry_sign_up">Try again.</a>
+                    {% endif %}
+                </div>
+                <div class="card-footer"></div>
+            </div>
+        </div>
+    {% endif %}
 </body>
 </html>
 
