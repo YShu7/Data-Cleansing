@@ -107,6 +107,8 @@ def password_forget(request):
 
 @register.filter
 def get_item(dictionary, key):
+    if not isinstance(dictionary,dict):
+        return ""
     res = dictionary.get(key)
     if not res:
         return ""

@@ -125,10 +125,20 @@ def update(request, data_ptr_id=None):
         template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
 
         # Retrieve data
-        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'))
+        search_term = None
+        if 'search' in request.GET:
+            search_term = request.GET['search']
+        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'), search_term)
+
+        # Initiate paginator
+        paginator = Paginator(voting_data, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         context = {
             'title': 'Data Set',
-            'questions': voting_data,
+            'page_obj': page_obj,
+            'data': VotingData.objects.all(),
         }
         return HttpResponse(template.render(request=request, context=context))
 
@@ -147,6 +157,8 @@ def report(request, from_date=None, to_date=None):
     context = {
         'title': 'Report',
         'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
+        'from_date': from_date,
+        'to_date': to_date,
         'users': users,
     }
 
@@ -240,7 +252,7 @@ def group(request):
 
     context = {
         'groups': groups_info,
-        'delete_check_id': 'group_name',
+        'delete_check_id': 'input',
         'delete_confirm_id': 'confirm_input',
         'create_form': CreateGroupForm(),
     }
@@ -250,7 +262,7 @@ def group(request):
 @superuser_login_required
 def delete_group(request):
     if request.method == "POST":
-        group_name = request.POST["group_name"]
+        group_name = request.POST["input"]
         if group_name == request.POST["confirm_input"]:
             CustomGroup.objects.get(name=group_name).delete()
             messages.success(request, MSG_SUCCESS_DEL_GRP.format(group_name))

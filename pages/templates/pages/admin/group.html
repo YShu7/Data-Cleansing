@@ -26,7 +26,7 @@
     </table>
 
     {% include 'pages/admin/partial/new_group_modal.html' with modal_id="new_group_dialog" title="New Group" form_obj=create_form %}
-    {% include 'pages/admin/partial/confirm_modal.html' with modal_id="dialog" url="delete_group" btn_id="confirm_btn" check_id=delete_check_id confirm_id=delete_confirm_id title="Delete Group" msg="Input group name to confirm deletion." warning="Removal of group will result in deletion of all accounts from the group." %}
+    {% include 'pages/admin/partial/confirm_delete_group_modal.html' with modal_id="dialog" btn_id="confirm_btn" check_id=delete_check_id confirm_id=delete_confirm_id %}
     <script>
     $(document).ready(function(){
         $("#create_btn").on('click', function (e) {
@@ -35,7 +35,7 @@
        $(".delete_btn").on('click', function(e) {
            var group_name = $(this).val();
            $('#{{ delete_check_id }}').val(group_name);
-           $('#{{ delete_confirm_id }}').attr('placeholder', group_name);
+           $('#group_name').text(group_name);
            $('#dialog').modal();
         });
     });

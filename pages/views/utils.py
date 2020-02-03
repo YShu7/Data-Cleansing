@@ -1,33 +1,46 @@
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Count
+from django.template.defaulttags import register
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from pages.models import ValidatingData, VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
+from pages.models import VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
 
 
-def get_assigned_tasks_context(user):
-    data = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
+    all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
+    all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
 
-    validating_data = []
-    voting_data = []
-    for d in data:
+    todo_num = len(all_data_todo)
+    done_num = len(all_data_done)
+
+    data = []
+    for d in all_data_todo:
         try:
-            validating_d = ValidatingData.objects.get(pk=d)
-            validating_data.append(validating_d)
-        except ValidatingData.DoesNotExist:
-            voting_d = VotingData.objects.get(pk=d)
-            voting_data.append(voting_d)
+            d_obj = model.objects.get(pk=d)
+            if condition(d_obj):
+                data.append(d_obj)
+            else:
+                todo_num -= 1
+        except model.DoesNotExist:
+            todo_num -= 1
 
-    for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
+    for d in all_data_done:
+        try:
+            d_obj = model.objects.get(pk=d)
+            if not condition(d_obj):
+                done_num -= 1
+        except model.DoesNotExist:
+            done_num -= 1
 
-    context = {
-        'question_list_validating': validating_data,
-        'question_list_voting': voting_data,
+    total_num = todo_num + done_num
+    num = {
+        'todo': todo_num,
+        'done': done_num,
+        'total': total_num,
     }
-    return context
+    return data, num
 
 
 def get_group_report_context():
@@ -66,11 +79,13 @@ def log(user, task, action, response):
                                      response=response, timestamp=timezone.now())
 
 
-def get_unassigned_voting_data(group):
+def get_unassigned_voting_data(group, search_term=None):
     # get all VotingData ids that are not allocated to any user
     voting_data = VotingData.objects.all()
     if group:
         voting_data = voting_data.filter(group=group)
+    if search_term:
+        voting_data = voting_data.filter(title__icontains=search_term)
     voting_ids = [i.id for i in voting_data]
 
     exclude_ids = [i.task.id for i in Assignment.objects.all()]
@@ -128,3 +143,54 @@ def get_group_info_context(groups, info_dict):
             group_info[k] = v
         groups_info.append(group_info)
     return groups_info
+
+
+def merge_validate_context(new_data, old_data):
+    if isinstance(old_data['validate_ids'], list):
+        validate_ids = old_data['validate_ids']
+    else:
+        validate_ids = old_data['validate_ids'].split(',')
+    validate_ids.extend(new_data['validate_ids'].split(','))
+
+    for k in new_data:
+        old_data[k] = new_data[k]
+    new_data = old_data
+
+    new_data['validate_ids'] = get_ids(validate_ids)
+
+    return new_data
+
+
+def get_ids(validate_ids):
+    if not isinstance(validate_ids, list):
+        validate_ids = validate_ids.split(',')
+
+    id_set = set(validate_ids)
+    id_list = []
+    for id in id_set:
+        if id.isdigit():
+            id_list.append(id)
+    return id_list
+
+
+@register.filter
+def is_true(dictionary, key):
+    res = dictionary.get(key)
+    if not res:
+        return False
+    else:
+        return res[0] == 'true' or res == 'true'
+
+
+@register.filter
+def get_first_item(dictionary, key):
+    res = dictionary.get(key)
+    if not res:
+        return ""
+    else:
+        return res[0]
+
+
+@register.filter
+def s_format(string, f):
+    return string.format(f)

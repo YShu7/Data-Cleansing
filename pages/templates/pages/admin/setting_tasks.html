@@ -4,31 +4,48 @@
 <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
 <div id="taskList">
+    <form class="form-inline my-2 my-lg-0">
+        <datalist id="data">
+            {% for d in data %}
+                <option value="{{ d.title }}">
+            {% endfor %}
+        </datalist>
+        <div class="input-group mb-3" style="width: 40vw">
+            <input class="form-control border-primary" list="data" type="search" placeholder="Search" aria-label="Search" name="search" >
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
     <table type="table" class="table table-hover">
         <thead class="thead-light">
             <tr>
                 <th scope="col" width="10%">ID</th>
                 <th scope="col" width="30%">Question</th>
-                <th scope="col" width="50%">Answer</th>
                 <th scope="col" width="10%"> </th>
             </tr>
         </thead>
         <tbody>
-            {% for question in questions %}
+            {% for question in page_obj %}
             <form action="{% url 'update' question.id %}" method="post">
             {% csrf_token %}
             <tr>
                 <th scope="row">{{question.id}}</th>
                 <input type="hidden" name="choice" id="choice" value="0">
-                <td>{{question.title}}</td>
                 <td>
-                    {% for ans in question.answers %}
-                    <div class="custom-control custom-radio module container" value="{{question.id}}">
-                        <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
-                        <label id="ans_{{ans.id}}" class="custom-control-label collapse" for="answer_{{ans.id}}" aria-expanded="false">{{ans.answer}}</label>
-                        <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{ans.id}}" aria-expanded="false" aria-controls="ans_{{ans.id}}"></a>
+                    <a role="button" class="collapsed" data-toggle="collapse" href="#qa_{{ question.id }}" aria-expanded="false" aria-controls="qa_{{question.id}}">
+                        {{question.title}}
+                    </a>
+                    <div id="qa_{{ question.id }}" class="collapse">
+                        {% for ans in question.answers %}
+                        <div class="custom-control custom-radio module container" value="{{question.id}}">
+                            <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
+                            <label id="ans_{{ans.id}}" class="custom-control-label collapse" for="answer_{{ans.id}}" aria-expanded="false">{{ans.answer}}</label>
+                            <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{ans.id}}" aria-expanded="false" aria-controls="ans_{{ans.id}}"></a>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+
                 </td>
                 <td>
                     <button id="vote_{{question.id}}" value="" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
@@ -40,6 +57,8 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
 </div>
 {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn"%}
 
