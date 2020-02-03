@@ -1,16 +1,15 @@
 from django.contrib import auth, messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import PasswordResetView, LoginView
+from django.contrib.auth.views import PasswordResetView, LoginView, PasswordResetConfirmView
 from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
 from django.template import loader
 from django.template.defaulttags import register
 
 from datacleansing.utils import get_pre_url
 from datacleansing.settings import MSG_SUCCESS_SIGN_UP, MSG_SUCCESS_PWD_CHANGE
 from .backends import CustomBackend
-from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm
+from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm, CustomSetPasswordForm
 
 
 class CustomLoginView(LoginView):
@@ -85,24 +84,12 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     subject_template_name = "authentication/password_reset_subject.txt"
     email_template_name = "authentication/password_reset_email.html"
-    success_url = "authentication/login.html"
-
-    def get_context_data(self, **kwargs):
-        if self.request.method == "POST":
-            form_obj = CustomPasswordResetForm(self.request.POST)
-        else:
-            form_obj = CustomPasswordResetForm()
-        context = {"form_obj": form_obj}
-        return context
+    success_url = "password_reset_done"
 
 
-def password_forget(request):
-    form_obj = CustomPasswordResetForm()
-    if request.method == "POST":
-        form_obj = CustomPasswordResetForm(request.POST)
-        if form_obj.is_valid():
-            return
-    return render(request, "authentication/reset_pwd.html", {"form_obj": form_obj})
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'authentication/password_reset_confirm.html'
+    form_class = CustomSetPasswordForm
 
 
 @register.filter
