@@ -4,6 +4,8 @@
 {% if user_name == "" %}
     <a href='/authentication/login'>Log In</a>
 {% else %}
-    <span class="navbar-text">Welcome, {{ user_name }}</span>
-    <a href='/authentication/logout'>Log Out</a>
+    <div class="navbar-text">
+        Welcome, {{ user_name }} &nbsp;
+        <a href='/authentication/logout' class="btn btn-outline-secondary btn-sm">Log Out</a>
+    </div>
 {% endif %}

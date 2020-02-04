@@ -1,0 +1,14 @@
+{% load i18n static %}
+
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
+<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/main.css' %}" type="text/css"/>
+<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+
+<div class="row align-items-center justify-content-center" style="height:100%">
+    <div class="card" style="width:{% block width %}{% endblock %}%">
+        <div class="card-header text-center"><h4>{% block title %}{% endblock %}</h4></div>
+        <div class="card-body">{% block content %}{% endblock %}</div>
+        <div class="card-footer">{% block footer %}{% endblock %}</div>
+    </div>
+</div>

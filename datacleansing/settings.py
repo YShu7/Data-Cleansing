@@ -75,16 +75,28 @@ WSGI_APPLICATION = 'datacleansing.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'datacleansing',
-        'USER': 'datacleansinguser', # input your user name
-        'PASSWORD': 'L1feI5T0ugh', # input your password
-        'HOST': 'localhost',
-        'PORT': '',
+if 'TRAVIS' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.postgresql_psycopg2',
+            'NAME':     'travisci',
+            'USER':     'postgres',
+            'PASSWORD': '',
+            'HOST':     'localhost',
+            'PORT':     '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'datacleansing',
+            'USER': 'datacleansinguser', # input your user name
+            'PASSWORD': 'L1feI5T0ugh', # input your password
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
 
 
 # Password validation
@@ -137,14 +149,14 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
-# EMAIL_HOST变量为smtp服务器
-EMAIL_HOST = "smtp.163.com"
-EMAIL_PORT = 25
-EMAIL_HOST_USER = "xxxx.com"
-EMAIL_HOST_PASSWORD = "xxxx"
-EMAIL_USE_TLS = False
-# 发件人, 与 EMAIL_HOST 保持一致
-EMAIL_FROM = "xxxx.com"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "a874257217@gmail.com"
+EMAIL_HOST_PASSWORD = "bdxaqbvjmmpswitr"
+EMAIL_USE_TLS = True
+EMAIL_FROM = "Data Cleansing Team <noreply@gmail.com>"
+
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'

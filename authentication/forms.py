@@ -1,14 +1,15 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordResetForm, PasswordChangeForm, \
-    AuthenticationForm
+    AuthenticationForm, SetPasswordForm
+from django.utils.translation import gettext, gettext_lazy as _
 
 from .models import CustomGroup
 
 
 class CustomLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email",
-                             widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+                                widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
     password = forms.CharField(
         widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'},
                                            render_value=True))
@@ -69,7 +70,17 @@ class CustomPasswordResetForm(PasswordResetForm):
                              error_messages={
                                  "required": "Email cannot be empty",
                                  "invalid": "Input is invalid email",
-                             })
+                             },
+                             widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update(
+            {'class': 'form-control'})
+        self.fields['new_password2'].widget.attrs.update(
+            {'class': 'form-control'})
 
 
 class CreateGroupForm(forms.ModelForm):

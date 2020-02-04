@@ -1,19 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Forget Password</title>
-</head>
-<body>
-<form action="{% url 'password_forget' %}" method="POST" novalidate autocomplete="off">
-    {% csrf_token %}
-    <div>
-        <label>{{ form_obj.email.label }}</label>
-        {{ form_obj.email }} {{ form_obj.email.errors.0 }}
-    </div>
-    <div>
-        <input type="submit" class="btn btn-success" value="Send Email">
-    </div>
-</form>
-</body>
-</html>
+{% extends "authentication/base.html" %}
+
+{% block width %}30{% endblock %}
+{% block title %}Forget Password{% endblock %}
+
+{% block content %}
+    <form action="{% url 'password_reset' %}" method="POST" novalidate autocomplete="off">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.email }}
+            <label style="color:red">{{ form.email.errors.0 }}</label>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-block btn-primary" value="Send Email">
+        </div>
+    </form>
+{% endblock %}

@@ -1,53 +1,47 @@
-{% load staticfiles %}
-<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
-<link rel="stylesheet" href="{% static 'bootstrap-4.3.1/main.css' %}" type="text/css"/>
-<script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+{% extends "authentication/base.html" %}
 
-<div class="row align-items-center justify-content-center" style="height:100%">
-    <div class="card" style="width:30%">
-        <div class="card-header text-center"><h4>Account Login</h4></div>
+{% block width %}30{% endblock %}
+{% block title %}Account Login{% endblock %}
 
-        <div class="card-body">
-            <form action="{% url 'login' %}" method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    {{form_obj.username}}
-                    <label style="color:red">{{ form_obj.username.errors.0 }}</label>
-                </div>
-
-                <div class="form-group">
-                    {{form_obj.password}}
-                    <label style="color:red">{{ form_obj.password.errors.0 }}</label>
-                </div>
-
-                {% if form_obj.errors %}
-                <div class="alert alert-danger" role="alert">
-                    Your username and password didn't match. Please try again.
-                </div>
-                {% endif %}
-
-                <button class="btn-success btn-lg btn-block" type="submit">
-                    Log in
-                </button>
-            </form>
-            <br/>
-            <form action="{% url 'signup' %}">
-                <button class="btn-primary btn-lg btn-block" type="submit">
-                    Sign up
-                </button>
-            </form>
+{% block content %}
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            {{form_obj.username}}
+            <label style="color:red">{{ form_obj.username.errors.0 }}</label>
         </div>
 
-        <div class="card-footer">
-            <div class="text-center">
-            <span>
-                Forgot
-            </span>
-
-                <a href="{% url 'password_forget' %}" style="color:#4272d7">
-                    Password?
-                </a>
-            </div>
+        <div class="form-group">
+            {{form_obj.password}}
+            <label style="color:red">{{ form_obj.password.errors.0 }}</label>
         </div>
+
+        {% if form_obj.errors %}
+        <div class="alert alert-danger" role="alert">
+            Your username and password didn't match. Please try again.
+        </div>
+        {% endif %}
+
+        <button class="btn-success btn-lg btn-block" type="submit">
+            Log in
+        </button>
+    </form>
+    <br/>
+    <form action="{% url 'signup' %}">
+        <button class="btn btn-primary btn-lg btn-block" type="submit">
+            Sign up
+        </button>
+    </form>
+{% endblock %}
+
+{% block footer %}
+    <div class="text-center">
+    <span>
+        Forgot
+    </span>
+
+        <a href="{% url 'password_reset' %}" style="color:#4272d7">
+            Password?
+        </a>
     </div>
-</div>
+{% endblock %}
