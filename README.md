@@ -1,4 +1,4 @@
-https://travis-ci.com/YShu7/Data-Cleansing.svg?branch=master
+[![Build Status](https://travis-ci.com/YShu7/Data-Cleansing.svg?branch=master)](https://travis-ci.com/YShu7/Data-Cleansing)
 
 1. Install necessary packages: `pip install -r requirements.txt`  
    OR  
