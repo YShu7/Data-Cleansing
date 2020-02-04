@@ -29,8 +29,10 @@
         <div id="content">
             <div id="title">
                 <br/>
-                <h3>{% block page %}{{ title }}{% endblock %}</h3>
-                <hr/>
+                {% if title %}
+                    <h3>{% block page %}{{ title }}{% endblock %}</h3>
+                    <hr/>
+                {% endif %}
             </div>
 
             <div>

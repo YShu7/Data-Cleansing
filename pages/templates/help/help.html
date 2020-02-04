@@ -1,0 +1,29 @@
+{% extends base %}
+
+{% block content %}
+    <style>
+        ul li a {
+            color: black;
+            font-size: 14px;
+            font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial;
+        }
+        ol {
+            counter-reset: section;
+            list-style-type: none;
+        }
+
+        .markdown ol li::before {
+            counter-increment: section;
+            content: "Step " counters(section, ".") ". ";
+            font-style: oblique;
+        }
+        .markdown ul li::before {
+            counter-increment: section;
+            content: "• ";
+            font-style: oblique;
+        }
+    </style>
+    <div class="markdown">
+        {{ my_markdown_content|markdownify|safe }}
+    </div>
+{% endblock %}

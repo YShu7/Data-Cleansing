@@ -4,6 +4,7 @@ from pages.views import views, user, admin
 
 urlpatterns = [
     path('', views.index, name='tasks'),
+    path('help', views.help, name='help'),
 
     path('user', user.validate, name='user'),
     path('tasks/validate', user.validate, name='tasks/validate'),
