@@ -75,16 +75,28 @@ WSGI_APPLICATION = 'datacleansing.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'datacleansing',
-        'USER': 'datacleansinguser', # input your user name
-        'PASSWORD': 'L1feI5T0ugh', # input your password
-        'HOST': 'localhost',
-        'PORT': '',
+if 'TRAVIS' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.postgresql_psycopg2',
+            'NAME':     'travisci',
+            'USER':     'postgres',
+            'PASSWORD': '',
+            'HOST':     'localhost',
+            'PORT':     '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'datacleansing',
+            'USER': 'datacleansinguser', # input your user name
+            'PASSWORD': 'L1feI5T0ugh', # input your password
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
 
 
 # Password validation
