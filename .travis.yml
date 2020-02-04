@@ -16,3 +16,7 @@ install:
 
 script:
 - python manage.py test
+
+branches:
+  only:
+    - master
