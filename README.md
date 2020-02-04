@@ -1,3 +1,5 @@
+https://travis-ci.com/YShu7/Data-Cleansing.svg?branch=master
+
 1. Install necessary packages: `pip install -r requirements.txt`  
    OR  
    Activate virtual environment: `source datacleansingenv/bin/activate`  
