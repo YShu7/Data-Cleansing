@@ -137,15 +137,14 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'login'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-"""
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "a874257217@gmail.com"
 EMAIL_HOST_PASSWORD = "bdxaqbvjmmpswitr"
 EMAIL_USE_TLS = True
-EMAIL_FROM = "a874257217@gmail.com"
-"""
+EMAIL_FROM = "Data Cleansing Team <noreply@gmail.com>"
+
 
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
