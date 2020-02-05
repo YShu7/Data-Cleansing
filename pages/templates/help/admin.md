@@ -3,7 +3,9 @@
 - [To view/download dataset](#dataset) 
 - [To update data](#update_data)  
 - [To view/download working report](#report)  
-- [To view admin log](#log) 
+- [To view admin log](#log)  
+- [To assign tasks](#assign)
+- [To summarize and update individual report](#summarize)
 
 ### To approve/reject user account <a name="user_pending"></a>
 1. Navigate to page `User List`.  
@@ -64,3 +66,11 @@
 1. Navigate to page `Admin Log`.
 > User should be able to see all admin actions on user account and data.
 > An admin should be able to see action logs done by all admins from its own groups.
+
+### To assign tasks <a name="assign"></a>
+1. Click `Assign Tasks`.
+> User should be able to see a successful message pop up once the task assignment is done.
+
+### To summarize and update individual report <a name="summarize"></a>
+1. Click `Summarize`
+> User should be able to see a successful message pop up once the current data is summarize successfully.
