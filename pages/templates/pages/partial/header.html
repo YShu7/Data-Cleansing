@@ -4,8 +4,10 @@
 {% if user_name == "" %}
     <a href='/authentication/login'>Log In</a>
 {% else %}
-    <div class="navbar-text">
-        Welcome, {{ user_name }} &nbsp;
-        <a href='/authentication/logout' class="btn btn-outline-secondary btn-sm">Log Out</a>
+    <div>
+        <div class="navbar-text">Welcome, {{ user_name }} &nbsp;</div>
+
+        <a href='/authentication/logout' class="btn btn-outline-danger btn-sm">Log Out</a>
+        <a href='/help' class="btn btn-outline-secondary btn-sm">Help</a>
     </div>
 {% endif %}
