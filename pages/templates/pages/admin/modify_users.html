@@ -5,12 +5,12 @@
 {% block content %}
 
 <div id="pending">
-    <h5><a href="/#pending" class="link-dark">Pending Users</a></h5>
+    <a href="/#pending" class="link-dark"><h5>Pending Users</h5></a>
     {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
 </div>
 
 <div id="approved">
-    <h5><a href="/#approved" class="link-dark">Approved Users</a></h5>
+    <a href="/#approved" class="link-dark"><h5>Approved Users</h5></a>
     {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
 </div>
 
