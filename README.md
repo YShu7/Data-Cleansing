@@ -4,16 +4,33 @@
    OR  
    Activate virtual environment: `source datacleansingenv/bin/activate`  
    
-2. Install psycopg:
-
-   `xcode-select --install`
-   `env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install psycopg2`
+2. Install psycopg2 manually if the previous step fails to install it:  
+   For Mac:  
+   `xcode-select --install`  
+   `env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"`  
+   `pip install psycopg2`  
+   For Ubuntu:  
+   If `psycopg2` cannot be installed, install `psycopg2-binary` instead:  
+   `pip install psycopg2-binary`
 
 3. Install PostgresSQL
+   For Mac:  
+   `brew install postgresql`  
+   For Ubuntu:  
+   `sudo apt-get install postgresql`  
+   Create User:  
+   `sudo -u postgres createuser datacleansinguser`  
+   `alter role datacleansinguser with superuser;`  
+   `alter role datacleansinguser with password 'L1feI5T0ugh';`  
+   Switch to the created user:  
+   `set role datacleansinguser;`  
+   Create database:  
+   `create database datacleansing;`  
 
-   If PostgresSQL version doesn't meet the requirement: `brew postgresql-upgrade-database`
+   > If PostgresSQL version doesn't meet the requirement:
+   > `brew postgresql-upgrade-database`
 
-4. Creat user and database for this application
+   If you would like to use the other user or database:  
    Approach `settings.py - DATABASES`. Set `NAME`, `USER`, `PASSWORD` as required. 
 
 5. To set up data for testing: run `python set_up.py`
