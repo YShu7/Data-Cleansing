@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/YShu7/Data-Cleansing.svg?branch=master)](https://travis-ci.com/YShu7/Data-Cleansing)
 
+## Set up
 1. Install necessary packages: `pip install -r requirements.txt`  
    OR  
    Activate virtual environment: `source datacleansingenv/bin/activate`  
@@ -32,6 +33,8 @@
 
    If you would like to use the other user or database:  
    Approach `settings.py - DATABASES`. Set `NAME`, `USER`, `PASSWORD` as required. 
+   
+4. Migrate: `python manage.py migrate`  
 
 5. To set up data for testing: run `python set_up.py`
 
