@@ -214,9 +214,10 @@ for q, a in zip(validating_qns, validating_ans):
         validating_data = ValidatingData.create(title="{}-{}".format(i, q), group=groups[0], ans=a)
 
 for q, a in zip(validating_qns, validating_ans):
-    fianlized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
+    finalized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
 
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
 assign(users, Assignment, ValidatingData.objects.all(), Data, NUM_USER_PER_TASK=3)
 assign(users, Assignment, VotingData.objects.filter(is_active=True), Data, NUM_USER_PER_TASK=5)
+assign(users, Assignment, FinalizedData.objects.all(), Data, NUM_USER_PER_TASK=3)

@@ -9,8 +9,6 @@
 
 'use strict';
 
-import H from '../../parts/Globals.js';
-import U from '../../parts/Utilities.js';
 var pick = U.pick;
 
 

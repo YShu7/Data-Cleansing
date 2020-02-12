@@ -64,6 +64,8 @@ App for assigning tasks for each user. The task assignment logic was implemented
 
 Main app for data cleansing logic, including two parts: `admin` and `user`.
 
-##### admin
+##### admin - superuser and admin
+
+
 
 ##### user

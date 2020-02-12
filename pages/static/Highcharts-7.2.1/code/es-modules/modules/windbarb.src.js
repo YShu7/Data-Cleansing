@@ -10,10 +10,9 @@
  *
  * */
 'use strict';
-import H from '../parts/Globals.js';
-import U from '../parts/Utilities.js';
+
 var isNumber = U.isNumber, pick = U.pick;
-import onSeriesMixin from '../mixins/on-series.js';
+
 var noop = H.noop, seriesType = H.seriesType;
 // eslint-disable-next-line valid-jsdoc
 /**
