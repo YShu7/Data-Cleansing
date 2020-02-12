@@ -194,3 +194,15 @@ def get_first_item(dictionary, key):
 @register.filter
 def s_format(string, f):
     return string.format(f)
+
+
+@register.filter
+def split(str, spliter=None):
+    if not spliter:
+        return str.split()
+    return str.split(spliter)
+
+
+@register.filter
+def clear(str):
+    return str.replace("&#39;", "")

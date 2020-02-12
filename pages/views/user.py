@@ -11,9 +11,9 @@ from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CH
     MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
-from pages.models import ValidatingData, VotingData, Choice
+from pages.models import ValidatingData, VotingData, FinalizedData, Choice
 from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, get_ids, \
-    s_format, is_true
+    s_format, is_true, split, clear
 
 
 @user_login_required
@@ -162,6 +162,56 @@ def vote(request, vote_id=None):
             'num_total': task_num["total"],
             'num_doing': 0,
             'title': 'Voting Tasks',
+        }
+        return HttpResponse(template.render(request=request, context=context))
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@user_login_required
+@csrf_protect
+def keywords(request, data_id=None):
+    if request.method == "POST":
+        try:
+            qns_keywords = request.POST["qns_keywords"]
+            ans_keywords = request.POST["ans_keywords"]
+            data = FinalizedData.objects.get(pk=data_id)
+        except FinalizedData.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+
+        try:
+            assign = Assignment.objects.get(task_id=data_id, tasker_id=request.user.id)
+            assign.is_done()
+        except Assignment.DoesNotExist:
+            pass
+
+        data.update_keywords(qns_keywords, ans_keywords)
+        messages.success(request, MSG_SUCCESS_VOTE)
+        #data_log(request.user, data)
+    else:
+        template = loader.get_template('{}/keywords_tasks.html'.format(USER_DIR))
+
+        # Initiate paginator
+        data, task_num = get_assigned_tasks_context(request.user, FinalizedData)
+        paginator = Paginator(data, 1)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        per_task_ratio = 0
+        if task_num["todo"] != 0:
+            per_task_ratio = 100 / task_num["todo"]
+        doing = 0
+        if 'data' in request.session:
+            doing = len(get_ids(request.session['data']['validate_ids']))
+
+        context = {
+            'page_obj': page_obj,
+            'title': 'Keyword Selection Tasks',
+            'num_done': task_num["done"],
+            'num_total': task_num["total"],
+            'num_doing': doing,
+            'per_task_ratio': per_task_ratio,
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
