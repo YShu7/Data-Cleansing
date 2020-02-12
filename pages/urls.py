@@ -9,8 +9,10 @@ urlpatterns = [
     path('user', user.validate, name='user'),
     path('tasks/validate', user.validate, name='tasks/validate'),
     path('tasks/vote', user.vote, name='tasks/vote'),
+    path('tasks/keywords', user.keywords, name='tasks/keywords'),
     path('profile', user.profile, name='profile'),
     path('validate', user.validate, name='validate'),
+    path('<int:data_id>/keywords', user.keywords, name='keywords'),
     path('<int:vote_id>/vote', user.vote, name='vote'),
     path('retry_sign_up', user.retry_sign_up, name='retry_sign_up'),
 

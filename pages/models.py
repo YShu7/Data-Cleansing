@@ -13,7 +13,13 @@ class Data(models.Model):
 
 
 class FinalizedData(Data):
+    """
+    Checked data whose question and answer are confirmed to be correct.
+    Keywords are required to improve the training accuracy.
+    """
     answer_text = models.TextField(blank=False, null=False)
+    qns_keywords = models.TextField(blank=False, null=True)
+    ans_keywords = models.TextField(blank=False, null=True)
 
     @classmethod
     def create(cls, title, group, ans):
@@ -25,8 +31,23 @@ class FinalizedData(Data):
         finalized_data.save()
         return finalized_data
 
+    def update_keywords(self, qns, ans):
+        self.qns_keywords = self.qns_keywords + qns
+        self.ans_keywords = self.ans_keywords + ans
+        self.save()
+
+    def get_keywords(self):
+        context = {
+            "qns": self.qns_keywords.split(","),
+            "ans": self.ans_keywords.split(","),
+        }
+        return context
+
 
 class ValidatingData(Data):
+    """
+    Data that are waiting to be validated as correct or not.
+    """
     data_ptr = models.OneToOneField(to=Data, on_delete=models.CASCADE, parent_link=True)
     answer_text = models.TextField(blank=False, null=False)
     num_approved = models.IntegerField(default=0)
@@ -76,6 +97,9 @@ class ValidatingData(Data):
 
 
 class VotingData(Data):
+    """
+    Incorrect data whose answer needs to be updated.
+    """
     data_ptr = models.OneToOneField(to=Data, on_delete=models.CASCADE, parent_link=True)
     is_active = models.BooleanField(default=False)
 
