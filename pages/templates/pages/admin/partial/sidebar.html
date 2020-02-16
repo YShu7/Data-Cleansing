@@ -32,12 +32,27 @@
     {% if not request.user.is_superuser %}
     <br/>
     <li class="nav-item">
-        <a class="btn btn-primary" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
+        <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal" data-target="#file_modal" class="btn btn-outline-primary btn-sm">
+            Import Dataset
+        </button>
     </li>
 
     <br/>
     <li class="nav-item">
-        <a class="btn btn-primary" id="/summarize" href="/summarize">Summarize</a>
+        <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
+    </li>
+
+    <br/>
+    <li class="nav-item">
+        <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">Summarize</a>
     </li>
     {% endif %}
 </ul>
+
+{% include "pages/partial/file_drop.html" with modal_id="file_modal" btn_id="upload_btn" %}
+
+<script type="text/javascript">
+   function show_file_modal() {
+       $("#file_modal").modal();
+   }
+</script>
