@@ -68,9 +68,9 @@ $(document).ready(function(){
         var old_val = input_ele.val();
 
         if ($(this).hasClass("highlight")) {
-            input_ele.val(old_val + "," + keyword);
+            input_ele.val(old_val + keyword + ",");
         } else {
-            input_ele.val(old_val.replace("," + keyword, ""));
+            input_ele.val(old_val.replace(keyword + ",", ""));
         }
     });
     window.onbeforeunload = function(event)

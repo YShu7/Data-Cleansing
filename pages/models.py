@@ -18,8 +18,8 @@ class FinalizedData(Data):
     Keywords are required to improve the training accuracy.
     """
     answer_text = models.TextField(blank=False, null=False)
-    qns_keywords = models.TextField(blank=False, null=True)
-    ans_keywords = models.TextField(blank=False, null=True)
+    qns_keywords = models.TextField(blank=False, null=False, default="")
+    ans_keywords = models.TextField(blank=False, null=False, default="")
 
     @classmethod
     def create(cls, title, group, ans):

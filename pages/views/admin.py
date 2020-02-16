@@ -95,8 +95,9 @@ def download_dataset(_, group_name=""):
     # applications.
     finalized_data = get_finalized_data(group_name)
 
-    rows = [["id", "question", "answer"]]
-    rows += ([data.id, data.title, data.answer_text] for data in finalized_data)
+    rows = [["id", "question", "qns_keywords", "answer", "ans_keywords"]]
+    rows += ([data.id, data.title, data.get_keywords()["qns"],
+              data.answer_text, data.get_keywords()["ans"]] for data in finalized_data)
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
