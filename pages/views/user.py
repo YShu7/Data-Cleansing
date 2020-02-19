@@ -44,7 +44,7 @@ def validate(request):
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, ValidatingData)
-    page_obj, task_num = compute_paginator(request, data)
+    page_obj = compute_paginator(request, data)
     doing, per_task_ratio = compute_progress(request, task_num)
 
     context = {
@@ -133,7 +133,7 @@ def vote(request, vote_id=None):
 
         # Initiate paginator
         data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
-        page_obj, task_num = compute_paginator(request, data)
+        page_obj = compute_paginator(request, data)
 
         context = {
             'page_obj': page_obj,
@@ -169,7 +169,7 @@ def keywords(request, data_id=None):
 
         # Initiate paginator
         data, task_num = get_assigned_tasks_context(request.user, FinalizedData)
-        page_obj, task_num = compute_paginator(request, data)
+        page_obj = compute_paginator(request, data)
         doing, per_task_ratio = compute_progress(request, task_num)
 
         context = {
@@ -211,7 +211,7 @@ def image(request, img_id=None):
     if request.method == "GET":
         template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
         data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
-        page_obj, task_num = compute_paginator(request, data)
+        page_obj = compute_paginator(request, data)
         doing, per_task_ratio = compute_progress(request, task_num)
 
         context = {

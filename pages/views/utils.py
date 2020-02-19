@@ -200,6 +200,7 @@ def compute_progress(request, task_num):
 
     return doing, per_task_ratio
 
+
 @register.filter
 def is_true(dictionary, key):
     res = dictionary.get(key)
