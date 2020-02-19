@@ -5,10 +5,11 @@ from django.template.defaulttags import register
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from pages.models import VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
+from pages.models.models import FinalizedData, CustomGroup, Data, Log as DataLog
+from pages.models.vote import VotingData, Choice
 
 
-def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
+def get_assigned_tasks_context(user, model, parent=Data, condition=(lambda x: True)):
     all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
     all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
 

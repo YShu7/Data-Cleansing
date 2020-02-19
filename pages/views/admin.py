@@ -20,7 +20,9 @@ from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSI
     MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP, MSG_SUCCESS_IMPORT
 from datacleansing.utils import get_pre_url, Echo
 from pages.decorators import superuser_admin_login_required, admin_login_required, superuser_login_required
-from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
+from pages.models.models import Data, FinalizedData, Log
+from pages.models.validate import ValidatingData
+from pages.models.vote import VotingData
 from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context,\
     get_log_msg as get_data_log_msg, get_admin_logs, get_num_per_group_dict, get_group_info_context
 

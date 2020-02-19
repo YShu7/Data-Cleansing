@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import models
 from django.http import QueryDict
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import loader
@@ -8,12 +9,14 @@ from django.views.decorators.csrf import csrf_protect
 from assign.models import Assignment
 from authentication.forms import CustomPasswordChangeForm
 from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, \
-    MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY
+    MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY, MSG_FAIL_LABEL_NONEXIST
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
-from pages.models import ValidatingData, VotingData, FinalizedData, Choice
-from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, get_ids, \
-    s_format, is_true, split, clear
+from pages.models.models import FinalizedData
+from pages.models.validate import ValidatingData
+from pages.models.vote import VotingData, Choice
+from pages.models.image import ImageData, ImageLabel
+from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, get_ids
 
 
 @user_login_required
@@ -215,6 +218,57 @@ def keywords(request, data_id=None):
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
+
+
+@user_login_required
+@csrf_protect
+def image(request, img_id=None):
+    if request.method == "POST":
+        try:
+            data = ImageData.objects.all().get(pk=img_id)
+            label_id = request.POST["label"]
+            label = ImageLabel.objects.all().get(id=label_id)
+        except ImageData.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+        except ImageLabel.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_LABEL_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+
+        try:
+            assign = Assignment.objects.get(task_id=img_id, tasker_id=request.user.id)
+            assign.is_done()
+        except Assignment.DoesNotExist:
+            pass
+
+        data.vote(label)
+        messages.success(request, MSG_SUCCESS_VOTE)
+        data_log(request.user, data, VOT, choice)
+
+    template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
+    data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
+    paginator = Paginator(data, 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    per_task_ratio = 0
+    if task_num["todo"] != 0:
+        per_task_ratio = 100 / task_num["todo"]
+    doing = 0
+    if 'data' in request.session:
+        doing = len(get_ids(request.session['data']['validate_ids']))
+
+    context = {
+        'page_obj': page_obj,
+        'title': 'Image Label Validation Tasks',
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': doing,
+        'per_task_ratio': per_task_ratio,
+    }
+    return HttpResponse(template.render(request=request, context=context))
 
 
 def retry_sign_up(request):
