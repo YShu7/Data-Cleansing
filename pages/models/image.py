@@ -32,8 +32,8 @@ class ImageData(Data):
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
         if sum_votes >= 5 and selected_choice.num_votes == max_votes:
-            FinalizedImageData.create_from_parent(data=self)
-            self.delete()
+            FinalizedImageData.create_from_imagedata(data=self)
+            self.delete(keep_parents=True)
 
 
 class ImageLabel(models.Model):
@@ -44,3 +44,23 @@ class ImageLabel(models.Model):
     def vote(self):
         self.num_votes += 1
         self.save()
+
+
+class FinalizedImageData(Data):
+    image_url = models.URLField(unique=True)
+
+    @classmethod
+    def create(cls, group, url, title=None):
+        if title is None:
+            title = url
+        try:
+            data = Data.objects.get(title=title, group=group)
+            image_data = cls(pk=data.id, title=title, group=group, image_url=url)
+        except Data.DoesNotExist:
+            image_data = cls(title=title, group=group, image_url=url)
+        image_data.save()
+        return image_data
+
+    @classmethod
+    def create_from_imagedata(cls, data):
+        return FinalizedImageData.create(group=data.group, title=data.title, url=data.image_url)
