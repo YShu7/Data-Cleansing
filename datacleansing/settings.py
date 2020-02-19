@@ -163,6 +163,7 @@ USER_DIR = 'pages/user'
 AUTH_DIR = 'authentication'
 MSG_FAIL_CHOICE = "Please choose an answer."
 MSG_FAIL_DATA_NONEXIST = "Data #{} doesn't exist."
+MSG_FAIL_LABEL_NONEXIST = "Label #{} doesn't exist."
 
 MSG_SUCCESS_REG = "User registration succeed"
 MSG_FAIL_EMAIL = "Email {} has been used"
