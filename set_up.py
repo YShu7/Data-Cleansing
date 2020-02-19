@@ -10,6 +10,9 @@ from assign.models import Assignment
 from assign.views import assign
 from authentication.models import *
 from pages.models.models import *
+from pages.models.validate import *
+from pages.models.vote import *
+from pages.models.image import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)

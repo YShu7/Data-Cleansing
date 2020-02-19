@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db.models import Count
 from django.template.defaulttags import register
 
@@ -173,6 +174,31 @@ def get_ids(validate_ids):
             id_list.append(id)
     return id_list
 
+
+def done_assignment(task_id, tasker_id):
+    try:
+        assign = Assignment.objects.get(task_id=task_id, tasker_id=tasker_id)
+        assign.is_done()
+    except Assignment.DoesNotExist:
+        pass
+
+
+def compute_paginator(request, data):
+    paginator = Paginator(data, 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
+def compute_progress(request, task_num):
+    per_task_ratio = 0
+    if task_num["todo"] != 0:
+        per_task_ratio = 100 / task_num["todo"]
+    doing = 0
+    if 'data' in request.session:
+        doing = len(get_ids(request.session['data']['validate_ids']))
+
+    return doing, per_task_ratio
 
 @register.filter
 def is_true(dictionary, key):

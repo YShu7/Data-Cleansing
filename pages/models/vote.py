@@ -37,9 +37,8 @@ class VotingData(Data):
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
         if sum_votes >= 5 and selected_choice.num_votes == max_votes:
-            FinalizedData.objects.update_or_create(question_text=self.data_ptr.title, answer_text=selected_choice.answer,
-                                          group=self.group)
-            self.delete()
+            FinalizedData.create(title=self.data_ptr.title, ans=selected_choice.answer, group=self.group)
+            self.delete(keep_parents=True)
 
 
 class Choice(models.Model):
