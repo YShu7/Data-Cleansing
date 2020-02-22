@@ -1,0 +1,90 @@
+{% extends "pages/user/base.html" %}
+
+{% block content %}
+    <style>
+    mark {
+        background-color: white;
+        color: black;
+    }
+    mark:hover {
+        background-color: #b3d7ff;
+    }
+    .highlight {
+        background-color: #7abaff;
+    }
+    </style>
+{% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
+
+{% if page_obj %}
+<br/>
+
+<div id="taskList">
+    <table type="table" class="table">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col" width="5%">ID</th>
+                <th scope="col" width="30%">Question</th>
+                <th scope="col" width="40%">Answer</th>
+                <th scope="col" width="25%"> </th>
+            </tr>
+        </thead>
+        <tbody id="voting_tasks">
+            {% for question in page_obj %}
+            <form action="{% url 'keywords' question.id %}" method="post">
+            {% csrf_token %}
+            <tr>
+                <th scope="row">{{ question.id }}</th>
+                <td id="qns_keywords_td">
+                    <input class="keyword" name="qns_keywords" type="hidden">
+                    {% for word in question.data_ptr.title|split %}
+                        <mark>{{word}}</mark>
+                    {% endfor %}
+                <td id="ans_keywords_td">
+                    <input class="keyword" name="ans_keywords" type="hidden">
+                    {% for word in question.answer_text|split %}
+                        <mark>{{word}}</mark>
+                    {% endfor %}
+                </td>
+                <td>
+                    <input type="hidden">
+                    <button id="vote_{{question.id}}" value="0" type="submit" class="submit btn btn-outline-primary btn-sm btn-block">
+                        Submit
+                    </button>
+                </td>
+            </tr>
+            </form>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+</div>
+
+<script>
+$(document).ready(function(){
+    $("mark").on('click', function () {
+        $(this).toggleClass('highlight');
+        var keyword = $(this).text();
+        var input_ele = $(this).siblings('.keyword');
+        var old_val = input_ele.val();
+
+        if ($(this).hasClass("highlight")) {
+            input_ele.val(old_val + keyword + ",");
+        } else {
+            input_ele.val(old_val.replace(keyword + ",", ""));
+        }
+    });
+    window.onbeforeunload = function(event)
+    {
+        if ($("#door").val() == 0) {
+            return confirm("Confirm refresh");
+        }
+    };
+});
+</script>
+{% else %}
+    <br/>
+    <div class="alert alert-success" role="alert">
+          You have complete all keyword selection tasks.
+    </div>
+{% endif %}
+{% endblock %}

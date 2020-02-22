@@ -9,10 +9,16 @@
 
             <ul class="collapse show navbar-nav p-2" id="tasks" data-parent="#basicSidebar">
                 <li class="nav-item">
-                    <a class="nav-link active index" id="/tasks/validate " href="/tasks/validate">Validating</a>
+                    <a class="nav-link" id="/tasks/validate" href="/tasks/validate">Validating</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="/tasks/vote" href="/tasks/vote">Voting</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="/tasks/keywords" href="/tasks/keywords">Keywords</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="/tasks/image" href="/tasks/image">Image</a>
                 </li>
             </ul>
         </li>
@@ -22,3 +28,10 @@
         </li>
     </ul>
 </aside>
+
+<script>
+    $(document).ready(function () {
+        var ele = document.getElementById("{{ request.path }}");
+        ele.classList.add("active");
+    })
+</script>

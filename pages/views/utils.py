@@ -1,14 +1,16 @@
 from django.utils import timezone
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db.models import Count
 from django.template.defaulttags import register
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
-from pages.models import VotingData, Choice, FinalizedData, CustomGroup, Log as DataLog
+from pages.models.models import FinalizedData, CustomGroup, Data, Log as DataLog
+from pages.models.vote import VotingData, Choice
 
 
-def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
+def get_assigned_tasks_context(user, model, parent=Data, condition=(lambda x: True)):
     all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
     all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
 
@@ -173,6 +175,32 @@ def get_ids(validate_ids):
     return id_list
 
 
+def done_assignment(task_id, tasker_id):
+    try:
+        assign = Assignment.objects.get(task_id=task_id, tasker_id=tasker_id)
+        assign.is_done()
+    except Assignment.DoesNotExist:
+        pass
+
+
+def compute_paginator(request, data):
+    paginator = Paginator(data, 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
+def compute_progress(request, task_num):
+    per_task_ratio = 0
+    if task_num["todo"] != 0:
+        per_task_ratio = 100 / task_num["todo"]
+    doing = 0
+    if 'data' in request.session:
+        doing = len(get_ids(request.session['data']['validate_ids']))
+
+    return doing, per_task_ratio
+
+
 @register.filter
 def is_true(dictionary, key):
     res = dictionary.get(key)
@@ -194,3 +222,15 @@ def get_first_item(dictionary, key):
 @register.filter
 def s_format(string, f):
     return string.format(f)
+
+
+@register.filter
+def split(str, spliter=None):
+    if not spliter:
+        return str.split()
+    return str.split(spliter)
+
+
+@register.filter
+def clear(str):
+    return str.replace("&#39;", "")

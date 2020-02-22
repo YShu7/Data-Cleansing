@@ -163,6 +163,7 @@ USER_DIR = 'pages/user'
 AUTH_DIR = 'authentication'
 MSG_FAIL_CHOICE = "Please choose an answer."
 MSG_FAIL_DATA_NONEXIST = "Data #{} doesn't exist."
+MSG_FAIL_LABEL_NONEXIST = "Label #{} doesn't exist."
 
 MSG_SUCCESS_REG = "User registration succeed"
 MSG_FAIL_EMAIL = "Email {} has been used"
@@ -177,6 +178,7 @@ MSG_SUCCESS_SIGN_UP = "Sign up successfully."
 MSG_SUCCESS_RETRY = "Your request has been sent."
 MSG_SUCCESS_ASSIGN = "Assign Tasks Succeed"
 MSG_SUCCESS_SUM = "Summarize Succeed"
+MSG_SUCCESS_IMPORT = "Database is successfully imported. Click 'Assign Tasks' to re-assign all tasks to users."
 MSG_SUCCESS_DEL_GRP = "Group {} was successfully deleted."
 MSG_SUCCESS_CRT_GRP = "Group {} was successfully created."
 

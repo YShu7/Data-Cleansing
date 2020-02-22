@@ -1,4 +1,5 @@
 import csv
+import io
 import json
 from datetime import datetime
 
@@ -16,10 +17,12 @@ from authentication.utils import get_approved_users, get_pending_users, \
     log as account_log, get_log_msg as get_auth_log_msg
 from authentication.forms import CreateGroupForm
 from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM, \
-    MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP
+    MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP, MSG_SUCCESS_IMPORT
 from datacleansing.utils import get_pre_url, Echo
 from pages.decorators import superuser_admin_login_required, admin_login_required, superuser_login_required
-from pages.models import Data, ValidatingData, VotingData, FinalizedData, Log
+from pages.models.models import Data, FinalizedData, Log
+from pages.models.validate import ValidatingData
+from pages.models.vote import VotingData
 from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context,\
     get_log_msg as get_data_log_msg, get_admin_logs, get_num_per_group_dict, get_group_info_context
 
@@ -95,8 +98,9 @@ def download_dataset(_, group_name=""):
     # applications.
     finalized_data = get_finalized_data(group_name)
 
-    rows = [["id", "question", "answer"]]
-    rows += ([data.id, data.title, data.answer_text] for data in finalized_data)
+    rows = [["id", "question", "qns_keywords", "answer", "ans_keywords"]]
+    rows += ([data.id, data.title, data.get_keywords()["qns"],
+              data.answer_text, data.get_keywords()["ans"]] for data in finalized_data)
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -203,6 +207,39 @@ def log(request):
         'logs': logs,
     }
     return HttpResponse(template.render(context=context, request=request))
+
+
+@admin_login_required
+def import_dataset(request):
+    # declaring template
+    try:
+        csv_file = request.FILES['file']
+    except Exception:
+        messages.add_message(request, messages.ERROR, 'No file is input.', extra_tags="danger")
+        return HttpResponseRedirect(get_pre_url(request))
+    try:
+        qns_col = int(request.POST['qns_col'])
+        ans_col = int(request.POST['ans_col'])
+    except Exception:
+        messages.add_message(request, messages.ERROR, 'No column index is input.', extra_tags="danger")
+        return HttpResponseRedirect(get_pre_url(request))
+
+    # let's check if it is a csv file
+    if not csv_file.name.endswith('.csv'):
+        messages.add_message(request, messages.ERROR, 'Input file is not a .csv file.', extra_tags="danger")
+        return HttpResponseRedirect(get_pre_url(request))
+    data_set = csv_file.read().decode('UTF-8')
+    # setup a stream which is when we loop through each line we are able to handle a data in a stream
+
+    io_string = io.StringIO(data_set)
+    next(io_string)
+    for column in csv.reader(io_string):
+        data = ValidatingData.create(
+            title=column[qns_col],
+            ans=column[ans_col],
+            group=request.user.group,)
+    messages.success(request, MSG_SUCCESS_IMPORT)
+    return HttpResponseRedirect(get_pre_url(request))
 
 
 @admin_login_required

@@ -1,19 +1,21 @@
 from django.contrib import messages
-from django.core.paginator import Paginator
+from django.db import models
 from django.http import QueryDict
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import loader
 from django.views.decorators.csrf import csrf_protect
 
-from assign.models import Assignment
 from authentication.forms import CustomPasswordChangeForm
 from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, \
-    MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY
+    MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY, MSG_FAIL_LABEL_NONEXIST
 from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
-from pages.models import ValidatingData, VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, log as data_log, merge_validate_context, get_ids, \
-    s_format, is_true
+from pages.models.models import FinalizedData
+from pages.models.validate import ValidatingData
+from pages.models.vote import VotingData, Choice
+from pages.models.image import ImageData, ImageLabel
+from pages.views.utils import get_assigned_tasks_context, done_assignment, \
+    log as data_log, merge_validate_context, get_ids, compute_progress, compute_paginator
 
 
 @user_login_required
@@ -42,16 +44,8 @@ def validate(request):
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, ValidatingData)
-    paginator = Paginator(data, 1)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    per_task_ratio = 0
-    if task_num["todo"] != 0:
-        per_task_ratio = 100 / task_num["todo"]
-    doing = 0
-    if 'data' in request.session:
-        doing = len(get_ids(request.session['data']['validate_ids']))
+    page_obj = compute_paginator(request, data)
+    doing, per_task_ratio = compute_progress(request, task_num)
 
     context = {
         'page_obj': page_obj,
@@ -95,11 +89,7 @@ def validate(request):
             new_ans = task.answer_text
 
             # User has done this assignment
-            try:
-                assign = Assignment.objects.get(task_id=validate_id, tasker_id=request.user.id)
-                assign.is_done()
-            except Assignment.DoesNotExist:
-                pass
+            done_assignment(validate_id, request.user.id)
 
             if approve == "true":
                 # if user approve the answer, add votes
@@ -133,11 +123,7 @@ def vote(request, vote_id=None):
                                  message=MSG_FAIL_CHOICE, extra_tags="danger")
             return HttpResponseRedirect(get_pre_url(request))
 
-        try:
-            assign = Assignment.objects.get(task_id=vote_id, tasker_id=request.user.id)
-            assign.is_done()
-        except Assignment.DoesNotExist:
-            pass
+        done_assignment(vote_id, request.user.id)
 
         data.vote(selected_choice)
         messages.success(request, MSG_SUCCESS_VOTE)
@@ -147,15 +133,8 @@ def vote(request, vote_id=None):
 
         # Initiate paginator
         data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
-        for d in data:
-            d.answers = d.choice_set.all()
-        paginator = Paginator(data, 1)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        page_obj = compute_paginator(request, data)
 
-        per_task_ratio = 0
-        if task_num["todo"] != 0:
-            per_task_ratio = 100 / task_num["todo"]
         context = {
             'page_obj': page_obj,
             'num_done': task_num["done"],
@@ -165,6 +144,85 @@ def vote(request, vote_id=None):
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
+
+
+@user_login_required
+@csrf_protect
+def keywords(request, data_id=None):
+    if request.method == "POST":
+        try:
+            qns_keywords = request.POST["qns_keywords"]
+            ans_keywords = request.POST["ans_keywords"]
+            data = FinalizedData.objects.get(pk=data_id)
+        except FinalizedData.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+
+        done_assignment(data_id, request.user.id)
+
+        data.update_keywords(qns_keywords, ans_keywords)
+        messages.success(request, MSG_SUCCESS_VOTE)
+        # data_log(request.user, data)
+    else:
+        template = loader.get_template('{}/keywords_tasks.html'.format(USER_DIR))
+
+        # Initiate paginator
+        data, task_num = get_assigned_tasks_context(request.user, FinalizedData)
+        page_obj = compute_paginator(request, data)
+        doing, per_task_ratio = compute_progress(request, task_num)
+
+        context = {
+            'page_obj': page_obj,
+            'title': 'Keyword Selection Tasks',
+            'num_done': task_num["done"],
+            'num_total': task_num["total"],
+            'num_doing': doing,
+            'per_task_ratio': per_task_ratio,
+        }
+        return HttpResponse(template.render(request=request, context=context))
+    return HttpResponseRedirect(get_pre_url(request))
+
+
+@user_login_required
+@csrf_protect
+def image(request, img_id=None):
+    if request.method == "POST":
+        try:
+            data = ImageData.objects.all().get(pk=img_id)
+            label_id = request.POST["label"]
+            label = ImageLabel.objects.all().get(id=label_id)
+        except ImageData.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+        except ImageLabel.DoesNotExist:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=MSG_FAIL_LABEL_NONEXIST, extra_tags="danger")
+            return HttpResponseRedirect(get_pre_url(request))
+
+        done_assignment(img_id, request.user.id)
+
+        data.vote(label)
+        messages.success(request, MSG_SUCCESS_VOTE)
+        data_log(request.user, data, VOT, label)
+        return HttpResponseRedirect(request.path)
+
+    if request.method == "GET":
+        template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
+        data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
+        page_obj = compute_paginator(request, data)
+        doing, per_task_ratio = compute_progress(request, task_num)
+
+        context = {
+            'page_obj': page_obj,
+            'title': 'Image Label Validation Tasks',
+            'num_done': task_num["done"],
+            'num_total': task_num["total"],
+            'num_doing': doing,
+            'per_task_ratio': per_task_ratio,
+        }
+        return HttpResponse(template.render(request=request, context=context))
 
 
 def retry_sign_up(request):

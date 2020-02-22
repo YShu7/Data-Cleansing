@@ -79,36 +79,3 @@
     {% endif %}
 </body>
 </html>
-
-<script>
-    $(document).ready(function(){
-        let links = document.getElementById("sidebar").getElementsByTagName("a");
-        let currentURL = document.location.href;
-
-        for(var i=0;i<links.length;i++){
-            var url=links[i].getAttribute("href");
-            if(currentURL.indexOf(url) != -1) {
-                removeClass(document.getElementById($(".index")[0].id), "active");
-                addClass(links[i], "active");
-            }
-        }
-    });
-
-    function addClass(element, value ){
-        if (!element.className){
-            element.className = value;
-        } else {
-            var newClassName = element.className;
-            newClassName+= " ";
-            newClassName+= value ;
-            element.className = newClassName;
-        }
-    }
-
-    function removeClass(element, value ){
-        if (element.className) {
-            let newClassName = element.className.replace(new RegExp(value,"g"), "");
-            element.className = newClassName;
-        }
-    }
-</script>

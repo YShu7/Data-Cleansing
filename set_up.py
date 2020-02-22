@@ -9,7 +9,10 @@ django.setup()
 from assign.models import Assignment
 from assign.views import assign
 from authentication.models import *
-from pages.models import *
+from pages.models.models import *
+from pages.models.validate import *
+from pages.models.vote import *
+from pages.models.image import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
@@ -214,9 +217,26 @@ for q, a in zip(validating_qns, validating_ans):
         validating_data = ValidatingData.create(title="{}-{}".format(i, q), group=groups[0], ans=a)
 
 for q, a in zip(validating_qns, validating_ans):
-    fianlized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
+    finalized_data = FinalizedData.create(title="finalized_{}".format(q), group=groups[0], ans=a)
+
+urls = ["https://i0.wp.com/images-prod.healthline.com/hlcmsresource/images/AN_images/healthy-eating-ingredients-1296x728-header.jpg?w=1155&h=1528",
+        "https://i.ndtvimg.com/i/2016-06/chinese-625_625x350_81466064119.jpg",
+        "https://cdn.citynomads.com/wp-content/uploads/2017/06/08154455/straits-kitchen-cover3.png",
+        "https://i.ndtvimg.com/i/2016-06/chinese-625_625x350_81466064119.jpg",
+        "https://media.timeout.com/images/105370171/630/472/image.jpg"]
+for url in urls:
+    # import ssl
+    # ssl._create_default_https_context = ssl._create_unverified_context
+    # img = Image.open(urlopen(url))
+    # import base64
+    # image_file = base64.b64encode(img.tobytes())
+    data = ImageData.create(group=groups[0], url=url)
+    for j in range(5):
+        ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))
 
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
 assign(users, Assignment, ValidatingData.objects.all(), Data, NUM_USER_PER_TASK=3)
 assign(users, Assignment, VotingData.objects.filter(is_active=True), Data, NUM_USER_PER_TASK=5)
+assign(users, Assignment, FinalizedData.objects.all(), Data, NUM_USER_PER_TASK=3)
+assign(users, Assignment, ImageData.objects.all(), Data, NUM_USER_PER_TASK=3)

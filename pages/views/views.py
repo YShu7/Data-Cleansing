@@ -1,6 +1,7 @@
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import loader
 from django.template.defaulttags import register
+from django.urls import reverse
 import markdown
 
 from pages.decorators import login_required
@@ -10,9 +11,9 @@ from pages.decorators import login_required
 def index(request):
     user = request.user
     if user.is_superuser or user.is_admin:
-        return HttpResponseRedirect('/admin')
+        return HttpResponseRedirect(reverse('admin'))
 
-    return HttpResponseRedirect('/user')
+    return HttpResponseRedirect(reverse("user"))
 
 
 @login_required
