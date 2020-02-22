@@ -1,32 +1,108 @@
-from django.core.paginator import Paginator
-from django.test import TestCase, RequestFactory
+from django.test import client
+from django.test import TestCase, RequestFactory, Client
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
+from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
 from pages.models.models import FinalizedData
 from authentication.models import CustomGroup, CustomUser
 from assign.models import Assignment
+import json
+from django.utils.http import urlencode
 
-from pages.views.user import image
 from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
     get_num_per_group_dict, get_group_info_context
 
 
-class ImageDataTestCase(TestCase):
-    def setUp(self):
-        # Every test needs access to the request factory.
-        self.factory = RequestFactory()
+class UserViewTestCase(TestCase):
+    def setUp_client(self):
+        self.client = Client()
         self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
         self.user = CustomUser.objects.create_user(
-            username='alice', email='alice@gmail.com', certificate="G123456M", group=self.group, password='top_secret')
+            username='alice', email='alice@gmail.com', certificate="G123456M",
+            group=self.group, password='top_secret')
+        self.user.approve(True)
+        self.client.login(username="alice@gmail.com", password="top_secret")
 
-    def test_details(self):
-        request = self.factory.get('/tasks/image')
-        request.user = self.user
+    def setUp_validating(self):
+        self.validating = []
+        for i in range(20):
+            data = ValidatingData.create(group=self.group, title="Title{}".format(i), ans="Answer{}".format(i))
+            self.validating.append(data)
 
-        response = image(request)
+    def setUp_voting(self):
+        self.active_voting = []
+        self.inactive_voting = []
+        for i in range(20):
+            data = VotingData.create(group=self.group, title="A_Title{}".format(i), is_active=True)
+            self.active_voting.append(data)
+            for j in range(5):
+                Choice.objects.update_or_create(data=data, answer="Choice{}".format(j))
 
+        for i in range(10):
+            data = VotingData.create(group=self.group, title="I_Title{}".format(i))
+            self.inactive_voting.append(data)
+            for j in range(5):
+                Choice.objects.update_or_create(data=data, answer="Choice{}".format(j))
+
+    def setUp_keywords(self):
+        self.finalized = []
+        for i in range(10):
+            data = FinalizedData.create(title="Title{}".format(i), group=self.group, ans="Answer{}".format(i))
+            self.finalized.append(data)
+
+    def setUp_image(self):
+        self.images = []
+        for i in range(6):
+            data = ImageData.create(group=self.group, url="www.google.com/{}.jpg".format(i))
+            self.images.append(data)
+            for j in range(5):
+                ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))
+
+    def setUp(self) -> None:
+        self.setUp_client()
+        self.setUp_validating()
+        self.setUp_voting()
+        self.setUp_keywords()
+        self.setUp_image()
+
+    def test_get(self):
+        response = self.client.get('/tasks/validate')
         self.assertEqual(response.status_code, 200)
-        print(request)
+
+        response = self.client.get('/tasks/vote')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/tasks/keywords')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/tasks/image')
+        self.assertEqual(response.status_code, 200)
+
+    
+    def test_post_image(self):
+        img = self.images[0]
+        label = img.imagelabel_set.all()[1]
+        assignment = Assignment.objects.create(tasker=self.user, task=img)
+        self.assertEqual(label.num_votes, 0)
+        self.assertFalse(assignment.done)
+
+        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [label.id]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ImageLabel.objects.get(pk=label.id).num_votes, 1)
+        self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
+
+    def test_post_final_image(self):
+        img = self.images[1]
+        label = img.imagelabel_set.all()[2]
+        label.num_votes = 4
+        label.save()
+        self.assertEqual(label.num_votes, 4)
+
+        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [label.id]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
+        self.assertIsNone(ImageData.objects.filter(pk=img.pk).first())
+        self.assertIsNone(ImageLabel.objects.filter(pk=label.id).first())
 
 
 class UtilsTestCase(TestCase):

@@ -78,7 +78,7 @@ def get_finalized_data(group_name=None):
 
 
 def log(user, task, action, response):
-    DataLog.objects.update_or_create(user=user, task=task, action=action,
+    DataLog.objects.update_or_create(user=user, task=Data.objects.get(id=task.id), action=action,
                                      response=response, timestamp=timezone.now())
 
 

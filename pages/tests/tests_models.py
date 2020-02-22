@@ -1,8 +1,8 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from pages.models.vote import VotingData, Choice
-from pages.models.models import FinalizedData
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
-from authentication.models import CustomGroup, CustomUser
+from pages.models.models import FinalizedData
+from authentication.models import CustomGroup
 
 
 class VotingDataTestCase(TestCase):
@@ -86,23 +86,3 @@ class ImageDataTestCase(TestCase):
             group=img_data.group)
         self.assertIsNotNone(filtered_data.first(), "FinalizedData is not created.")
         self.assertEqual(filtered_data.first().pk, pk, "FinalizedData does not have the same id.")
-
-    def setUp(self):
-        # Every test needs access to the request factory.
-        self.factory = RequestFactory()
-        self.user = CustomUser.objects.create_user(
-            username='alice', email='alice@gmail.com', password='top_secret')
-
-    def test_details(self):
-        # Create an instance of a GET request.
-        request = self.factory.get('/')
-
-        # Recall that middleware are not supported. You can simulate a
-        # logged-in user by setting request.user manually.
-        request.user = self.user
-
-        # Test my_view() as if it were deployed at /customer/details
-        response = my_view(request)
-        # Use this syntax for class-based views.
-        response = MyView.as_view()(request)
-        self.assertEqual(response.status_code, 200)

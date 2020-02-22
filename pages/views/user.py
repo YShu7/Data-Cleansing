@@ -4,11 +4,11 @@ from django.http import QueryDict
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import loader
 from django.views.decorators.csrf import csrf_protect
+from django.urls import reverse
 
 from authentication.forms import CustomPasswordChangeForm
-from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, \
+from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, SEL, \
     MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY, MSG_FAIL_LABEL_NONEXIST
-from datacleansing.utils import get_pre_url
 from pages.decorators import user_login_required
 from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
@@ -57,6 +57,7 @@ def validate(request):
 
     if request.method == 'POST':
         data = {}
+        print(request.POST)
         if "submit" not in request.POST:
             old_data = request.session.pop('data', False)
 
@@ -98,9 +99,9 @@ def validate(request):
                 task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
 
             task.validate()
-            data_log(request.user, task.data_ptr, VAL, new_ans)
+            data_log(request.user, task, VAL, new_ans)
         messages.success(request, MSG_SUCCESS_VAL)
-        return HttpResponseRedirect(request.path)
+        return HttpResponseRedirect(reverse('tasks/validate'))
 
     return HttpResponse(template.render(request=request, context=context))
 
@@ -116,11 +117,11 @@ def vote(request, vote_id=None):
         except VotingData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
-            return HttpResponseRedirect(get_pre_url(request))
+            return HttpResponseRedirect(reverse('tasks/vote'))
         except Choice.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=MSG_FAIL_CHOICE, extra_tags="danger")
-            return HttpResponseRedirect(get_pre_url(request))
+            return HttpResponseRedirect(reverse('tasks/vote'))
 
         done_assignment(vote_id, request.user.id)
 
@@ -145,7 +146,7 @@ def vote(request, vote_id=None):
             'title': 'Voting Tasks',
         }
         return HttpResponse(template.render(request=request, context=context))
-    return HttpResponseRedirect(get_pre_url(request))
+    return HttpResponseRedirect(reverse('tasks/vote'))
 
 
 @user_login_required
@@ -159,13 +160,13 @@ def keywords(request, data_id=None):
         except FinalizedData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
-            return HttpResponseRedirect(get_pre_url(request))
+            return HttpResponseRedirect(reverse('tasks/keywords'))
 
         done_assignment(data_id, request.user.id)
 
         data.update_keywords(qns_keywords, ans_keywords)
         messages.success(request, MSG_SUCCESS_VOTE)
-        # data_log(request.user, data)
+        data_log(request.user, data, SEL, qns_keywords + "\n" + ans_keywords)
     else:
         template = loader.get_template('{}/keywords_tasks.html'.format(USER_DIR))
 
@@ -182,7 +183,7 @@ def keywords(request, data_id=None):
             'num_doing': doing,
         }
         return HttpResponse(template.render(request=request, context=context))
-    return HttpResponseRedirect(get_pre_url(request))
+    return HttpResponseRedirect(reverse('tasks/keywords'))
 
 
 @user_login_required
@@ -196,18 +197,18 @@ def image(request, img_id=None):
         except ImageData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=MSG_FAIL_DATA_NONEXIST, extra_tags="danger")
-            return HttpResponseRedirect(get_pre_url(request))
+            return HttpResponseRedirect(reverse('tasks/image'))
         except ImageLabel.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=MSG_FAIL_LABEL_NONEXIST, extra_tags="danger")
-            return HttpResponseRedirect(get_pre_url(request))
+            return HttpResponseRedirect(reverse('tasks/image'))
 
         done_assignment(img_id, request.user.id)
 
         data.vote(label)
         messages.success(request, MSG_SUCCESS_VOTE)
         data_log(request.user, data, VOT, label)
-        return HttpResponseRedirect(request.path)
+        return HttpResponseRedirect(reverse('tasks/image'))
 
     if request.method == "GET":
         template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
