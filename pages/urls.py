@@ -3,10 +3,10 @@ from django.urls import path
 from pages.views import views, user, admin
 
 urlpatterns = [
-    path('', views.index, name='tasks'),
+    path('', views.index, name='index'),
     path('help', views.help, name='help'),
 
-    path('user', user.validate, name='user'),
+    path('tasks/validate', user.validate, name='user'),
     path('tasks/validate', user.validate, name='tasks/validate'),
     path('tasks/vote', user.vote, name='tasks/vote'),
     path('tasks/keywords', user.keywords, name='tasks/keywords'),
@@ -18,7 +18,7 @@ urlpatterns = [
     path('<int:img_id>/image', user.image, name='image'),
     path('retry_sign_up', user.retry_sign_up, name='retry_sign_up'),
 
-    path('admin', admin.modify_users, name='admin'),
+    path('modify_users', admin.modify_users, name='admin'),
     path('modify_users', admin.modify_users, name='modify_users'),
     path('dataset', admin.dataset, name='dataset'),
     path('dataset/', admin.dataset, name='dataset'),
