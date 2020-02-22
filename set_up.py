@@ -225,11 +225,6 @@ urls = ["https://i0.wp.com/images-prod.healthline.com/hlcmsresource/images/AN_im
         "https://i.ndtvimg.com/i/2016-06/chinese-625_625x350_81466064119.jpg",
         "https://media.timeout.com/images/105370171/630/472/image.jpg"]
 for url in urls:
-    # import ssl
-    # ssl._create_default_https_context = ssl._create_unverified_context
-    # img = Image.open(urlopen(url))
-    # import base64
-    # image_file = base64.b64encode(img.tobytes())
     data = ImageData.create(group=groups[0], url=url)
     for j in range(5):
         ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))

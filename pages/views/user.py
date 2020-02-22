@@ -45,7 +45,7 @@ def validate(request):
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, ValidatingData)
     page_obj = compute_paginator(request, data)
-    doing, per_task_ratio = compute_progress(request, task_num)
+    doing = compute_progress(request, task_num)
 
     context = {
         'page_obj': page_obj,
@@ -53,7 +53,6 @@ def validate(request):
         'num_done': task_num["done"],
         'num_total': task_num["total"],
         'num_doing': doing,
-        'per_task_ratio': per_task_ratio,
     }
 
     if request.method == 'POST':
@@ -135,6 +134,9 @@ def vote(request, vote_id=None):
         data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
         page_obj = compute_paginator(request, data)
 
+        for d in data:
+            d.answers = d.choice_set.all()
+
         context = {
             'page_obj': page_obj,
             'num_done': task_num["done"],
@@ -170,7 +172,7 @@ def keywords(request, data_id=None):
         # Initiate paginator
         data, task_num = get_assigned_tasks_context(request.user, FinalizedData)
         page_obj = compute_paginator(request, data)
-        doing, per_task_ratio = compute_progress(request, task_num)
+        doing = compute_progress(request, task_num)
 
         context = {
             'page_obj': page_obj,
@@ -178,7 +180,6 @@ def keywords(request, data_id=None):
             'num_done': task_num["done"],
             'num_total': task_num["total"],
             'num_doing': doing,
-            'per_task_ratio': per_task_ratio,
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(get_pre_url(request))
@@ -212,7 +213,7 @@ def image(request, img_id=None):
         template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
         data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
         page_obj = compute_paginator(request, data)
-        doing, per_task_ratio = compute_progress(request, task_num)
+        doing = compute_progress(request, task_num)
 
         context = {
             'page_obj': page_obj,
@@ -220,7 +221,6 @@ def image(request, img_id=None):
             'num_done': task_num["done"],
             'num_total': task_num["total"],
             'num_doing': doing,
-            'per_task_ratio': per_task_ratio,
         }
         return HttpResponse(template.render(request=request, context=context))
 
