@@ -212,7 +212,7 @@ def image(request, img_id=None):
 
     if request.method == "GET":
         template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
-        data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
+        data, task_num = get_assigned_tasks_context(request.user, ImageData)
         page_obj = compute_paginator(request, data)
         doing = compute_progress(request)
 
