@@ -13,6 +13,10 @@ install:
  - pip install -r requirements.txt
  - pip install django==$DJANGO --quiet
  - pip install psycopg2 --quiet
+ - pip install --user codecov
+
+after_success:
+  - codecov
 
 script:
 - python manage.py test
