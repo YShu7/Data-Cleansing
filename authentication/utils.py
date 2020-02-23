@@ -5,7 +5,7 @@ from .models import Log
 
 
 def get_group_report(group):
-    members = get_user_model().objects.filter(group=group)
+    members = get_user_model().objects.filter(group=group, is_approved=True, is_active=True)
     num_ans = 0
     corr_num_ans = 0
     point = 0
@@ -21,34 +21,21 @@ def get_group_report(group):
 
 
 def get_pending_users(group=None, is_superuser=False):
-    if not group:
-        if is_superuser:
-            return get_user_model().objects.filter(is_approved=None, is_superuser=False).order_by('date_joined')
-        else:
-            return get_user_model().objects.filter(is_approved=None, is_superuser=False, is_admin=False).order_by('date_joined')
+    if is_superuser:
+        return get_user_model().objects.filter(is_approved=None, is_superuser=False).order_by('date_joined')
     else:
-        if is_superuser:
-            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False).order_by('date_joined')
-        else:
-            return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False, is_admin=False).order_by(
-                'date_joined')
+        return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False, is_admin=False).order_by(
+            'date_joined')
 
 
 def get_approved_users(group=None, is_superuser=False):
-    if not group:
-        if is_superuser:
-            return get_user_model().objects.filter(is_approved=True, is_superuser=False).order_by('date_joined')
-        else:
-            return get_user_model().objects.filter(is_approved=True, is_superuser=False, is_admin=False).order_by(
-                'date_joined')
+    if is_superuser:
+        return get_user_model().objects.filter(is_approved=True, is_superuser=False).order_by(
+            'date_joined')
     else:
-        if is_superuser:
-            return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False).order_by(
-                'date_joined')
-        else:
-            return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False,
-                                                   is_admin=False).order_by(
-                'date_joined')
+        return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False,
+                                               is_admin=False).order_by(
+            'date_joined')
 
 
 def get_log_msg(log):

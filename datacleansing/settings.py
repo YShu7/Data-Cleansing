@@ -184,6 +184,7 @@ MSG_SUCCESS_CRT_GRP = "Group {} was successfully created."
 
 VAL = "validate"
 VOT = "vote"
+SEL = "select"
 
 CORRECT_POINT = 3
 INCORRECT_POINT = 1

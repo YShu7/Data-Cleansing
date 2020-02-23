@@ -36,7 +36,7 @@ def superuser_login_required(function=None, redirect_field_name=REDIRECT_FIELD_N
 
 def user_login_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated and (not u.is_admin and not u.is_superuser),
+        lambda u: u.is_authenticated and not u.is_admin and not u.is_superuser,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )

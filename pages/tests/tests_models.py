@@ -1,7 +1,7 @@
 from django.test import TestCase
 from pages.models.vote import VotingData, Choice
-from pages.models.models import FinalizedData
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
+from pages.models.models import FinalizedData
 from authentication.models import CustomGroup
 
 

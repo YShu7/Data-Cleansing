@@ -2,15 +2,14 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Count
-from django.template.defaulttags import register
 
 from assign.models import Assignment
 from authentication.utils import get_group_report
 from pages.models.models import FinalizedData, CustomGroup, Data, Log as DataLog
-from pages.models.vote import VotingData, Choice
+from pages.models.vote import VotingData
 
 
-def get_assigned_tasks_context(user, model, parent=Data, condition=(lambda x: True)):
+def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
     all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
     all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
 
@@ -31,7 +30,9 @@ def get_assigned_tasks_context(user, model, parent=Data, condition=(lambda x: Tr
     for d in all_data_done:
         try:
             d_obj = model.objects.get(pk=d)
-            if not condition(d_obj):
+            if condition(d_obj):
+                data.append(d_obj)
+            else:
                 done_num -= 1
         except model.DoesNotExist:
             done_num -= 1
@@ -68,7 +69,7 @@ def get_group_report_context():
     return context
 
 
-def get_finalized_data(group_name):
+def get_finalized_data(group_name=None):
     finalized_data = FinalizedData.objects.all()
     if group_name and group_name != "all":
         group = CustomGroup.objects.get(name=group_name)
@@ -77,11 +78,11 @@ def get_finalized_data(group_name):
 
 
 def log(user, task, action, response):
-    DataLog.objects.update_or_create(user=user, task=task, action=action,
+    DataLog.objects.update_or_create(user=user, task=Data.objects.get(id=task.id), action=action,
                                      response=response, timestamp=timezone.now())
 
 
-def get_unassigned_voting_data(group, search_term=None):
+def get_unassigned_voting_data(group=None, search_term=None):
     # get all VotingData ids that are not allocated to any user
     voting_data = VotingData.objects.all()
     if group:
@@ -101,9 +102,9 @@ def get_unassigned_voting_data(group, search_term=None):
     # get all VotingData objects and combine them with their respective choices
     voting_data = []
     for voting_id in voting_ids:
-        voting_data.append(VotingData.objects.get(id=voting_id))
-    for data in voting_data:
-        data.answers = Choice.objects.filter(data_id=data.id)
+        data = VotingData.objects.get(id=voting_id)
+        voting_data.append(data)
+        data.answers = data.choice_set.all()
 
     return voting_data
 
@@ -148,11 +149,16 @@ def get_group_info_context(groups, info_dict):
 
 
 def merge_validate_context(new_data, old_data):
-    if isinstance(old_data['validate_ids'], list):
-        validate_ids = old_data['validate_ids']
+    if 'validate_ids' in old_data:
+        if isinstance(old_data['validate_ids'], list):
+            validate_ids = old_data['validate_ids']
+        else:
+            validate_ids = old_data['validate_ids'].split(',')
     else:
-        validate_ids = old_data['validate_ids'].split(',')
-    validate_ids.extend(new_data['validate_ids'].split(','))
+        validate_ids = []
+
+    if 'validate_ids' in new_data:
+        validate_ids.extend(new_data['validate_ids'].split(','))
 
     for k in new_data:
         old_data[k] = new_data[k]
@@ -169,9 +175,9 @@ def get_ids(validate_ids):
 
     id_set = set(validate_ids)
     id_list = []
-    for id in id_set:
-        if id.isdigit():
-            id_list.append(id)
+    for idx in id_set:
+        if isinstance(idx, int) or idx.isdigit():
+            id_list.append(idx)
     return id_list
 
 
@@ -190,47 +196,9 @@ def compute_paginator(request, data):
     return page_obj
 
 
-def compute_progress(request, task_num):
-    per_task_ratio = 0
-    if task_num["todo"] != 0:
-        per_task_ratio = 100 / task_num["todo"]
+def compute_progress(request):
     doing = 0
-    if 'data' in request.session:
+    if 'session' in request and 'data' in request.session:
         doing = len(get_ids(request.session['data']['validate_ids']))
 
-    return doing, per_task_ratio
-
-
-@register.filter
-def is_true(dictionary, key):
-    res = dictionary.get(key)
-    if not res:
-        return False
-    else:
-        return res[0] == 'true' or res == 'true'
-
-
-@register.filter
-def get_first_item(dictionary, key):
-    res = dictionary.get(key)
-    if not res:
-        return ""
-    else:
-        return res[0]
-
-
-@register.filter
-def s_format(string, f):
-    return string.format(f)
-
-
-@register.filter
-def split(str, spliter=None):
-    if not spliter:
-        return str.split()
-    return str.split(spliter)
-
-
-@register.filter
-def clear(str):
-    return str.replace("&#39;", "")
+    return doing

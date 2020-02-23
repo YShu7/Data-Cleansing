@@ -34,22 +34,23 @@ class ValidatingData(Data):
 
     def disapprove(self, new_ans):
         self.num_disapproved += 1
+        self.save()
         data = VotingData.create(title=self.title, group=self.group)
         Choice.objects.update_or_create(data=data, answer=new_ans)
 
     def validate(self):
-        datas = VotingData.objects.filter(pk=self.id, group=self.data_ptr.group)
+        try:
+            data = VotingData.objects.get(pk=self.id)
+        except VotingData.DoesNotExist:
+            return
         if self.num_approved >= 2:
             # if enough user has approve the answer
             # the origin answer is considered to be correct
             FinalizedData.create(title=self.data_ptr.title, group=self.data_ptr.group, ans=self.answer_text)
-            for data in datas:
-                Choice.objects.filter(data=data).delete()
+            data.choice_set.all().delete()
             self.delete(keep_parents=True)
         elif self.num_disapproved >= 2:
             # if enough user has disapprove the answer
             # the better answer should be selected by activating VotingData
-            for data in datas:
-                data.is_active = True
-                data.save()
-            self.delete()
+            data.activate()
+            self.delete(keep_parents=True)
