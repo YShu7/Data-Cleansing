@@ -6,10 +6,10 @@ from django.db.models import Count
 from assign.models import Assignment
 from authentication.utils import get_group_report
 from pages.models.models import FinalizedData, CustomGroup, Data, Log as DataLog
-from pages.models.vote import VotingData, Choice
+from pages.models.vote import VotingData
 
 
-def get_assigned_tasks_context(user, model, parent=Data, condition=(lambda x: True)):
+def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
     all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
     all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
 
@@ -175,9 +175,9 @@ def get_ids(validate_ids):
 
     id_set = set(validate_ids)
     id_list = []
-    for id in id_set:
-        if isinstance(id, int) or id.isdigit():
-            id_list.append(id)
+    for idx in id_set:
+        if isinstance(idx, int) or idx.isdigit():
+            id_list.append(idx)
     return id_list
 
 
@@ -196,7 +196,7 @@ def compute_paginator(request, data):
     return page_obj
 
 
-def compute_progress(request, task_num):
+def compute_progress(request):
     doing = 0
     if 'session' in request and 'data' in request.session:
         doing = len(get_ids(request.session['data']['validate_ids']))

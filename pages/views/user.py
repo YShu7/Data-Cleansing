@@ -15,7 +15,7 @@ from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
 from pages.models.image import ImageData, ImageLabel
 from pages.views.utils import get_assigned_tasks_context, done_assignment, \
-    log as data_log, merge_validate_context, get_ids, compute_progress, compute_paginator
+    log as data_log, merge_validate_context, compute_progress, compute_paginator
 
 
 @user_login_required
@@ -40,12 +40,13 @@ def profile(request):
 @user_login_required
 @csrf_protect
 def validate(request):
+    request.POST
     template = loader.get_template('{}/validating_tasks.html'.format(USER_DIR))
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, ValidatingData)
     page_obj = compute_paginator(request, data)
-    doing = compute_progress(request, task_num)
+    doing = compute_progress(request)
 
     context = {
         'page_obj': page_obj,
@@ -172,7 +173,7 @@ def keywords(request, data_id=None):
         # Initiate paginator
         data, task_num = get_assigned_tasks_context(request.user, FinalizedData)
         page_obj = compute_paginator(request, data)
-        doing = compute_progress(request, task_num)
+        doing = compute_progress(request)
 
         context = {
             'page_obj': page_obj,
@@ -213,7 +214,7 @@ def image(request, img_id=None):
         template = loader.get_template('{}/image_tasks.html'.format(USER_DIR))
         data, task_num = get_assigned_tasks_context(request.user, ImageData, parent=models.Model)
         page_obj = compute_paginator(request, data)
-        doing = compute_progress(request, task_num)
+        doing = compute_progress(request)
 
         context = {
             'page_obj': page_obj,

@@ -30,15 +30,22 @@ class VotingData(Data):
         choices = Choice.objects.filter(data_id=self.id)
         sum_votes = 0
         max_votes = selected_choice.num_votes
+        win_choice = selected_choice
         for c in choices:
             sum_votes += c.num_votes
-            max_votes = max(max_votes, c.num_votes)
+            if c.num_votes > max_votes:
+                max_votes = c.num_votes
+                win_choice = c
 
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
-        if sum_votes >= 5 and selected_choice.num_votes == max_votes:
-            FinalizedData.create(title=self.data_ptr.title, ans=selected_choice.answer, group=self.group)
+        if sum_votes >= 5:
+            FinalizedData.create(title=self.data_ptr.title, ans=win_choice.answer, group=self.group)
             self.delete(keep_parents=True)
+
+    def activate(self):
+        self.is_active = True
+        self.save()
 
 
 class Choice(models.Model):
