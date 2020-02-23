@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/YShu7/Data-Cleansing.svg?branch=master)](https://travis-ci.com/YShu7/Data-Cleansing)
+[![Build Status](https://codecov.io/gh/YShu7/Data-Cleansing/branch/master/graph/badge.svg)](https://codecov.io/gh/YShu7/Data-Cleansing)
 
 ## Set up
 1. Install necessary packages: `pip install -r requirements.txt`  
