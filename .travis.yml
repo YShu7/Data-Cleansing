@@ -15,12 +15,13 @@ install:
  - pip install psycopg2 --quiet
  - pip install coverage
 
-after_success:
-  - codecov
-
 script:
 - python manage.py test
 
 branches:
   only:
     - master
+    - develop
+
+after_success:
+ - codecov
