@@ -396,11 +396,12 @@ class UtilsTestCase(TestCase):
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
         # inactive voting data
-        for q in range(10):
+        for q in range(20, 30):
             voting_data = VotingData.create(title=q, group=self.group, is_active=False)
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
-        self.num_vote_kkh = 20 + 10
+            self.unassigned_voting_data.append(voting_data)
+        self.num_vote_kkh = 30
 
         # active other group data
         for q in range(5):
@@ -479,7 +480,7 @@ class UtilsTestCase(TestCase):
         self.assertEqual(set(data), set(expected_data))
 
         data = get_unassigned_voting_data(group=self.group)
-        expected_data = self.unassigned_voting_data[5:]
+        expected_data = [data for data in self.unassigned_voting_data if data.group == self.group]
         self.assertEqual(len(data), len(expected_data))
         self.assertEqual(set(data), set(expected_data))
 
