@@ -57,7 +57,6 @@ def validate(request):
 
     if request.method == 'POST':
         data = {}
-        print(request.POST)
         if "submit" not in request.POST:
             old_data = request.session.pop('data', False)
 
@@ -66,7 +65,7 @@ def validate(request):
             else:
                 data = request.POST
             request.session['data'] = data
-            return HttpResponse(template.render(request=request, context=context))
+            return HttpResponseRedirect(reverse('tasks/validate'))
         else:
             data = request.session.pop('data', False)
 

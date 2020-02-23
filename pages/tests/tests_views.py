@@ -78,7 +78,114 @@ class UserViewTestCase(TestCase):
         response = self.client.get('/tasks/image')
         self.assertEqual(response.status_code, 200)
 
-    
+    def test_post_validate_update(self):
+        session = self.client.session
+        session['data'] = {"validate_ids": [str(val.id) for val in self.validating[:5]]}
+        session.save()
+
+        assignments = []
+        for val in self.validating[:10]:
+            assignment = Assignment.objects.create(tasker=self.user, task=val)
+            assignments.append(assignment)
+
+        new_id = self.validating[5].id
+        data = {"validate_ids": new_id,
+                "approve_value_{}".format(new_id): 'false',
+                "new_ans_{}".format(new_id): 'New Answer'}
+        for val in self.validating[:5]:
+            data['approve_value_{}'.format(val.id)] = 'true'
+        response = self.client.post(path='/tasks/validate',
+                                    data=data,
+                                    follow=True, format='json')
+        self.assertIn('data', response.client.session)
+        self.assertIn('validate_ids', response.client.session['data'])
+        data = response.client.session['data']['validate_ids']
+        expected_data = [str(val.id) for val in self.validating[:6]]
+        data.sort()
+        expected_data.sort()
+        self.assertEqual(data, expected_data)
+
+        for assignment in assignments:
+            self.assertFalse(Assignment.objects.get(pk=assignment.pk).done)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_validate_submit(self):
+        session = self.client.session
+        session['data'] = {"validate_ids": [val.id for val in self.validating[:5]]}
+        session.save()
+
+        assignments = []
+        for val in self.validating[:10]:
+            assignment = Assignment.objects.create(tasker=self.user, task=val)
+            assignments.append(assignment)
+        val_ids = ""
+        data={"submit": 'Submit'}
+        for val in self.validating[:5]:
+            data['approve_value_{}'.format(val.id)] = 'true'
+        for val in self.validating[5:10]:
+            val_ids += "{},".format(val.id)
+            data["approve_value_{}".format(val.id)] = 'false'
+            data["new_ans_{}".format(val.id)] = 'New Answer {}'.format(val.id)
+        data['validate_ids'] = val_ids
+        response = self.client.post(path='/tasks/validate',
+                                    data=data,
+                                    follow=True, format='json')
+        print(response.client.session.get('data'))
+        self.assertEqual(response.status_code, 200)
+        for assignment in assignments:
+            self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
+        for val in self.validating[:5]:
+            self.assertEqual(ValidatingData.objects.get(pk=val.id).num_approved, 1)
+        for val in self.validating[5:10]:
+            self.assertEqual(ValidatingData.objects.get(pk=val.id).num_disapproved, 1)
+            self.assertIsNotNone(VotingData.objects.get(pk=val.id))
+            data = VotingData.objects.get(pk=val.id)
+            self.assertIsNotNone(data.choice_set.all().first())
+            self.assertEqual(data.choice_set.all()[0].answer, 'New Answer {}'.format(val.id))
+            self.assertFalse(data.is_active)
+
+    def test_post_vote(self):
+        vote = self.active_voting[0]
+        choice = vote.choice_set.all()[1]
+        assignment = Assignment.objects.create(tasker=self.user, task=vote)
+        self.assertEqual(choice.num_votes, 0)
+        self.assertFalse(assignment.done)
+
+        response = self.client.post(path='/{}/vote'.format(vote.id), data={"choice": [choice.id]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Choice.objects.get(pk=choice.id).num_votes, 1)
+        self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
+
+    def test_post_final_vote(self):
+        vote = self.active_voting[1]
+        choice = vote.choice_set.all()[2]
+        choice.num_votes = 4
+        choice.save()
+        self.assertEqual(choice.num_votes, 4)
+
+        response = self.client.post(path='/{}/vote'.format(vote.id), data={"choice": [choice.id]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
+        self.assertIsNone(VotingData.objects.filter(pk=vote.pk).first())
+        self.assertIsNone(Choice.objects.filter(pk=vote.id).first())
+
+    def test_post_keywords(self):
+        keywords = self.finalized[0]
+        assignment = Assignment.objects.create(tasker=self.user, task=keywords)
+        self.assertEqual(keywords.qns_keywords, "")
+        self.assertEqual(keywords.ans_keywords, "")
+
+        response = self.client.post(path='/{}/keywords'.format(keywords.id),
+                                    data={
+                                        "qns_keywords": 'Title{}'.format(keywords.id),
+                                        "ans_keywords": 'Answer{}'.format(keywords.id),
+                                    }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        keywords = FinalizedData.objects.get(pk=keywords.pk)
+        self.assertEqual(keywords.qns_keywords, "Title{}".format(keywords.id))
+        self.assertEqual(keywords.ans_keywords, "Answer{}".format(keywords.id))
+
+
     def test_post_image(self):
         img = self.images[0]
         label = img.imagelabel_set.all()[1]

@@ -149,11 +149,16 @@ def get_group_info_context(groups, info_dict):
 
 
 def merge_validate_context(new_data, old_data):
-    if isinstance(old_data['validate_ids'], list):
-        validate_ids = old_data['validate_ids']
+    if 'validate_ids' in old_data:
+        if isinstance(old_data['validate_ids'], list):
+            validate_ids = old_data['validate_ids']
+        else:
+            validate_ids = old_data['validate_ids'].split(',')
     else:
-        validate_ids = old_data['validate_ids'].split(',')
-    validate_ids.extend(new_data['validate_ids'].split(','))
+        validate_ids = []
+
+    if 'validate_ids' in new_data:
+        validate_ids.extend(new_data['validate_ids'].split(','))
 
     for k in new_data:
         old_data[k] = new_data[k]
@@ -171,7 +176,7 @@ def get_ids(validate_ids):
     id_set = set(validate_ids)
     id_list = []
     for id in id_set:
-        if id.isdigit():
+        if isinstance(id, int) or id.isdigit():
             id_list.append(id)
     return id_list
 

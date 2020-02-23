@@ -34,6 +34,7 @@ class ValidatingData(Data):
 
     def disapprove(self, new_ans):
         self.num_disapproved += 1
+        self.save()
         data = VotingData.create(title=self.title, group=self.group)
         Choice.objects.update_or_create(data=data, answer=new_ans)
 
