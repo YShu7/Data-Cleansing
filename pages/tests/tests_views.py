@@ -1,14 +1,21 @@
-from django.test import client
 from django.test import TestCase, RequestFactory, Client
+
+from assign.models import Assignment
+from authentication.models import CustomGroup, CustomUser
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
+from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
-from pages.models.models import FinalizedData
-from authentication.models import CustomGroup, CustomUser
-from assign.models import Assignment
-import json
-from django.utils.http import urlencode
+from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
+    get_num_per_group_dict, get_group_info_context
+from django.test import TestCase, RequestFactory, Client
 
+from assign.models import Assignment
+from authentication.models import CustomGroup, CustomUser
+from pages.models.image import ImageData, ImageLabel, FinalizedImageData
+from pages.models.models import FinalizedData
+from pages.models.validate import ValidatingData
+from pages.models.vote import VotingData, Choice
 from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
     get_num_per_group_dict, get_group_info_context
 
@@ -514,8 +521,8 @@ class UtilsTestCase(TestCase):
 
         groups_info = get_group_info_context([self.group, self.other_group],
                                              {
-                                                "user": user_num_dict,
-                                                "data": data_num_dict,
+                                                 "user": user_num_dict,
+                                                 "data": data_num_dict,
                                              })
         expected_groups_info = [
             {

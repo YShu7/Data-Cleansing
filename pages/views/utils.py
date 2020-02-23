@@ -1,7 +1,7 @@
-from django.utils import timezone
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Count
+from django.utils import timezone
 
 from assign.models import Assignment
 from authentication.utils import get_group_report

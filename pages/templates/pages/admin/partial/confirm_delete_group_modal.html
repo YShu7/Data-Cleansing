@@ -1,4 +1,5 @@
-<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{modal_id}}" role="dialog" tabindex="-1">
+<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
+     tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,18 +9,21 @@
                 </button>
             </div>
 
-            <form action="{% url 'delete_group' %}" method="POST" >
+            <form action="{% url 'delete_group' %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body">
                     <p class="text-danger">
-                        <b>Warning:</b> This action <b>CANNOT</b> be undone. This will delete <b id="group_name"></b> users, data, logs permanently.
+                        <b>Warning:</b> This action <b>CANNOT</b> be undone. This will delete <b id="group_name"></b>
+                        users, data, logs permanently.
                     </p>
-                    <p class="text-secondary"> <b>Note:</b> Input group name to confirm deletion.</p>
+                    <p class="text-secondary"><b>Note:</b> Input group name to confirm deletion.</p>
                     <input type="hidden" id="{{ check_id }}" name="{{ check_id }}">
                     <input class="form-control" id="{{ confirm_id }}" name="{{ confirm_id }}">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-outline-danger btn-block" type="submit" id="{{ btn_id }}">I understand the consequences, delete the group.</button>
+                    <button class="btn btn-outline-danger btn-block" type="submit" id="{{ btn_id }}">I understand the
+                        consequences, delete the group.
+                    </button>
                 </div>
             </form>
         </div>

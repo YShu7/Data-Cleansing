@@ -1,29 +1,29 @@
 {% extends "pages/admin/base.html" %}
 
 {% block content %}
-<table type="table" class="table table-hover">
-    <thead class="thead-light">
+    <table type="table" class="table table-hover">
+        <thead class="thead-light">
         <tr>
             <th scope="col">ID</th>
             <th scope="col">Tiemstamp</th>
             <th scope="col">Action</th>
         </tr>
-    </thead>
-    <tbody>
-        {% for log in logs%}
-        <tr>
-            <td>
-                {{log.logger}}
-            </td>
-            <td>
-                {{log.timestamp}}
-            </td>
-            <td>
-                {{log.msg}}
-                <p style="color: grey; font-size: small">{{log.extra}}</p>
-            </td>
-        </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+            <tr>
+                <td>
+                    {{ log.logger }}
+                </td>
+                <td>
+                    {{ log.timestamp }}
+                </td>
+                <td>
+                    {{ log.msg }}
+                    <p style="color: grey; font-size: small">{{ log.extra }}</p>
+                </td>
+            </tr>
         {% endfor %}
-    </tbody>
-</table>
-{% endblock%}
+        </tbody>
+    </table>
+{% endblock %}

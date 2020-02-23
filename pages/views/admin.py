@@ -12,10 +12,10 @@ from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
 from assign.views import assign
+from authentication.forms import CreateGroupForm
 from authentication.models import CustomGroup, Log as AuthLog
 from authentication.utils import get_approved_users, get_pending_users, \
     log as account_log, get_log_msg as get_auth_log_msg
-from authentication.forms import CreateGroupForm
 from datacleansing.settings import ADMIN_DIR, MSG_SUCCESS_VOTE, MSG_SUCCESS_ASSIGN, MSG_SUCCESS_SUM, \
     MSG_FAIL_DEL_GRP, MSG_SUCCESS_DEL_GRP, MSG_SUCCESS_CRT_GRP, MSG_SUCCESS_IMPORT
 from datacleansing.utils import get_pre_url, Echo
@@ -23,7 +23,7 @@ from pages.decorators import superuser_admin_login_required, admin_login_require
 from pages.models.models import Data, FinalizedData, Log
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData
-from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context,\
+from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context, \
     get_log_msg as get_data_log_msg, get_admin_logs, get_num_per_group_dict, get_group_info_context
 
 
@@ -156,7 +156,7 @@ def report(request, from_date=None, to_date=None):
         from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     if not to_date:
         to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
-    users = get_approved_users(getattr(request.user, 'group'),)
+    users = get_approved_users(getattr(request.user, 'group'), )
 
     context = {
         'title': 'Report',
@@ -214,13 +214,13 @@ def import_dataset(request):
     # declaring template
     try:
         csv_file = request.FILES['file']
-    except Exception:
+    except KeyError:
         messages.add_message(request, messages.ERROR, 'No file is input.', extra_tags="danger")
         return HttpResponseRedirect(get_pre_url(request))
     try:
         qns_col = int(request.POST['qns_col'])
         ans_col = int(request.POST['ans_col'])
-    except Exception:
+    except KeyError:
         messages.add_message(request, messages.ERROR, 'No column index is input.', extra_tags="danger")
         return HttpResponseRedirect(get_pre_url(request))
 
@@ -234,10 +234,11 @@ def import_dataset(request):
     io_string = io.StringIO(data_set)
     next(io_string)
     for column in csv.reader(io_string):
-        data = ValidatingData.create(
+        ValidatingData.create(
             title=column[qns_col],
             ans=column[ans_col],
-            group=request.user.group,)
+            group=request.user.group,
+        )
     messages.success(request, MSG_SUCCESS_IMPORT)
     return HttpResponseRedirect(get_pre_url(request))
 

@@ -1,4 +1,5 @@
-<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{modal_id}}" role="dialog" data-backdrop="false">
+<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
+     data-backdrop="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="{% url 'import_dataset' %}" method="POST" enctype="multipart/form-data">
@@ -33,20 +34,20 @@
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary" id="{{ btn_id }}">Upload</button>
                 </div>
-             </form>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).on('change', ':file', function() {
+    $(document).on('change', ':file', function () {
         var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
         input.trigger('fileselect', [numFiles, label]);
     });
-    $(document).ready( function() {
-        $(':file').on('fileselect', function(event, numFiles, label) {
+    $(document).ready(function () {
+        $(':file').on('fileselect', function (event, numFiles, label) {
             $("#file_btn").text(label);
         });
     });

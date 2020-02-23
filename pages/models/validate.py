@@ -1,4 +1,5 @@
 from django.db import models
+
 from pages.models.models import Data, FinalizedData
 from pages.models.vote import VotingData, Choice
 

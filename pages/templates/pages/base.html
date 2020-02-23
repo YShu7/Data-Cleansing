@@ -15,11 +15,11 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light topbar">
-        {% include "pages/partial/header.html" with user_name=request.user %}
-    </nav>
+<nav class="navbar navbar-light bg-light topbar">
+    {% include "pages/partial/header.html" with user_name=request.user %}
+</nav>
 
-    {% if request.user.is_approved %}
+{% if request.user.is_approved %}
     <div class="row flex-xl-nowrap">
         <div class="sidbar-div">
             <nav id="sidebar" class="nav navbar-light bg-light flex-column nav-fill sticky-top">
@@ -42,7 +42,7 @@
                 {% endif %}
 
                 {% for message in messages %}
-                    <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
+                    <div class="alert alert-{{ message.tags }} alert-dismissible in" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
@@ -54,29 +54,29 @@
             </div>
         </div>
     </div>
-    {% else %}
-        {% for message in messages %}
-            <div class="alert alert-{{message.tags}} alert-dismissible in" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-                {{ message }}
-            </div>
-        {% endfor %}
-        <div class="row align-items-center justify-content-center" style="height:50%">
-            <div class="card" style="width: 50%">
-                <div class="card-header"></div>
-                <div class="card-body text-center">
-                    {% if request.user.is_approved == None  %}
-                        Your account is still pending for admin's approval.
-                    {% else %}
-                        Sorry, your account is rejected to be activated.
-                        <a href="/retry_sign_up">Try again.</a>
-                    {% endif %}
-                </div>
-                <div class="card-footer"></div>
-            </div>
+{% else %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+            {{ message }}
         </div>
-    {% endif %}
+    {% endfor %}
+    <div class="row align-items-center justify-content-center" style="height:50%">
+        <div class="card" style="width: 50%">
+            <div class="card-header"></div>
+            <div class="card-body text-center">
+                {% if request.user.is_approved == None %}
+                    Your account is still pending for admin's approval.
+                {% else %}
+                    Sorry, your account is rejected to be activated.
+                    <a href="/retry_sign_up">Try again.</a>
+                {% endif %}
+            </div>
+            <div class="card-footer"></div>
+        </div>
+    </div>
+{% endif %}
 </body>
 </html>

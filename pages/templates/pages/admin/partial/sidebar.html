@@ -8,9 +8,9 @@
     </li>
 
     {% if request.user.is_superuser %}
-    <li class="nav-item">
-        <a class="nav-link" id="/group" href="/group">Groups</a>
-    </li>
+        <li class="nav-item">
+            <a class="nav-link" id="/group" href="/group">Groups</a>
+        </li>
     {% endif %}
 
     <li class="nav-item">
@@ -30,22 +30,23 @@
     </li>
 
     {% if not request.user.is_superuser %}
-    <br/>
-    <li class="nav-item">
-        <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal" data-target="#file_modal" class="btn btn-outline-primary btn-sm">
-            Import Dataset
-        </button>
-    </li>
+        <br/>
+        <li class="nav-item">
+            <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal"
+                    data-target="#file_modal" class="btn btn-outline-primary btn-sm">
+                Import Dataset
+            </button>
+        </li>
 
-    <br/>
-    <li class="nav-item">
-        <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
-    </li>
+        <br/>
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
+        </li>
 
-    <br/>
-    <li class="nav-item">
-        <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">Summarize</a>
-    </li>
+        <br/>
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">Summarize</a>
+        </li>
     {% endif %}
 </ul>
 
@@ -54,7 +55,8 @@
 <script type="text/javascript">
     var ele = document.getElementById("{{ request.path }}");
     ele.classList.add("active");
+
     function show_file_modal() {
-       $("#file_modal").modal();
+        $("#file_modal").modal();
     }
 </script>
