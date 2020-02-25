@@ -23,13 +23,13 @@
                         <tr>
                             <th scope="row">{{ question.id }}</th>
                             <input type="hidden" id="door" value=1>
-                            <input type="hidden" name="choice" id="choice" value="0">
+                            <input type="hidden" name="choice" id="choice">
                             <td>{{ question.data_ptr.title }}</td>
                             <td>
                                 {% for ans in question.answers %}
-                                    <div class="custom-control custom-radio module container" value="{{ question.id }}">
+                                    <div class="custom-control custom-radio module" value="{{ question.id }}">
                                         <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
-                                               name="ansRadio" value="{{ ans.id }}">
+                                               name="ansRadio" value="{{ ans.answer }}">
                                         <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
                                                for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
                                         <a role="button" class="collapsed" data-toggle="collapse"
@@ -39,7 +39,7 @@
                                 {% endfor %}
                             </td>
                             <td>
-                                <button id="vote_{{ question.id }}" value="0" type="submit"
+                                <button id="vote_{{ question.id }}" type="submit"
                                         class="vote btn btn-outline-primary btn-sm btn-block">
                                     Vote
                                 </button>

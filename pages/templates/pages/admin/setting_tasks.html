@@ -32,7 +32,7 @@
                     {% csrf_token %}
                     <tr>
                         <th scope="row">{{ question.id }}</th>
-                        <input type="hidden" name="choice" id="choice" value="0">
+                        <input type="hidden" name="choice" id="choice">
                         <td>
                             <a role="button" class="collapsed" data-toggle="collapse" href="#qa_{{ question.id }}"
                                aria-expanded="false" aria-controls="qa_{{ question.id }}">
@@ -40,9 +40,9 @@
                             </a>
                             <div id="qa_{{ question.id }}" class="collapse">
                                 {% for ans in question.answers %}
-                                    <div class="custom-control custom-radio module container" value="{{ question.id }}">
+                                    <div class="custom-control custom-radio module">
                                         <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
-                                               name="ansRadio" value="{{ ans.id }}">
+                                               name="ansRadio" value="{{ ans.answer }}">
                                         <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
                                                for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
                                         <a role="button" class="collapsed" data-toggle="collapse"
@@ -50,11 +50,15 @@
                                            aria-controls="ans_{{ ans.id }}"></a>
                                     </div>
                                 {% endfor %}
+                                <label id="new_ans_{{ question.id }}" style="color: green"></label><br/>
+                                <a href="#" onclick="show_modal({{ question.id }})" class="new_ans_btn">
+                                    New Answer
+                                </a>
                             </div>
 
                         </td>
                         <td>
-                            <button id="vote_{{ question.id }}" value="" type="submit"
+                            <button id="vote_{{ question.id }}" type="submit"
                                     class="vote btn btn-outline-primary btn-sm btn-block">
                                 Update
                             </button>
@@ -67,7 +71,7 @@
 
         {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
     </div>
-    {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn" %}
+    {% include 'pages/partial/new_ans_modal.html' with modal_id="new_ans_modal" btn_id="update_btn" %}
 
     <script>
         $(document).ready(function () {
@@ -75,22 +79,37 @@
                 $('.module label.collapse').collapse('toggle');
             });
             $(".custom-radio .custom-control-input").on("click", function () {
-                var id = $(this).parent().attr('value');
+                var qns_id = $(this).parent().attr('value');
                 var ans_id = $(this).attr('value');
-                $("#vote_" + id).val(ans_id);
+                $("#vote_" + qns_id).val(ans_id);
                 var idVal = $(this).attr("id");
+                $("#new_ans_" + qns_id).css('color', 'black');
                 $(".custom-radio label").css('color', 'black');
                 var label = $("label[for='" + idVal + "']");
                 label.css('color', 'green');
             });
             $("#update_btn").on('click', function (e) {
-                var id = $("#update_btn").attr('value');
                 var ans = $("#new_ans").val();
-                $("#selected_answer_" + id).text(ans);
-                $("#choice").val(ans);
-                var x = document.getElementById('dialog');
+                var qns_id = $(this).val();
+                $("#new_ans_" + qns_id).text(ans);
+                $("#new_ans_" + qns_id).css('color', 'green');
+                $(".custom-radio label").css('color', 'black');
+                $("vote_" + qns_id).val(ans);
+                var x = document.getElementById('new_ans_modal');
                 x.setAttribute('style', "display: none");
             });
+            $(".vote").on('click', function () {
+                var choice = $(this).attr('value');
+                $("#choice").val(choice);
+            });
         });
+        function show_modal(id) {
+            $('#new_ans_modal').modal();
+            $("#update_btn").val(id);
+        }
+
+        window.onbeforeunload = function (event) {
+            return confirm("Confirm refresh");
+        };
     </script>
 {% endblock %}
