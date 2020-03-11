@@ -70,7 +70,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+                {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
                 <span class="d-flex"><input class="btn btn-primary btn ml-auto" name="submit" type="submit"
                                             value="Submit"></span>
             </form>

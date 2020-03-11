@@ -69,7 +69,7 @@
             </tbody>
         </table>
 
-        {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+        {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
     </div>
     {% include 'pages/partial/new_ans_modal.html' with modal_id="new_ans_modal" btn_id="update_btn" %}
 

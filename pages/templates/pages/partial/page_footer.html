@@ -2,7 +2,7 @@
     <div class="pagination">
         <span class="step-links" style="margin:auto; display:table;">
             <div class="btn-group" role="group">
-            {% if page_obj.has_previous %}
+            {% if page_obj.has_previous and page_obj.previous_page_number > num_done %}
                 <a href="?page=1" class="btn btn-outline-secondary">&laquo; first</a>
                 <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary">previous</a>
             {% else %}

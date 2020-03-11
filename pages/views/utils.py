@@ -189,10 +189,19 @@ def done_assignment(task_id, tasker_id):
         pass
 
 
-def compute_paginator(request, data):
+def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
     paginator = Paginator(data, 1)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_num = request.GET.get('page')
+    try:
+        page_num = int(page_num)
+    except Exception:
+        page_num = 1
+
+    if not total or num_done + num_doing + 1 <= page_num:
+        pass
+    else:
+        page_num = page_num + num_done
+    page_obj = paginator.get_page(page_num)
     return page_obj
 
 
