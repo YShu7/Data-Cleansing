@@ -405,7 +405,7 @@ class AdminViewTestCase(TestCase):
         response = self.admin_client.get(reverse('dataset'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.admin_client.get(reverse('update_get'))
+        response = self.admin_client.get(reverse('update'))
         self.assertEqual(response.status_code, 200)
 
         response = self.admin_client.get(reverse('report'))
@@ -414,7 +414,7 @@ class AdminViewTestCase(TestCase):
         response = self.admin_client.get(reverse('log'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.admin_client.get(reverse('group'))
+        response = self.super_client.get(reverse('group'))
         self.assertEqual(response.status_code, 200)
 
     def test_post_modify_users(self):
@@ -520,7 +520,7 @@ class AdminViewTestCase(TestCase):
             data = ValidatingData.create(group=self.group, title="Title{}".format(i), ans="Answer{}".format(i))
             validating.append(data)
 
-        new_group = CustomGroup.objects.update_or_create("others")
+        new_group, _ = CustomGroup.objects.update_or_create(name="others")
         for i in range(20):
             data = ValidatingData.create(group=new_group, title="Title{}".format(i), ans="Answer{}".format(i))
             validating.append(data)
@@ -546,13 +546,14 @@ class AdminViewTestCase(TestCase):
 
         response = self.super_client.post(path=reverse('create_group'), data=form_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(CustomGroup.objects.filter(name='new group')[0])
+        self.assertIsNotNone(CustomGroup.objects.filter(name='new group').first())
 
     def test_delete_group(self):
-        response = self.super_client.post(path=reverse('delete_group'), data={'input': self.group.name,
-                                                                              'confirm_input': self.group.name}, follow=True)
+        response = self.super_client.post(path=reverse('delete_group'),
+                                          data={'input': self.group.name,'confirm_input': self.group.name},
+                                          follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNone(CustomGroup.objects.filter(pk=self.group.pk)[0])
+        self.assertIsNone(CustomGroup.objects.filter(name=self.group.name).first())
 
 
 class UtilsTestCase(TestCase):
