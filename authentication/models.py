@@ -74,7 +74,7 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username', 'certificate', 'group', 'password']
 
     def __str__(self):
-        return self.email
+        return "{}<{}>".format(self.username, self.email)
 
     def accuracy(self):
         if not self.num_ans:

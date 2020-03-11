@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
@@ -50,7 +51,7 @@ def modify_users(request):
                 user.assign_admin(True)
             else:
                 user.assign_admin(False)
-        return HttpResponseRedirect(get_pre_url(request))
+        return HttpResponseRedirect(reverse('modify_users'))
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
         user = request.user
@@ -186,7 +187,7 @@ def download_report(request):
     """A view that streams a large CSV file."""
     rows = [["id", "username", "certificate", "point", "accuracy"]]
     rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in
-             get_approved_users(getattr(request.user, 'group')))
+             get_approved_users(group=getattr(request.user, 'group'), is_superuser=request.user.is_superuser))
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -306,7 +307,8 @@ def delete_group(request):
             messages.success(request, MSG_SUCCESS_DEL_GRP.format(group_name))
         else:
             messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=MSG_FAIL_DEL_GRP)
-    return HttpResponseRedirect(get_pre_url(request))
+    url = get_pre_url(request)
+    return HttpResponseRedirect('/' if url == None else url)
 
 
 @superuser_login_required
@@ -322,4 +324,6 @@ def create_group(request):
             if error:
                 break
         messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=error)
-    return HttpResponseRedirect(get_pre_url(request))
+
+    url = get_pre_url(request)
+    return HttpResponseRedirect('/' if url == None else url)
