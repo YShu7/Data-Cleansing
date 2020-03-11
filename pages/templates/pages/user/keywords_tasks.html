@@ -31,6 +31,7 @@
                 </tr>
                 </thead>
                 <tbody id="voting_tasks">
+                <input id="door" type="hidden" value="1">
                 {% for question in page_obj %}
                     <form action="{% url 'keywords' question.id %}" method="post">
                         {% csrf_token %}
@@ -38,14 +39,11 @@
                             <th scope="row">{{ question.id }}</th>
                             <td id="qns_keywords_td">
                                 <input class="keyword" name="qns_keywords" type="hidden">
-                                {% for word in question.data_ptr.title|split %}
-                                    <mark>{{ word }}</mark>
-                                {% endfor %}
+                                <div class="text">{{ question.data_ptr.title }}</div>
+
                             <td id="ans_keywords_td">
                                 <input class="keyword" name="ans_keywords" type="hidden">
-                                {% for word in question.answer_text|split %}
-                                    <mark>{{ word }}</mark>
-                                {% endfor %}
+                                <div class="text">{{ question.answer_text }}</div>
                             </td>
                             <td>
                                 <input type="hidden">
@@ -64,23 +62,40 @@
 
         <script>
             $(document).ready(function () {
-                $("mark").on('click', function () {
-                    $(this).toggleClass('highlight');
-                    var keyword = $(this).text();
-                    var input_ele = $(this).siblings('.keyword');
-                    var old_val = input_ele.val();
+                $(".text").on('mouseup', function () {
+                    var selectedText = getSelectionText();
+                    if (selectedText == "") return;
+                    var selectedTextRegExp = new RegExp(selectedText,"g");
+                    var text = $(this).text().replace(selectedTextRegExp, "<mark class='highlight'>" + selectedText + "</mark>");
+                    $(this).html(text);
 
-                    if ($(this).hasClass("highlight")) {
-                        input_ele.val(old_val + keyword + ",");
-                    } else {
-                        input_ele.val(old_val.replace(keyword + ",", ""));
-                    }
+                    updateKeyword($(this), selectedText);
                 });
                 window.onbeforeunload = function (event) {
                     if ($("#door").val() == 0) {
                         return confirm("Confirm refresh");
                     }
                 };
+                function getSelectionText() {
+                    var text = "";
+                    if (window.getSelection) {
+                        text = window.getSelection().toString();
+                    } else if (document.selection && document.selection.type != "Control") {
+                        text = document.selection.createRange().text;
+                    }
+                    return text;
+                }
+                function updateKeyword(ele, keyword) {
+                    $("#door").val(0);
+                    var input_ele = ele.siblings('.keyword');
+                    var old_val = input_ele.val();
+
+                    if (ele.hasClass("highlight")) {
+                        input_ele.val(old_val + keyword + ",");
+                    } else {
+                        input_ele.val(old_val.replace(keyword + ",", ""));
+                    }
+                }
             });
         </script>
     {% else %}
