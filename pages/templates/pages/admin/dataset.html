@@ -1,31 +1,33 @@
 {% extends "pages/admin/base.html" %}
 
 {% block content %}
-<div>
-    <a href="#num" class="link-dark"><h4>Summary</h4></a>
-    <div class="col-xs-12">
-        <div class="dropdown">
-            <div>
-                <strong>Current Data #: </strong>
-                <span id="num_all_data" value="{{num_data}}">{{num_data}}</span>
-            </div>
-
-            {% if request.user.is_superuser %}
-                <strong>Number of Data for </strong>
-                <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{group_name}}
-                </a>
-                <strong>:</strong>
-                <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    {% for group in groups %}
-                        <a id="filter_btn" href="/dataset/{{group.name}}" class="dropdown-item" type="button">{{group}}</a>
-                    {% endfor %}
-                    <button class="dropdown-item" type="button">all</button>
+    <div>
+        <a href="#num" class="link-dark"><h4>Summary</h4></a>
+        <div class="col-xs-12">
+            <div class="dropdown">
+                <div>
+                    <strong>Current Data #: </strong>
+                    <span id="num_all_data" value="{{ num_data }}">{{ num_data }}</span>
                 </div>
-                <label id="num_data" value="{{num_data}}">{{num_data}}</label>
-            {% endif %}
+
+                {% if request.user.is_superuser %}
+                    <strong>Number of Data for </strong>
+                    <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false">
+                        {{ group_name }}
+                    </a>
+                    <strong>:</strong>
+                    <div id="filter" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for group in groups %}
+                            <a id="filter_btn" href="/dataset/{{ group.name }}" class="dropdown-item"
+                               type="button">{{ group }}</a>
+                        {% endfor %}
+                        <button class="dropdown-item" type="button">all</button>
+                    </div>
+                    <label id="num_data" value="{{ num_data }}">{{ num_data }}</label>
+                {% endif %}
+            </div>
+            {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
         </div>
-        {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
     </div>
-</div>
 {% endblock %}

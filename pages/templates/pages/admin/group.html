@@ -4,12 +4,12 @@
     <button id="create_btn" class="btn btn-primary">Create New Group</button>
     <table type="table" class="table table-hover">
         <thead class="thead-light">
-            <tr>
-                <th scope="col">Group</th>
-                <th scope="col"># of Accounts</th>
-                <th scope="col"># of Data</th>
-                <th scope="col" width="30%"> </th>
-            </tr>
+        <tr>
+            <th scope="col">Group</th>
+            <th scope="col"># of Accounts</th>
+            <th scope="col"># of Data</th>
+            <th scope="col" width="30%"></th>
+        </tr>
         </thead>
         {% for group in groups %}
             <tr>
@@ -17,7 +17,9 @@
                 <td>{{ group.user_num }}</td>
                 <td>{{ group.data_num }}</td>
                 <td>
-                    <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">Delete Group</button>
+                    <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">
+                        Delete Group
+                    </button>
                 </td>
             </tr>
         {% endfor %}
@@ -28,17 +30,17 @@
     {% include 'pages/admin/partial/new_group_modal.html' with modal_id="new_group_dialog" title="New Group" form_obj=create_form %}
     {% include 'pages/admin/partial/confirm_delete_group_modal.html' with modal_id="dialog" btn_id="confirm_btn" check_id=delete_check_id confirm_id=delete_confirm_id %}
     <script>
-    $(document).ready(function(){
-        $("#create_btn").on('click', function (e) {
-            $('#new_group_dialog').modal();
+        $(document).ready(function () {
+            $("#create_btn").on('click', function (e) {
+                $('#new_group_dialog').modal();
+            });
+            $(".delete_btn").on('click', function (e) {
+                var group_name = $(this).val();
+                $('#{{ delete_check_id }}').val(group_name);
+                $('#group_name').text(group_name);
+                $('#dialog').modal();
+            });
         });
-       $(".delete_btn").on('click', function(e) {
-           var group_name = $(this).val();
-           $('#{{ delete_check_id }}').val(group_name);
-           $('#group_name').text(group_name);
-           $('#dialog').modal();
-        });
-    });
     </script>
 {% endblock %}
 

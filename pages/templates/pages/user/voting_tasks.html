@@ -1,85 +1,89 @@
 {% extends "pages/user/base.html" %}
 
 {% block content %}
-{% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
+    {% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
 
-{% if page_obj %}
-<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+    {% if page_obj %}
+        <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
-<div id="taskList">
-    <table type="table" class="table table-hover">
-        <thead class="thead-light">
-            <tr>
-                <th scope="col" width="5%">ID</th>
-                <th scope="col" width="30%">Question</th>
-                <th scope="col" width="40%">Answer</th>
-                <th scope="col" width="25%"> </th>
-            </tr>
-        </thead>
-        <tbody id="voting_tasks">
-            {% for question in page_obj %}
-            <form action="{% url 'vote' question.id %}" method="post">
-            {% csrf_token %}
-            <tr>
-                <th scope="row">{{question.id}}</th>
-                <input type="hidden" id="door" value=1>
-                <input type="hidden" name="choice" id="choice" value="0">
-                <td>{{question.data_ptr.title}}</td>
-                <td>
-                    {% for ans in question.answers %}
-                    <div class="custom-control custom-radio module container" value="{{question.id}}">
-                        <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
-                        <label id="ans_{{ans.id}}" class="custom-control-label collapse" for="answer_{{ans.id}}" aria-expanded="false">{{ans.answer}}</label>
-                        <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{ans.id}}" aria-expanded="false" aria-controls="ans_{{ans.id}}"></a>
-                    </div>
-                    {% endfor %}
-                </td>
-                <td>
-                    <button id="vote_{{question.id}}" value="0" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
-                        Vote
-                    </button>
-                </td>
-            </tr>
-            </form>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
-</div>
+        <div id="taskList">
+            <table type="table" class="table table-hover">
+                <thead class="thead-light">
+                <tr>
+                    <th scope="col" width="5%">ID</th>
+                    <th scope="col" width="30%">Question</th>
+                    <th scope="col" width="40%">Answer</th>
+                    <th scope="col" width="25%"></th>
+                </tr>
+                </thead>
+                <tbody id="voting_tasks">
+                {% for question in page_obj %}
+                    <form action="{% url 'vote' question.id %}" method="post">
+                        {% csrf_token %}
+                        <tr>
+                            <th scope="row">{{ question.id }}</th>
+                            <input type="hidden" id="door" value=1>
+                            <input type="hidden" name="choice" id="choice">
+                            <td>{{ question.data_ptr.title }}</td>
+                            <td>
+                                {% for ans in question.answers %}
+                                    <div class="custom-control custom-radio module" value="{{ question.id }}">
+                                        <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
+                                               name="ansRadio" value="{{ ans.answer }}">
+                                        <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
+                                               for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
+                                        <a role="button" class="collapsed" data-toggle="collapse"
+                                           href="#ans_{{ ans.id }}" aria-expanded="false"
+                                           aria-controls="ans_{{ ans.id }}"></a>
+                                    </div>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <button id="vote_{{ question.id }}" type="submit"
+                                        class="vote btn btn-outline-primary btn-sm btn-block">
+                                    Vote
+                                </button>
+                            </td>
+                        </tr>
+                    </form>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+        </div>
 
-<script>
-$(document).ready(function(){
-    $("#collapse_all").on("click", function () {
-        $('.module label.collapse').collapse('toggle');
-    });
-    $(".custom-radio .custom-control-input").on("click", function() {
-        var id = $(this).parent().attr('value');
-        var ans_id = $(this).attr('value');
-        $("#vote_" + id).val(ans_id);
-        var idVal = $(this).attr("id");
-        $(".custom-radio label").css('color','black');
-        var label = $("label[for='"+idVal+"']");
-        label.css('color','green');
+        <script>
+            $(document).ready(function () {
+                $("#collapse_all").on("click", function () {
+                    $('.module label.collapse').collapse('toggle');
+                });
+                $(".custom-radio .custom-control-input").on("click", function () {
+                    var id = $(this).parent().attr('value');
+                    var ans_id = $(this).attr('value');
+                    $("#vote_" + id).val(ans_id);
+                    var idVal = $(this).attr("id");
+                    $(".custom-radio label").css('color', 'black');
+                    var label = $("label[for='" + idVal + "']");
+                    label.css('color', 'green');
 
-        $("#door").val(0);
-    });
-    $(".vote").on('click', function() {
-        var choice = $(this).attr('value');
-        $("#choice").val(choice);
-        $("#door").val(1);
-    });
-    window.onbeforeunload = function(event)
-    {
-        if ($("#door").val() == 0) {
-            return confirm("Confirm refresh");
-        }
-    };
-});
-</script>
-{% else %}
-    <br/>
-    <div class="alert alert-success" role="alert">
-          You have complete all validating tasks.
-    </div>
-{% endif %}
+                    $("#door").val(0);
+                });
+                $(".vote").on('click', function () {
+                    var choice = $(this).attr('value');
+                    $("#choice").val(choice);
+                    $("#door").val(1);
+                });
+                window.onbeforeunload = function (event) {
+                    if ($("#door").val() == 0) {
+                        return confirm("Confirm refresh");
+                    }
+                };
+            });
+        </script>
+    {% else %}
+        <br/>
+        <div class="alert alert-success" role="alert">
+            You have complete all validating tasks.
+        </div>
+    {% endif %}
 {% endblock %}

@@ -1,54 +1,54 @@
 {% extends "pages/user/base.html" %}
 
 {% block content %}
-<table class="table table-borderless">
-    <thead>
+    <table class="table table-borderless">
+        <thead>
         <tr>
             <th scope="col" width="50%"></th>
             <th scope="col" width="50%"></th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
         <tr>
-            <th >Name</th>
-            <td>{{request.user.username}}</td>
+            <th>Name</th>
+            <td>{{ request.user.username }}</td>
         </tr>
         <tr>
             <th>ID</th>
-            <td>{{request.user.certificate}}</td>
+            <td>{{ request.user.certificate }}</td>
         </tr>
         <tr>
             <th>Group</th>
-            <td>{{request.user.group.name}}</td>
+            <td>{{ request.user.group.name }}</td>
         </tr>
         <tr>
             <th>Email</th>
-            <td>{{request.user.email}}</td>
+            <td>{{ request.user.email }}</td>
         </tr>
         <tr>
             <th>Current Point</th>
-            <td>{{request.user.point}}</td>
+            <td>{{ request.user.point }}</td>
         </tr>
         <tr>
             <th>Overall Accuracy</th>
-            <td>{% widthratio request.user.accuracy 1.0 100%}%</td>
+            <td>{% widthratio request.user.accuracy 1.0 100 %}%</td>
         </tr>
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
-<span class="d-flex justify-content-center">
-    <button id="reset" class="btn btn-outline-primary" >
+    <span class="d-flex justify-content-center">
+    <button id="reset" class="btn btn-outline-primary">
         Change Password
     </button>
 </span>
 
-{% include 'authentication/change_pwd.html' with modal_id="dialog" show=show %}
+    {% include 'authentication/change_pwd.html' with modal_id="dialog" show=show %}
 
-<script>
-    $(document).ready(function(){
-        $("#reset").on('click', function() {
-            $('#dialog').modal();
+    <script>
+        $(document).ready(function () {
+            $("#reset").on('click', function () {
+                $('#dialog').modal();
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}

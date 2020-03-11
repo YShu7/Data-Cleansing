@@ -11,61 +11,61 @@
     var accuracy = String({{ accuracy | safe}}).split(",").map(parseFloat);
     var ac_series = [{name: 'Accuracy', data: accuracy}];
     var an_series = [{name: '# of Answered Questions', data: numQns},
-                     {name: 'Points', data: points}]
+        {name: 'Points', data: points}];
 
 
-    var chart = Highcharts.chart('ac_container',{
-	chart: {
-		type: 'column'
-	},
-	title: {
-		text: ''
-	},
-	xAxis: {
-		categories: names,
-		crosshair: true
-	},
-	tooltip: {
-		headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-		pointFormat: '<tr><td style="color:{ac_series.color};padding:0">{ac_series.name}: </td>' +
-		'<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
-		footerFormat: '</table>',
-		shared: true,
-		useHTML: true
-	},
-	plotOptions: {
-		column: {
-			borderWidth: 0
-		}
-	},
-	series: ac_series
+    var chart = Highcharts.chart('ac_container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: names,
+            crosshair: true
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{ac_series.color};padding:0">{ac_series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0
+            }
+        },
+        series: ac_series
     });
 
-    var chart = Highcharts.chart('container',{
-	chart: {
-		type: 'column'
-	},
-	title: {
-		text: ''
-	},
-	xAxis: {
-		categories: names,
-		crosshair: true
-	},
-	tooltip: {
-		headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-		pointFormat: '<tr><td style="color:{an_series.color};padding:0">{an_series.name}: </td>' +
-		'<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-		footerFormat: '</table>',
-		shared: true,
-		useHTML: true
-	},
-	plotOptions: {
-		column: {
-			borderWidth: 0
-		}
-	},
-	series: an_series
+    var chart = Highcharts.chart('container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: ''
+        },
+        xAxis: {
+            categories: names,
+            crosshair: true
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{an_series.color};padding:0">{an_series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                borderWidth: 0
+            }
+        },
+        series: an_series
     });
 
 </script>

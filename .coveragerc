@@ -3,3 +3,4 @@ omit =
 	*/env/*
 	*/migrations/*
 	manage.py
+	set_up.py

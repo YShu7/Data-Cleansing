@@ -1,89 +1,115 @@
 {% extends "pages/admin/base.html" %}
 
 {% block content %}
-<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+    <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
-<div id="taskList">
-    <form class="form-inline my-2 my-lg-0">
-        <datalist id="data">
-            {% for d in data %}
-                <option value="{{ d.title }}">
-            {% endfor %}
-        </datalist>
-        <div class="input-group mb-3" style="width: 40vw">
-            <input class="form-control border-primary" list="data" type="search" placeholder="Search" aria-label="Search" name="search" >
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">Search</button>
+    <div id="taskList">
+        <form class="form-inline my-2 my-lg-0">
+            <datalist id="data">
+                {% for d in data %}
+                    <option value="{{ d.title }}">
+                {% endfor %}
+            </datalist>
+            <div class="input-group mb-3" style="width: 40vw">
+                <input class="form-control border-primary" list="data" type="search" placeholder="Search"
+                       aria-label="Search" name="search">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
             </div>
-        </div>
-    </form>
-    <table type="table" class="table table-hover">
-        <thead class="thead-light">
+        </form>
+        <table type="table" class="table table-hover">
+            <thead class="thead-light">
             <tr>
                 <th scope="col" style="width: 20%">ID</th>
                 <th scope="col" style="width: 60%">Question</th>
-                <th scope="col" style="width: 20%"> </th>
+                <th scope="col" style="width: 20%"></th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             {% for question in page_obj %}
-            <form action="{% url 'update' question.id %}" method="post">
-            {% csrf_token %}
-            <tr>
-                <th scope="row">{{question.id}}</th>
-                <input type="hidden" name="choice" id="choice" value="0">
-                <td>
-                    <a role="button" class="collapsed" data-toggle="collapse" href="#qa_{{ question.id }}" aria-expanded="false" aria-controls="qa_{{question.id}}">
-                        {{question.title}}
-                    </a>
-                    <div id="qa_{{ question.id }}" class="collapse">
-                        {% for ans in question.answers %}
-                        <div class="custom-control custom-radio module container" value="{{question.id}}">
-                            <input type="radio" id="answer_{{ans.id}}" class="custom-control-input" name="ansRadio" value="{{ans.id}}">
-                            <label id="ans_{{ans.id}}" class="custom-control-label collapse" for="answer_{{ans.id}}" aria-expanded="false">{{ans.answer}}</label>
-                            <a role="button" class="collapsed" data-toggle="collapse" href="#ans_{{ans.id}}" aria-expanded="false" aria-controls="ans_{{ans.id}}"></a>
-                        </div>
-                        {% endfor %}
-                    </div>
+                <form action="{% url 'update' question.id %}" method="post">
+                    {% csrf_token %}
+                    <tr>
+                        <th scope="row">{{ question.id }}</th>
+                        <input type="hidden" name="choice" id="choice">
+                        <td>
+                            <a role="button" class="collapsed" data-toggle="collapse" href="#qa_{{ question.id }}"
+                               aria-expanded="false" aria-controls="qa_{{ question.id }}">
+                                {{ question.title }}
+                            </a>
+                            <div id="qa_{{ question.id }}" class="collapse">
+                                {% for ans in question.answers %}
+                                    <div class="custom-control custom-radio module">
+                                        <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
+                                               name="ansRadio" value="{{ ans.answer }}">
+                                        <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
+                                               for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
+                                        <a role="button" class="collapsed" data-toggle="collapse"
+                                           href="#ans_{{ ans.id }}" aria-expanded="false"
+                                           aria-controls="ans_{{ ans.id }}"></a>
+                                    </div>
+                                {% endfor %}
+                                <label id="new_ans_{{ question.id }}" style="color: green"></label><br/>
+                                <a href="#" onclick="show_modal({{ question.id }})" class="new_ans_btn">
+                                    New Answer
+                                </a>
+                            </div>
 
-                </td>
-                <td>
-                    <button id="vote_{{question.id}}" value="" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
-                        Update
-                    </button>
-                </td>
-            </tr>
-            </form>
+                        </td>
+                        <td>
+                            <button id="vote_{{ question.id }}" type="submit"
+                                    class="vote btn btn-outline-primary btn-sm btn-block">
+                                Update
+                            </button>
+                        </td>
+                    </tr>
+                </form>
             {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 
-    {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
-</div>
-{% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn"%}
+        {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+    </div>
+    {% include 'pages/partial/new_ans_modal.html' with modal_id="new_ans_modal" btn_id="update_btn" %}
 
-<script>
-    $(document).ready(function(){
-        $("#collapse_all").on("click", function () {
-            $('.module label.collapse').collapse('toggle');
+    <script>
+        $(document).ready(function () {
+            $("#collapse_all").on("click", function () {
+                $('.module label.collapse').collapse('toggle');
+            });
+            $(".custom-radio .custom-control-input").on("click", function () {
+                var qns_id = $(this).parent().attr('value');
+                var ans_id = $(this).attr('value');
+                $("#vote_" + qns_id).val(ans_id);
+                var idVal = $(this).attr("id");
+                $("#new_ans_" + qns_id).css('color', 'black');
+                $(".custom-radio label").css('color', 'black');
+                var label = $("label[for='" + idVal + "']");
+                label.css('color', 'green');
+            });
+            $("#update_btn").on('click', function (e) {
+                var ans = $("#new_ans").val();
+                var qns_id = $(this).val();
+                $("#new_ans_" + qns_id).text(ans);
+                $("#new_ans_" + qns_id).css('color', 'green');
+                $(".custom-radio label").css('color', 'black');
+                $("vote_" + qns_id).val(ans);
+                var x = document.getElementById('new_ans_modal');
+                x.setAttribute('style', "display: none");
+            });
+            $(".vote").on('click', function () {
+                var choice = $(this).attr('value');
+                $("#choice").val(choice);
+            });
         });
-        $(".custom-radio .custom-control-input").on("click", function() {
-            var id = $(this).parent().attr('value');
-            var ans_id = $(this).attr('value');
-            $("#vote_" + id).val(ans_id);
-            var idVal = $(this).attr("id");
-            $(".custom-radio label").css('color','black');
-            var label = $("label[for='"+idVal+"']");
-            label.css('color','green');
-        });
-        $("#update_btn").on('click', function(e) {
-            var id = $("#update_btn").attr('value');
-            var ans = $("#new_ans").val();
-            $("#selected_answer_" + id).text(ans);
-            $("#choice").val(ans);
-            var x = document.getElementById('dialog');
-            x.setAttribute('style', "display: none");
-        });
-    });
-</script>
+        function show_modal(id) {
+            $('#new_ans_modal').modal();
+            $("#update_btn").val(id);
+        }
+
+        window.onbeforeunload = function (event) {
+            return confirm("Confirm refresh");
+        };
+    </script>
 {% endblock %}

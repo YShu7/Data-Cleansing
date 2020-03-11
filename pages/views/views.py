@@ -1,8 +1,8 @@
+import markdown
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import loader
 from django.template.defaulttags import register
 from django.urls import reverse
-import markdown
 
 from pages.decorators import login_required
 

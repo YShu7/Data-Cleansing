@@ -1,19 +1,18 @@
 from django.contrib import messages
-from django.db import models
 from django.http import QueryDict
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import loader
-from django.views.decorators.csrf import csrf_protect
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_protect
 
 from authentication.forms import CustomPasswordChangeForm
 from datacleansing.settings import USER_DIR, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE, VOT, VAL, SEL, \
     MSG_SUCCESS_VAL, MSG_SUCCESS_VOTE, MSG_SUCCESS_RETRY, MSG_FAIL_LABEL_NONEXIST
 from pages.decorators import user_login_required
+from pages.models.image import ImageData, ImageLabel
 from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
-from pages.models.image import ImageData, ImageLabel
 from pages.views.utils import get_assigned_tasks_context, done_assignment, \
     log as data_log, merge_validate_context, compute_progress, compute_paginator
 

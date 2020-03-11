@@ -1,14 +1,18 @@
-from django.test import client
+import csv
+import io
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, RequestFactory, Client
+from django.urls import reverse
+
+
+from assign.models import Assignment
+from authentication.models import CustomGroup, CustomUser
+from authentication.forms import CreateGroupForm
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
+from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
-from pages.models.models import FinalizedData
-from authentication.models import CustomGroup, CustomUser
-from assign.models import Assignment
-import json
-from django.utils.http import urlencode
-
 from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
     get_num_per_group_dict, get_group_info_context
 
@@ -363,6 +367,195 @@ class UserViewTestCase(TestCase):
         self.assertIsNone(ImageLabel.objects.filter(image=img).first())
 
 
+class AdminViewTestCase(TestCase):
+    def setUp_client(self):
+        self.admin_client = Client()
+        self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
+        self.admin = CustomUser.objects.create_admin(
+            username='admin', email='admin@gmail.com', certificate="G11111M",
+            group=self.group, password='top_secret')
+        self.admin_client.login(username=self.admin.email, password='top_secret')
+
+        self.super_client = Client()
+        self.superuser = CustomUser.objects.create_superuser(
+            username="superuser", email="superuser@gmail.com", certificate="G00000M", password="superuser"
+        )
+        self.super_client.login(username=self.superuser.email, password='superuser')
+
+    def setUp_users(self):
+        self.groups = [self.group]
+        self.users = []
+        for i in range(5):
+            group = CustomGroup.objects.create(name="Group{}".format(i))
+            self.groups.append(group)
+            for j in range(10):
+                user = CustomUser.objects.create_user(
+                    username='G{}_User{}'.format(i, j), email='G{}_User{}@gmail.com'.format(i, j),
+                    certificate="G12345{}{}M".format(i, j), group=group, password='top_secret'
+                )
+                self.users.append(user)
+
+    def setUp(self) -> None:
+        self.setUp_client()
+
+    def test_admin_get(self):
+        response = self.admin_client.get(reverse('modify_users'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.admin_client.get(reverse('dataset'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.admin_client.get(reverse('update'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.admin_client.get(reverse('report'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.admin_client.get(reverse('log'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.super_client.get(reverse('group'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_modify_users(self):
+        self.setUp_users()
+        user = CustomUser.objects.create_user(
+            username="random", email="random@gmail.com",
+            certificate="G123446M", password="randompwd", group=self.group)
+        self.assertIsNone(user.is_approved)
+
+        # approve
+        response = self.admin_client.post(path=reverse('modify_users'),
+                                          data={"approve": "1", "id": user.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(CustomUser.objects.get(pk=user.pk).is_approved)
+
+        # deactivate
+        response = self.admin_client.post(path=reverse('modify_users'),
+                                          data={"deactivate": "1", "id": user.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CustomUser.objects.get(pk=user.pk).is_active)
+
+        # activate
+        response = self.admin_client.post(path=reverse('modify_users'),
+                                          data={"activate": "1", "id": user.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(CustomUser.objects.get(pk=user.pk).is_active)
+
+        # reject
+        user2 = CustomUser.objects.create_user(
+            username="random2", email="random2@gmail.com",
+            certificate="G123456M", password="randompwd", group=self.group)
+        self.assertIsNone(user2.is_approved)
+
+        response = self.admin_client.post(path=reverse('modify_users'),
+                                          data={"reject": "1", "id": user2.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CustomUser.objects.get(pk=user2.pk).is_approved)
+
+        # is admin
+        response = self.super_client.post(path=reverse('modify_users'),
+                                          data={"is_admin": "1", "id": user.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(CustomUser.objects.get(pk=user.pk).is_admin)
+
+        # is not admin
+        response = self.super_client.post(path=reverse('modify_users'),
+                                          data={"id": user.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CustomUser.objects.get(pk=user.pk).is_admin)
+
+    def test_update(self):
+        return
+
+    def test_download_report(self):
+        self.setUp_users()
+
+        def get_csv(response):
+            content = b''.join(response.streaming_content).decode("utf-8")
+            csv_reader = csv.reader(io.StringIO(content))
+            body = list(csv_reader)
+            headers = body.pop(0)
+
+            return headers, body
+
+        # super_admin
+        response = self.super_client.post(path=reverse("download_report"))
+        self.assertEqual(response.status_code, 200)
+        headers, body = get_csv(response)
+        self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
+        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users if u.is_approved]
+        expected_body.append([str(self.admin.id), self.admin.username, self.admin.certificate,
+                              str(self.admin.point), str(self.admin.accuracy())])
+        self.assertEqual(len(body), len(expected_body))
+        for b in body:
+            self.assertIn(b, expected_body)
+
+        # admin
+        response = self.admin_client.post(path=reverse("download_report"))
+        self.assertEqual(response.status_code, 200)
+        headers, body = get_csv(response)
+        self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
+        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users
+                         if u.is_approved and u.group == self.admin_client.group]
+        self.assertEqual(len(body), len(expected_body))
+        for b in body:
+            self.assertIn(b, expected_body)
+
+    def test_import_dataset(self):
+        str = "qns,ans\r\n"
+        data_len = 3
+        expected_data = []
+        for i in range(data_len):
+            str += "Q{}, A{}\r\n".format(i, i)
+            expected_data.append(ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
+        csv_file = SimpleUploadedFile("file.csv", str.encode('UTF-8'), content_type="text/csv")
+        self.admin_client.post(path=reverse("import_dataset"), data={'file': csv_file, 'qns_col': 0, 'ans_col': 1})
+        data = [data for data in ValidatingData.objects.all()]
+        self.assertEqual(expected_data, data)
+
+    def test_assign_tasks(self):
+        validating = []
+        for i in range(20):
+            data = ValidatingData.create(group=self.group, title="Title{}".format(i), ans="Answer{}".format(i))
+            validating.append(data)
+
+        new_group, _ = CustomGroup.objects.update_or_create(name="others")
+        for i in range(20):
+            data = ValidatingData.create(group=new_group, title="Title{}".format(i), ans="Answer{}".format(i))
+            validating.append(data)
+
+        for i in range(10):
+            user = CustomUser.objects.create_user(
+                username='User{}'.format(i), email='User{}@gmail.com'.format(i),
+                certificate="G12345{}M".format(i), group=self.group, password='top_secret'
+            )
+
+        self.admin_client.post(path=reverse("assign_tasks"))
+        # TODO: test assign
+
+        return
+
+    def test_summarize(self):
+        return
+
+    def test_create_group(self):
+        form_data = {'name': 'new group'}
+        form = CreateGroupForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+        response = self.super_client.post(path=reverse('create_group'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(CustomGroup.objects.filter(name='new group').first())
+
+    def test_delete_group(self):
+        response = self.super_client.post(path=reverse('delete_group'),
+                                          data={'input': self.group.name,'confirm_input': self.group.name},
+                                          follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(CustomGroup.objects.filter(name=self.group.name).first())
+
+
 class UtilsTestCase(TestCase):
     def setUp_auth(self):
         self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
@@ -514,8 +707,8 @@ class UtilsTestCase(TestCase):
 
         groups_info = get_group_info_context([self.group, self.other_group],
                                              {
-                                                "user": user_num_dict,
-                                                "data": data_num_dict,
+                                                 "user": user_num_dict,
+                                                 "data": data_num_dict,
                                              })
         expected_groups_info = [
             {

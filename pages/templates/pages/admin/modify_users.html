@@ -4,14 +4,14 @@
 
 {% block content %}
 
-<div id="pending">
-    <a href="/#pending" class="link-dark"><h5>Pending Users</h5></a>
-    {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
-</div>
+    <div id="pending">
+        <a href="/#pending" class="link-dark"><h5>Pending Users</h5></a>
+        {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
+    </div>
 
-<div id="approved">
-    <a href="/#approved" class="link-dark"><h5>Approved Users</h5></a>
-    {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
-</div>
+    <div id="approved">
+        <a href="/#approved" class="link-dark"><h5>Approved Users</h5></a>
+        {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
+    </div>
 
 {% endblock %}
