@@ -4,6 +4,7 @@
     <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
 
     <div id="taskList">
+        <input id="door" type="hidden" value="1">
         <form class="form-inline my-2 my-lg-0">
             <datalist id="data">
                 {% for d in data %}
@@ -79,6 +80,7 @@
                 $('.module label.collapse').collapse('toggle');
             });
             $(".custom-radio .custom-control-input").on("click", function () {
+                $("#door").val(0);
                 var qns_id = $(this).parent().attr('value');
                 var ans_id = $(this).attr('value');
                 $("#vote_" + qns_id).val(ans_id);
@@ -89,6 +91,7 @@
                 label.css('color', 'green');
             });
             $("#update_btn").on('click', function (e) {
+                $("#door").val(0);
                 var ans = $("#new_ans").val();
                 var qns_id = $(this).val();
                 $("#new_ans_" + qns_id).text(ans);
@@ -99,6 +102,7 @@
                 x.setAttribute('style', "display: none");
             });
             $(".vote").on('click', function () {
+                $("#door").val(1);
                 var choice = $(this).attr('value');
                 $("#choice").val(choice);
             });
@@ -109,7 +113,9 @@
         }
 
         window.onbeforeunload = function (event) {
-            return confirm("Confirm refresh");
+            if ($("#door").val() == 0) {
+                return confirm("Confirm refresh");
+            }
         };
     </script>
 {% endblock %}

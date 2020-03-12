@@ -59,6 +59,7 @@ def modify_users(request):
         approved_users = get_approved_users(getattr(user, 'group'), user.is_superuser)
 
         context = {
+            'title': 'Users',
             'pending_users': pending_users,
             'approved_users': approved_users,
         }
@@ -187,7 +188,7 @@ def download_report(request):
     """A view that streams a large CSV file."""
     rows = [["id", "username", "certificate", "point", "accuracy"]]
     rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in
-             get_approved_users(group=getattr(request.user, 'group'), is_superuser=request.user.is_superuser))
+             get_approved_users(group=getattr(request.user, 'group')))
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),

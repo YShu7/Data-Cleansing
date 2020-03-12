@@ -20,16 +20,16 @@ def get_group_report(group):
     return {"num_ans": num_ans, "point": point, "accuracy": accuracy}
 
 
-def get_pending_users(group=None, is_superuser=False):
-    if is_superuser:
+def get_pending_users(group=None):
+    if group is None:
         return get_user_model().objects.filter(is_approved=None, is_superuser=False).order_by('date_joined')
     else:
         return get_user_model().objects.filter(is_approved=None, group=group, is_superuser=False, is_admin=False).order_by(
             'date_joined')
 
 
-def get_approved_users(group=None, is_superuser=False):
-    if is_superuser:
+def get_approved_users(group=None):
+    if group is None:
         return get_user_model().objects.filter(is_approved=True, is_superuser=False).order_by(
             'date_joined')
     else:
