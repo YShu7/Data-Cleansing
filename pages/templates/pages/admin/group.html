@@ -13,9 +13,9 @@
         </thead>
         {% for group in groups %}
             <tr>
-                <td>{{ group.name }}</td>
-                <td>{{ group.user_num }}</td>
-                <td>{{ group.data_num }}</td>
+                <td><a href="/group/{{ group.name }}">{{ group.name }}</a></td>
+                <td><a href="/group/{{ group.name }}#nav-user">{{ group.user_num }} users ({{ group.admin_num }} admins)</a></td>
+                <td><a href="/group/{{ group.name }}#nav-data">{{ group.data_num }}</a></td>
                 <td>
                     <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">
                         Delete Group

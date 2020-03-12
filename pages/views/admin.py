@@ -286,15 +286,41 @@ def group(request):
     template = loader.get_template('{}/group.html'.format(ADMIN_DIR))
 
     user_per_groups_dict = get_num_per_group_dict(get_user_model())
+    admin_per_groups_dict = get_num_per_group_dict(get_user_model(), condition={lambda x: x.is_admin})
     data_per_group_dict = get_num_per_group_dict(FinalizedData)
     groups_info = get_group_info_context(CustomGroup.objects.all(),
-                                         {'user_num': user_per_groups_dict, 'data_num': data_per_group_dict})
+                                         {'user_num': user_per_groups_dict,
+                                          'admin_num': admin_per_groups_dict,
+                                          'data_num': data_per_group_dict})
 
     context = {
+        'title': 'Groups',
         'groups': groups_info,
         'delete_check_id': 'input',
         'delete_confirm_id': 'confirm_input',
         'create_form': CreateGroupForm(),
+    }
+    return HttpResponse(template.render(context=context, request=request))
+
+
+@superuser_login_required
+def group_details(request, group_name):
+    template = loader.get_template('{}/group_details.html'.format(ADMIN_DIR))
+    group = CustomGroup.objects.get(name=group_name)
+
+    # Retrieve data
+    finalized_data = get_finalized_data(group_name)
+
+    # Initiate paginator
+    paginator = Paginator(finalized_data, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'title': group_name,
+        'pending_users': get_pending_users(group),
+        'approved_users': get_approved_users(group),
+        'page_obj': page_obj,
     }
     return HttpResponse(template.render(context=context, request=request))
 

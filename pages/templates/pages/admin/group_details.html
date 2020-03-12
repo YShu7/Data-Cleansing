@@ -1,0 +1,39 @@
+{% extends "pages/admin/base.html" %}
+
+{% block content %}
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link" id="nav-user-tab" data-toggle="tab" href="#nav-user" role="tab" aria-controls="nav-user" aria-selected="true">User</a>
+        <a class="nav-item nav-link" id="nav-data-tab" data-toggle="tab" href="#nav-data" role="tab" aria-controls="nav-data" aria-selected="false">Data</a>
+    </div>
+</nav>
+<div class="tab-content">
+    <div class="tab-pane fade" id="nav-user" style="background-color: white" role="tabpanel" aria-labelledby="nav-user-tab">
+        <div id="pending">
+            <a href="/#pending" class="link-dark"><h5>Pending Users</h5></a>
+            {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
+        </div>
+
+        <div id="approved">
+            <a href="/#approved" class="link-dark"><h5>Approved Users</h5></a>
+            {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
+        </div>
+    </div>
+    <div class="tab-pane fade" id="nav-data" style="background-color: white" role="tabpanel" aria-labelledby="nav-data-tab">
+        {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
+    </div>
+</div>
+    <script>
+    $(document).ready(function() {
+        var url = document.location.toString();
+        if (url.match('#')) {
+            $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').addClass('active');
+            $('#' + url.split('#')[1]).addClass('active').addClass('show');
+        } else {
+            $('.nav-tabs a[href="#nav-user"]').addClass('active');
+            $('#nav-user').addClass('active').addClass('show');
+        }
+        window.scrollTo(0, 0);
+    })
+    </script>
+{% endblock %}
