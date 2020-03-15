@@ -5,6 +5,7 @@
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link" id="nav-user-tab" data-toggle="tab" href="#nav-user" role="tab" aria-controls="nav-user" aria-selected="true">User</a>
         <a class="nav-item nav-link" id="nav-data-tab" data-toggle="tab" href="#nav-data" role="tab" aria-controls="nav-data" aria-selected="false">Data</a>
+        <a class="nav-item nav-link" id="nav-report-tab" data-toggle="tab" href="#nav-report" role="tab" aria-controls="nav-report" aria-selected="false">Report</a>
     </div>
 </nav>
 <div class="tab-content">
@@ -21,6 +22,9 @@
     </div>
     <div class="tab-pane fade" id="nav-data" style="background-color: white" role="tabpanel" aria-labelledby="nav-data-tab">
         {% include 'pages/admin/partial/finalized_data.html' with page_obj=page_obj %}
+    </div>
+    <div class="tab-pane fade" id="nav-report" style="background-color: white" role="tabpanel" aria-labelledby="nav-report-tab">
+        {% include 'pages/admin/partial/individual_report.html' with users=approved_users %}
     </div>
 </div>
     <script>

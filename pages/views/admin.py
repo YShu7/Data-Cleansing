@@ -55,8 +55,8 @@ def modify_users(request):
     else:
         template = loader.get_template('{}/modify_users.html'.format(ADMIN_DIR))
         user = request.user
-        pending_users = get_pending_users(getattr(user, 'group'), user.is_superuser)
-        approved_users = get_approved_users(getattr(user, 'group'), user.is_superuser)
+        pending_users = get_pending_users(getattr(user, 'group'))
+        approved_users = get_approved_users(getattr(user, 'group'))
 
         context = {
             'title': 'Users',

@@ -8,6 +8,8 @@
             <th scope="col">Group</th>
             <th scope="col"># of Accounts</th>
             <th scope="col"># of Data</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Updated At</th>
             <th scope="col" width="30%"></th>
         </tr>
         </thead>
@@ -16,6 +18,8 @@
                 <td><a href="/group/{{ group.name }}">{{ group.name }}</a></td>
                 <td><a href="/group/{{ group.name }}#nav-user">{{ group.user_num }} users ({{ group.admin_num }} admins)</a></td>
                 <td><a href="/group/{{ group.name }}#nav-data">{{ group.data_num }}</a></td>
+                <td>{{ group.created_at }}</td>
+                <td>{{ group.updated_at }}</td>
                 <td>
                     <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">
                         Delete Group

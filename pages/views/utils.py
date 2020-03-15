@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from assign.models import Assignment
@@ -138,7 +138,7 @@ def get_num_per_group_dict(model, condition={lambda x: x is not None}):
 def get_group_info_context(groups, info_dict):
     groups_info = []
     for grp in groups:
-        group_info = {'name': grp.name}
+        group_info = {'name': grp.name, 'created_at': grp.created_at, 'updated_at': grp.updated_at}
         for k in info_dict:
             v = 0
             if grp.id in info_dict[k]:

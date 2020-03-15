@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
@@ -6,9 +8,15 @@ from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
 
 class CustomGroup(models.Model):
     name = models.CharField(max_length=32, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return "{} created at {}, updated at {}".format(self.name, self.created_at, self.updated_at)
+
+    def updated(self):
+        self.updated_at = datetime.now()
+        self.save()
 
 
 class CustomUserManager(UserManager):
@@ -92,14 +100,17 @@ class CustomUser(AbstractUser):
 
     def approve(self, approved):
         self.is_approved = approved
+        self.group.updated()
         self.save()
 
     def activate(self, active):
         self.is_active = active
+        self.group.updated()
         self.save()
 
     def assign_admin(self, is_admin):
         self.is_admin = is_admin
+        self.group.updated()
         self.save()
 
 
