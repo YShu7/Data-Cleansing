@@ -20,8 +20,8 @@
 
         {% if request.user.is_superuser %}
             <li class="nav-item" id="account-toggle">
-                <a data-toggle="collapse" href="#accounts" class="nav-link dropdown-toggle section-header">Accounts</a>
-                <ul class="collapse show navbar-nav p-2" id="accounts" data-parent="#basicSidebar">
+                <a data-toggle="collapse" data-target="#accounts" aria-controls="accounts" class="nav-link dropdown-toggle section-header">Accounts</a>
+                <ul class="collapse navbar-nav p-2" id="accounts" data-parent="#account-toggle">
                     <li class="nav-item">
                         <a class="nav-link" id="/modify_users" href="/modify_users">User List</a>
                     </li>
@@ -33,8 +33,8 @@
         {% endif %}
 
         <li class="nav-item" id="data-toggle">
-            <a data-toggle="collapse" href="#data" class="nav-link dropdown-toggle section-header">Data</a>
-            <ul class="collapse show navbar-nav p-2" id="data" data-parent="#data-toggle">
+            <a data-toggle="collapse" data-target="#data" aria-controls="data" class="nav-link dropdown-toggle section-header">Data</a>
+            <ul class="collapse navbar-nav p-2" id="data" data-parent="#data-toggle">
                 <li class="nav-item">
                     <a class="nav-link" id="/dataset" href="/dataset">Dataset</a>
                 </li>
@@ -77,10 +77,39 @@
 {% include "pages/partial/file_drop.html" with modal_id="file_modal" btn_id="upload_btn" %}
 
 <script type="text/javascript">
-    var ele = document.getElementById("{{ request.path }}");
-    ele.classList.add("active");
+    window.onload = function (ev) {
+        var ele = document.getElementById("{{ request.path }}");
+        ele.classList.add("active");
 
-    function show_file_modal() {
-        $("#file_modal").modal();
-    }
+        function show_file_modal() {
+            $("#file_modal").modal();
+        }
+
+        var panels = localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels); //get all panels
+        for (var i in panels) {
+            if ($("#" + panels[i]).hasClass('collapse'))
+            {
+                $("#" + panels[i]).collapse('show');
+            }
+        }
+    };
+
+    $(document).ready(function () {
+        $("ul").on('shown.bs.collapse', function () {
+            var active = $(this).attr('id');
+            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
+            if ($.inArray(active, panels)==-1) //check that the element is not in the array
+                panels.push(active);
+            localStorage.panels=JSON.stringify(panels);
+        }).on('hidden.bs.collapse', function () {
+            var active = $(this).attr('id');
+            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
+            var elementIndex=$.inArray(active,panels);
+            if (elementIndex!==-1) //check the array
+            {
+                panels.splice(elementIndex,1); //remove item from array
+            }
+            localStorage.panels=JSON.stringify(panels); //save array on localStorage
+        });
+    });
 </script>
