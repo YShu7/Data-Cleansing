@@ -1,10 +1,11 @@
+{% load i18n static %}
 <div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
      data-backdrop="false">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form action="{% url 'import_dataset' %}" method="POST" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h4 class="modal-title">Upload a file</h4>
+                    <h4 class="modal-title">{% trans "Upload a file" %}</h4>
                     <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -13,26 +14,26 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label class="btn btn-primary">
-                            Browse <input type="file" name="file" hidden>
+                            {% trans "Browse" %} <input type="file" name="file" hidden>
                         </label>
                         <label id="file_btn"></label>
                         <br/>
-                        <small>Only accepts CSV files. Column index start from 0.</small>
+                        <small>{% trans "Only accepts CSV files. Column index start from 0." %}</small>
                     </div>
 
                     <div class="form-group">
-                        <label>Input the index of question column</label>
+                        <label>{% trans "Input the index of question column." %}</label>
                         <input name="qns_col" type="number" class="form-control">
                     </div>
 
                     <div class="form-group">
-                        <label>Input the index of answer column</label>
+                        <label>{% trans "Input the index of answer column." %}</label>
                         <input name="ans_col" type="number" class="form-control">
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" id="{{ btn_id }}">Upload</button>
+                    <button type="submit" class="btn btn-primary" id="{{ btn_id }}">{% trans "Upload" %}</button>
                 </div>
             </form>
         </div>

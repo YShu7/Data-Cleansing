@@ -1,3 +1,4 @@
+{% load i18n static %}
 {% load staticfiles %}
 <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
@@ -14,42 +15,42 @@
     <ul class="navbar-nav">
         {% if request.user.is_admin %}
             <li class="nav-item">
-                <a class="nav-link" id="/modify_users" href="/modify_users">User List</a>
+                <a class="nav-link" id="/modify_users" href="/modify_users">{% trans "User List" %}</a>
             </li>
         {% endif %}
 
         {% if request.user.is_superuser %}
             <li class="nav-item" id="account-toggle">
-                <a data-toggle="collapse" data-target="#accounts" aria-controls="accounts" class="nav-link dropdown-toggle section-header">Accounts</a>
+                <a data-toggle="collapse" data-target="#accounts" aria-controls="accounts" class="nav-link dropdown-toggle section-header">{% trans "Accounts" %}</a>
                 <ul class="collapse navbar-nav p-2" id="accounts" data-parent="#account-toggle">
                     <li class="nav-item">
-                        <a class="nav-link" id="/modify_users" href="/modify_users">User List</a>
+                        <a class="nav-link" id="/modify_users" href="/modify_users">{% trans "User List" %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="/group" href="/group">Groups</a>
+                        <a class="nav-link" id="/group" href="/group">{% trans "Groups" %}</a>
                     </li>
                 </ul>
             </li>
         {% endif %}
 
         <li class="nav-item" id="data-toggle">
-            <a data-toggle="collapse" data-target="#data" aria-controls="data" class="nav-link dropdown-toggle section-header">Data</a>
+            <a data-toggle="collapse" data-target="#data" aria-controls="data" class="nav-link dropdown-toggle section-header">{% trans "Data" %}</a>
             <ul class="collapse navbar-nav p-2" id="data" data-parent="#data-toggle">
                 <li class="nav-item">
-                    <a class="nav-link" id="/dataset" href="/dataset">Dataset</a>
+                    <a class="nav-link" id="/dataset" href="/dataset">{% trans "Dataset" %}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="/update" href="/update">Update Data</a>
+                    <a class="nav-link" id="/update" href="/update">{% trans "Update Data" %}</a>
                 </li>
             </ul>
         </li>
 
         <li class="nav-item section-header">
-            <a class="nav-link" id="/report" href="/report">Working Report</a>
+            <a class="nav-link" id="/report" href="/report">{% trans "Working Report" %}</a>
         </li>
 
         <li class="nav-item section-header">
-            <a class="nav-link" id="/log" href="/log">Admin Log</a>
+            <a class="nav-link" id="/log" href="/log">{% trans "Admin Log" %}</a>
         </li>
 
         {% if not request.user.is_superuser %}
@@ -57,18 +58,18 @@
             <li class="nav-item">
                 <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal"
                         data-target="#file_modal" class="btn btn-outline-primary btn-sm">
-                    Import Dataset
+                    {% trans "Import Dataset" %}
                 </button>
             </li>
 
             <br/>
             <li class="nav-item">
-                <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
+                <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">{% trans "Assign Tasks" %}</a>
             </li>
 
             <br/>
             <li class="nav-item">
-                <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">Summarize</a>
+                <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">{% trans "Summarize" %}</a>
             </li>
         {% endif %}
     </ul>
@@ -77,8 +78,10 @@
 {% include "pages/partial/file_drop.html" with modal_id="file_modal" btn_id="upload_btn" %}
 
 <script type="text/javascript">
-    window.onload = function (ev) {
-        var ele = document.getElementById("{{ request.path }}");
+
+
+    $(document).ready(function () {
+        var ele = document.getElementById("{{ request.path|remove_lang }}");
         ele.classList.add("active");
 
         function show_file_modal() {
@@ -92,9 +95,7 @@
                 $("#" + panels[i]).collapse('show');
             }
         }
-    };
 
-    $(document).ready(function () {
         $("ul").on('shown.bs.collapse', function () {
             var active = $(this).attr('id');
             var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);

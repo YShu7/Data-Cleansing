@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -121,6 +123,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGES =[ ('en', _('English')), ('zh', _('Chinese')),]
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 TIME_ZONE = 'UTC'
 
@@ -161,30 +167,30 @@ EMAIL_FROM = "Data Cleansing Team <noreply@gmail.com>"
 ADMIN_DIR = 'pages/admin'
 USER_DIR = 'pages/user'
 AUTH_DIR = 'authentication'
-MSG_FAIL_CHOICE = "Please choose an answer."
-MSG_FAIL_DATA_NONEXIST = "Data #{} doesn't exist."
-MSG_FAIL_LABEL_NONEXIST = "Label #{} doesn't exist."
+MSG_FAIL_CHOICE = _("Please choose an answer.")
+MSG_FAIL_DATA_NONEXIST = _("Data #{} doesn't exist.")
+MSG_FAIL_LABEL_NONEXIST = _("Label #{} doesn't exist.")
 
-MSG_SUCCESS_REG = "User registration succeed"
-MSG_FAIL_EMAIL = "Email {} has been used"
-MSG_FAIL_CERTI = "Certificate {} has been used"
-MSG_FAIL_FILL = "Please fill in {}."
-MSG_FAIL_DEL_GRP = "Group names didn't match."
+MSG_SUCCESS_REG = _("User registration succeed.")
+MSG_FAIL_EMAIL = _("Email {} has been used.")
+MSG_FAIL_CERTI = _("Certificate {} has been used.")
+MSG_FAIL_FILL = _("Please fill in {}.")
+MSG_FAIL_DEL_GRP = _("Group names didn't match.")
 
-MSG_SUCCESS_VOTE = "Update Succeed."
-MSG_SUCCESS_VAL = "Update Succeed."
-MSG_SUCCESS_PWD_CHANGE = "Password was changed."
-MSG_SUCCESS_SIGN_UP = "Sign up successfully."
-MSG_SUCCESS_RETRY = "Your request has been sent."
-MSG_SUCCESS_ASSIGN = "Assign Tasks Succeed"
-MSG_SUCCESS_SUM = "Summarize Succeed"
-MSG_SUCCESS_IMPORT = "Database is successfully imported. Click 'Assign Tasks' to re-assign all tasks to users."
-MSG_SUCCESS_DEL_GRP = "Group {} was successfully deleted."
-MSG_SUCCESS_CRT_GRP = "Group {} was successfully created."
+MSG_SUCCESS_VOTE = _("Update Succeed.")
+MSG_SUCCESS_VAL = _("Update Succeed.")
+MSG_SUCCESS_PWD_CHANGE = _("Password was changed.")
+MSG_SUCCESS_SIGN_UP = _("Sign up successfully.")
+MSG_SUCCESS_RETRY = _("Your request has been sent.")
+MSG_SUCCESS_ASSIGN = _("Assign Tasks Succeed")
+MSG_SUCCESS_SUM = _("Summarize Succeed")
+MSG_SUCCESS_IMPORT = _("Database is successfully imported. Click 'Assign Tasks' to re-assign all tasks to users.")
+MSG_SUCCESS_DEL_GRP = _("Group {} was successfully deleted.")
+MSG_SUCCESS_CRT_GRP = _("Group {} was successfully created.")
 
-VAL = "validate"
-VOT = "vote"
-SEL = "select"
+VAL = _("validate")
+VOT = _("vote")
+SEL = _("select")
 
 CORRECT_POINT = 3
 INCORRECT_POINT = 1

@@ -1,7 +1,8 @@
 {% extends "authentication/base.html" %}
+{% load i18n static %}
 
 {% block width %}30{% endblock %}
-{% block title %}Account Login{% endblock %}
+{% block title %}{% trans "Account Login" %}{% endblock %}
 
 {% block content %}
     <form action="{% url 'login' %}" method="post">
@@ -18,18 +19,18 @@
 
         {% if form_obj.errors %}
         <div class="alert alert-danger" role="alert">
-            Your username and password didn't match. Please try again.
+            {% trans "Your username and password didn't match. Please try again." %}
         </div>
         {% endif %}
 
         <button class="btn-success btn-lg btn-block" type="submit">
-            Log in
+            {% trans "Log in" %}
         </button>
     </form>
     <br/>
     <form action="{% url 'signup' %}">
         <button class="btn btn-primary btn-lg btn-block" type="submit">
-            Sign up
+            {% trans "Sign up" %}
         </button>
     </form>
 {% endblock %}
@@ -37,11 +38,11 @@
 {% block footer %}
     <div class="text-center">
     <span>
-        Forgot
+        {% trans "Forgot" %}
     </span>
 
         <a href="{% url 'password_reset' %}" style="color:#4272d7">
-            Password?
+            {% trans "Password" %}?
         </a>
     </div>
 {% endblock %}

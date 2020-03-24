@@ -1,10 +1,11 @@
 {% extends "pages/user/base.html" %}
+{% load i18n static %}
 
 {% block content %}
     {% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
 
     {% if page_obj %}
-        <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+        <button id="collapse_all" class="btn btn-outline-primary float-right">{% trans "Expand/Collapse All" %}</button>
 
         <div id="taskList">
             <form id="validate_form" action="{% url 'validate' %}" method="post">
@@ -13,18 +14,18 @@
                 <table type="table" class="table table-hover" id="tasks_table">
                     <thead class="thead-light">
                     <tr>
-                        <th scope="col" width="5%">ID</th>
-                        <th scope="col" width="30%">Question</th>
-                        <th scope="col" width="30%">Answer</th>
+                        <th scope="col" width="5%">{% trans "ID" %}</th>
+                        <th scope="col" width="30%">{% trans "Question" %}</th>
+                        <th scope="col" width="30%">{% trans "Answer" %}</th>
                         <th scope="col" width="10%">
                             <div class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                    aria-expanded="false">
-                                    Status
+                                    {% trans "Status" %}
                                 </a>
                                 <div id="filter_validating" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <button class="dropdown-item" type="button">Approved</button>
-                                    <button class="dropdown-item" type="button">Disapproved</button>
+                                    <button class="dropdown-item" type="button">{% trans "Approved" %}</button>
+                                    <button class="dropdown-item" type="button">{% trans "Disapproved" %}</button>
                                     <button class="dropdown-item" type="button">?</button>
                                 </div>
                             </div>
@@ -56,13 +57,13 @@
                                     <button id="approve_{{ question.id }}" value="{{ question.id }}" type="button"
                                             name="choice_{{ question.id }}"
                                             class="approve btn btn-outline-success btn-sm">
-                                        Approve
+                                        {% trans "Approve" %}
                                     </button>
 
                                     <button id="change_{{ question.id }}" value="{{ question.id }}" type="button"
                                             data-toggle="modal" data-target="#dialog"
                                             class="change btn btn-outline-primary btn-sm">
-                                        Change
+                                        {% trans "Change" %}
                                     </button>
                                 </div>
                             </td>
@@ -71,8 +72,9 @@
                     </tbody>
                 </table>
                 {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
-                <span class="d-flex"><input class="btn btn-primary btn ml-auto" name="submit" type="submit"
-                                            value="Submit"></span>
+                <span class="d-flex">
+                    <button class="btn btn-primary btn ml-auto" name="submit" type="submit">{% trans "Submit" %}</button>
+                </span>
             </form>
         </div>
         {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn" %}
@@ -192,7 +194,7 @@
     {% else %}
         <br/>
         <div class="alert alert-success" role="alert">
-            You have complete all validating tasks.
+            {% trans "You have complete all validating tasks." %}
         </div>
     {% endif %}
 {% endblock %}

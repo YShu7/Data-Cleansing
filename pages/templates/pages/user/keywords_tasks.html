@@ -1,4 +1,5 @@
 {% extends "pages/user/base.html" %}
+{% load i18n static %}
 
 {% block content %}
     <style>
@@ -24,9 +25,9 @@
             <table type="table" class="table">
                 <thead class="thead-light">
                 <tr>
-                    <th scope="col" width="5%">ID</th>
-                    <th scope="col" width="30%">Question</th>
-                    <th scope="col" width="40%">Answer</th>
+                    <th scope="col" width="5%">{% trans "ID" %}</th>
+                    <th scope="col" width="30%">{% trans "Question" %}</th>
+                    <th scope="col" width="40%">{% trans "Answer" %}</th>
                     <th scope="col" width="25%"></th>
                 </tr>
                 </thead>
@@ -49,7 +50,7 @@
                                 <input type="hidden">
                                 <button id="vote_{{ question.id }}" value="0" type="submit"
                                         class="submit btn btn-outline-primary btn-sm btn-block">
-                                    Submit
+                                    {% trans "Submit" %}
                                 </button>
                             </td>
                         </tr>
@@ -101,7 +102,7 @@
     {% else %}
         <br/>
         <div class="alert alert-success" role="alert">
-            You have complete all keyword selection tasks.
+            {% trans "You have complete all keyword selection tasks." %}
         </div>
     {% endif %}
 {% endblock %}

@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.template import loader
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 
 from assign.models import Assignment
@@ -59,7 +60,7 @@ def modify_users(request):
         approved_users = get_approved_users(getattr(user, 'group'))
 
         context = {
-            'title': 'Users',
+            'title': _('Users'),
             'pending_users': pending_users,
             'approved_users': approved_users,
         }
@@ -83,11 +84,11 @@ def dataset(request, group_name="all"):
     num_data = finalized_data.count()
 
     context = {
-        'title': 'Data Set',
+        'title': _('Data Set'),
         'num_data': num_data,
         'page_obj': page_obj,
         'groups': groups,
-        'group_name': group_name,
+        'group_name': _(group_name),
     }
     return HttpResponse(template.render(request=request, context=context))
 
@@ -142,7 +143,7 @@ def update(request, data_ptr_id=None):
         page_obj = paginator.get_page(page_number)
 
         context = {
-            'title': 'Data Set',
+            'title': _('Data Set'),
             'page_obj': page_obj,
             'data': VotingData.objects.all(),
         }
@@ -161,7 +162,7 @@ def report(request, from_date=None, to_date=None):
     users = get_approved_users(getattr(request.user, 'group'), )
 
     context = {
-        'title': 'Report',
+        'title': _('Report'),
         'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
         'from_date': from_date,
         'to_date': to_date,
@@ -171,7 +172,7 @@ def report(request, from_date=None, to_date=None):
     if request.user.is_superuser:
         groups = get_group_report_context()
         context = {
-            'title': 'Report',
+            'title': _('Report'),
             'today': '{}-{}-{}'.format('%04d' % i.year, '%02d' % i.month, '%02d' % i.day),
             'users': users,
             'names': json.dumps(groups['names']),
@@ -186,7 +187,7 @@ def report(request, from_date=None, to_date=None):
 @superuser_admin_login_required
 def download_report(request):
     """A view that streams a large CSV file."""
-    rows = [["id", "username", "certificate", "point", "accuracy"]]
+    rows = [[_("id"), _("username"), _("certificate"), _("point"), _("accuracy")]]
     rows += ([user.id, user.username, user.certificate, user.point, user.accuracy()] for user in
              get_approved_users(group=getattr(request.user, 'group')))
     pseudo_buffer = Echo()
@@ -205,7 +206,7 @@ def log(request):
     data_logs = get_admin_logs(request.user, AuthLog.objects.all(), get_auth_log_msg, 'admin')
     logs.extend(data_logs)
     context = {
-        'title': "Admin Log",
+        'title': _("Admin Log"),
         'logs': logs,
     }
     return HttpResponse(template.render(context=context, request=request))
@@ -217,18 +218,18 @@ def import_dataset(request):
     try:
         csv_file = request.FILES['file']
     except KeyError:
-        messages.add_message(request, messages.ERROR, 'No file is input.', extra_tags="danger")
+        messages.add_message(request, messages.ERROR, _('No file is input.'), extra_tags="danger")
         return HttpResponseRedirect(get_pre_url(request))
     try:
         qns_col = int(request.POST['qns_col'])
         ans_col = int(request.POST['ans_col'])
     except KeyError:
-        messages.add_message(request, messages.ERROR, 'No column index is input.', extra_tags="danger")
+        messages.add_message(request, messages.ERROR, _('No column index is input.'), extra_tags="danger")
         return HttpResponseRedirect(get_pre_url(request))
 
     # let's check if it is a csv file
     if not csv_file.name.endswith('.csv'):
-        messages.add_message(request, messages.ERROR, 'Input file is not a .csv file.', extra_tags="danger")
+        messages.add_message(request, messages.ERROR, _('Input file is not a .csv file.'), extra_tags="danger")
         return HttpResponseRedirect(get_pre_url(request))
     data_set = csv_file.read().decode('UTF-8')
     # setup a stream which is when we loop through each line we are able to handle a data in a stream
@@ -294,7 +295,7 @@ def group(request):
                                           'data_num': data_per_group_dict})
 
     context = {
-        'title': 'Groups',
+        'title': _('Groups'),
         'groups': groups_info,
         'delete_check_id': 'input',
         'delete_confirm_id': 'confirm_input',
@@ -335,7 +336,7 @@ def delete_group(request):
         else:
             messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=MSG_FAIL_DEL_GRP)
     url = get_pre_url(request)
-    return HttpResponseRedirect('/' if url == None else url)
+    return HttpResponseRedirect('/' if url is None else url)
 
 
 @superuser_login_required
@@ -353,4 +354,4 @@ def create_group(request):
         messages.add_message(request, level=messages.ERROR, extra_tags="danger", message=error)
 
     url = get_pre_url(request)
-    return HttpResponseRedirect('/' if url == None else url)
+    return HttpResponseRedirect('/' if url is None else url)

@@ -1,17 +1,18 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
     <div>
-        <a href="#num" class="link-dark"><h4>Summary</h4></a>
+        <a href="#num" class="link-dark"><h4>{% trans "Summary" %}</h4></a>
         <div class="col-xs-12">
             <div class="dropdown">
                 <div>
-                    <strong>Current Data #: </strong>
+                    <strong>{% trans "Current Data #:" %}</strong>
                     <span id="num_all_data" value="{{ num_data }}">{{ num_data }}</span>
                 </div>
 
                 {% if request.user.is_superuser %}
-                    <strong>Number of Data for </strong>
+                    <strong>{% trans "Number of Data for " %}</strong>
                     <a class="dropdown-toggle" id="selected_type" data-toggle="dropdown" aria-haspopup="true"
                        aria-expanded="false">
                         {{ group_name }}
@@ -22,7 +23,7 @@
                             <a id="filter_btn" href="/dataset/{{ group.name }}" class="dropdown-item"
                                type="button">{{ group }}</a>
                         {% endfor %}
-                        <button class="dropdown-item" type="button">all</button>
+                        <button class="dropdown-item" type="button">{% trans "all" %}</button>
                     </div>
                     <label id="num_data" value="{{ num_data }}">{{ num_data }}</label>
                 {% endif %}

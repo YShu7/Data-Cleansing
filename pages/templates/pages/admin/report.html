@@ -1,4 +1,5 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
     <div>
@@ -8,13 +9,13 @@
     <label for="to">To</label>
     <input id="to" type="date" value="{{today}}" max="{{today}}"/>
     <a href="/report" id="filter_btn" class="btn btn-primary">Filter</a-->
-        <a href="/download_report" id="download_btn" class="btn btn-primary float-right">Download Individual Report</a>
+        <a href="/download_report" id="download_btn" class="btn btn-primary float-right">{% trans "Download Individual Report" %}</a>
     </div>
 
     {% if request.user.is_superuser %}
         <div class="btn-group">
-            <button id='group-toggle' class="btn btn-outline-primary">Group</button>
-            <button id='individual-toggle' class="btn btn-success">Individual</button>
+            <button id='group-toggle' class="btn btn-outline-primary">{% trans "Group" %}</button>
+            <button id='individual-toggle' class="btn btn-success">{% trans "Individual" %}</button>
         </div>
         <div id="group_list" style="display: none">
             {% include 'pages/admin/partial/group_report.html' with groups=groups %}

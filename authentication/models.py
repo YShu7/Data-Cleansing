@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
 
 
@@ -121,10 +122,10 @@ class Log(models.Model):
         APPROVE = 'APPROVE'
         REJECT = 'REJECT'
         choices = [
-            (ACTIVATE, 'activate'),
-            (DEACTIVATE, 'deactivate'),
-            (APPROVE, 'approve'),
-            (REJECT, 'reject'),
+            (ACTIVATE, _('activate')),
+            (DEACTIVATE, _('deactivate')),
+            (APPROVE, _('approve')),
+            (REJECT, _('reject')),
         ]
 
     admin = models.ForeignKey(get_user_model(), models.CASCADE, related_name="account_log")

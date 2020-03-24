@@ -1,27 +1,28 @@
+{% load i18n static %}
 <div class="col-xs-4 col-xs-offset-4">
     <div class="pagination">
         <span class="step-links" style="margin:auto; display:table;">
             <div class="btn-group" role="group">
             {% if page_obj.has_previous and page_obj.previous_page_number > num_done %}
-                <a href="?page=1" class="btn btn-outline-secondary">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary">previous</a>
+                <a href="?page=1" class="btn btn-outline-secondary">&laquo; {% trans "first" %}</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary">{% trans "previous" %}</a>
             {% else %}
-                <a href="?page=1" class="btn btn-outline-secondary disabled">&laquo; first</a>
-                <a class=" btn btn-outline-secondary disabled">previous</a>
+                <a href="?page=1" class="btn btn-outline-secondary disabled">&laquo; {% trans "first" %}</a>
+                <a class=" btn btn-outline-secondary disabled">{% trans "previous" %}</a>
             {% endif %}
              </div>
 
             <span class="current">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                {% blocktrans %}Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endblocktrans %}
             </span>
 
             <div class="btn-group" role="group" aria-label="Basic example">
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary">last &raquo;</a>
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary">{% trans "next" %}</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary">{% trans "last" %} &raquo;</a>
             {% else %}
-                <a class="btn btn-outline-secondary disabled">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary disabled">last &raquo;</a>
+                <a class="btn btn-outline-secondary disabled">{% trans "next" %}</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-secondary disabled">{% trans "last" %} &raquo;</a>
             {% endif %}
             </div>
         </span>

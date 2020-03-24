@@ -1,7 +1,8 @@
 {% extends "authentication/base.html" %}
+{% load i18n %}
 
 {% block width %}50{% endblock %}
-{% block title %}User Registration{% endblock %}
+{% block title %}{% trans "User Registration" %}{% endblock %}
 {% block content %}
     {% if error %}
     <div class="alert alert-danger" role="alert">
@@ -60,14 +61,14 @@
         <br>
         <div class="text-center">
             <button type="submit" class="btn btn-block btn-primary">
-                Sign Up
+                {% trans "Sign Up" %}
             </button>
         </div>
     </form>
     <br/>
     <form action="{% url 'login' %}">
         <div class="text-center">
-            <button type="submit" class="btn btn-block btn-success">Log In</button>
+            <button type="submit" class="btn btn-block btn-success">{% trans "Log In" %}</button>
         </div>
     </form>
 {% endblock %}

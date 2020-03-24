@@ -8,10 +8,10 @@ from .models import CustomGroup
 
 
 class CustomLoginForm(AuthenticationForm):
-    username = forms.EmailField(label="Email",
-                                widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+    username = forms.EmailField(label=_("Email"),
+                                widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': _('Email')}))
     password = forms.CharField(
-        widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'},
+        widget=forms.widgets.PasswordInput(attrs={'class': 'form-control', 'placeholder': _('Password')},
                                            render_value=True))
 
     class Meta:
@@ -20,18 +20,17 @@ class CustomLoginForm(AuthenticationForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(label="Email",
+    email = forms.EmailField(label=_("Email"),
                              widget=forms.widgets.EmailInput(attrs={'class': 'form-control'}))
-    username = forms.CharField(label="Username", widget=forms.widgets.Input(attrs={'class': 'form-control'}))
-    certificate = forms.CharField(label="Certificate", widget=forms.widgets.Input(attrs={'class': 'form-control'}))
-    group = forms.ModelChoiceField(label="Group", queryset=CustomGroup.objects.all(),
+    username = forms.CharField(label=_("Username"), widget=forms.widgets.Input(attrs={'class': 'form-control'}))
+    certificate = forms.CharField(label=_("Certificate"), widget=forms.widgets.Input(attrs={'class': 'form-control'}))
+    group = forms.ModelChoiceField(label=_("Group"), queryset=CustomGroup.objects.all(),
                                    widget=forms.widgets.Select(attrs={'class': 'form-control'}), required=True)
 
     password = None
-    password1 = forms.CharField(label="Password", min_length=8,
-                                widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
-                                                                       render_value=True))
-    password2 = forms.CharField(label="Password Confirmation", min_length=8,
+    password1 = forms.CharField(label=_("Password"), min_length=8,
+                                widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True))
+    password2 = forms.CharField(label=_("Password Confirmation"), min_length=8,
                                 widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
                                                                    render_value=True))
 
@@ -49,29 +48,29 @@ class CustomUserChangeForm(UserChangeForm):
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(
         widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True))
-    new_password1 = forms.CharField(label="New Password", min_length=8,
+    new_password1 = forms.CharField(label=_("New Password"), min_length=8,
                                     widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
                                                                        render_value=True),
                                     error_messages={
-                                        "required": "Password cannot be empty",
-                                        "min_length": "Password should have at least 8 characters."
+                                        "required": _("Password cannot be empty"),
+                                        "min_length": _("Password should have at least 8 characters.")
                                     })
-    new_password2 = forms.CharField(label="Confirm New Password", min_length=8,
+    new_password2 = forms.CharField(label=_("Confirm New Password"), min_length=8,
                                     widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
                                                                        render_value=True),
                                     error_messages={
-                                        "required": "Password cannot be empty",
-                                        "min_length": "Password should have at least 8 characters."
+                                        "required": _("Password cannot be empty"),
+                                        "min_length": _("Password should have at least 8 characters.")
                                     })
 
 
 class CustomPasswordResetForm(PasswordResetForm):
-    email = forms.EmailField(label="Email",
+    email = forms.EmailField(label=_("Email"),
                              error_messages={
-                                 "required": "Email cannot be empty",
-                                 "invalid": "Input is invalid email",
+                                 "required": _("Email cannot be empty"),
+                                 "invalid": _("Input is invalid email"),
                              },
-                             widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+                             widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': _('Email')}))
 
 
 class CustomSetPasswordForm(SetPasswordForm):
@@ -84,9 +83,9 @@ class CustomSetPasswordForm(SetPasswordForm):
 
 
 class CreateGroupForm(forms.ModelForm):
-    name = forms.CharField(label="Group Name",
+    name = forms.CharField(label=_("Group Name"),
                            widget=forms.widgets.Input(attrs={'class': 'form-control',
-                                                             'placeholder': 'Input group name here'}))
+                                                             'placeholder': _('Input group name here')}))
 
     class Meta:
         model = CustomGroup

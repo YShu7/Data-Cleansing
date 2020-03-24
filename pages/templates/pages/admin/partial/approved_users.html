@@ -1,3 +1,4 @@
+{% load i18n static %}
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.css' %}" type="text/css"/>
 <link rel="stylesheet" href="{% static 'bootstrap-4.3.1/css/bootstrap.min.css' %}" type="text/css"/>
@@ -7,11 +8,11 @@
 <table type="table" class="table table-hover">
     <thead class="thead-light">
     <tr>
-        <th scope="col" width="20%">Username</th>
-        <th scope="col" width="20%">Certificate</th>
-        <th scope="col" width="20%">Email</th>
+        <th scope="col" width="20%">{% trans "Username" %}</th>
+        <th scope="col" width="20%">{% trans "Certificate" %}</th>
+        <th scope="col" width="20%">{% trans "Email" %}</th>
         {% if request.user.is_superuser %}
-            <th scope="col" width="10%">Group</th>
+            <th scope="col" width="10%">{% trans "Group" %}</th>
             <th scope="col" width="10%"></th>
         {% endif %}
         <th scope="col" width="20%"></th>
@@ -35,17 +36,17 @@
                         <input {% if user.is_admin %} checked {% endif %} type="checkbox" onchange="this.form.submit();"
                                                       class="custom-control-input" name="is_admin"
                                                       id="is_admin_{{ user.id }}">
-                        <label class="custom-control-label" for="is_admin_{{ user.id }}">Admin</label>
+                        <label class="custom-control-label" for="is_admin_{{ user.id }}">{% trans "Admin" %}</label>
                     </div>
                 </td>
             {% endif %}
             <td>
                 {% if user.is_active %}
-                    <button class="btn btn-success" name="activate" type="submit" disabled="disabled">Activate</button>
-                    <button class="btn btn-danger" name="deactivate" type="submit">Deactivate</button>
+                    <button class="btn btn-success" name="activate" type="submit" disabled="disabled">{% trans "Activate" %}</button>
+                    <button class="btn btn-danger" name="deactivate" type="submit">{% trans "Deactivate" %}</button>
                 {% else %}
-                    <button class="btn btn-success" name="activate" type="submit">Activate</button>
-                    <button class="btn btn-danger" name="deactivate" type="submit" disabled="disabled">Deactivate
+                    <button class="btn btn-success" name="activate" type="submit">{% trans "Activate" %}</button>
+                    <button class="btn btn-danger" name="deactivate" type="submit" disabled="disabled">{% trans "Deactivate" %}
                     </button>
                 {% endif %}
             </td>

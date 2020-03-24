@@ -16,3 +16,13 @@ def split(s, spliter=None):
     if not spliter:
         return s.split()
     return s.split(spliter)
+
+
+@register.filter
+def remove_lang(s):
+    return '/' + s.split('/')[-1]
+
+
+@register.filter
+def get_lang(s):
+    return s.split('/')[1]

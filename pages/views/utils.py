@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.forms.models import model_to_dict
 from django.utils import timezone
 
 from assign.models import Assignment
@@ -126,7 +125,7 @@ def get_admin_logs(user, logs, func, logger):
                 if getattr(this_log, logger).is_admin and getattr(this_log, logger).group == user.group]
 
 
-def get_num_per_group_dict(model, condition={lambda x: x is not None}):
+def get_num_per_group_dict(model, condition=lambda x: x is not None):
     group_values = [x.group.id for x in model.objects.all() if condition and x.group is not None]
     group_keys = [group.id for group in CustomGroup.objects.all()]
     num_per_groups_dict = dict.fromkeys(group_keys, 0)
@@ -194,8 +193,11 @@ def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
     paginator = Paginator(data, 1)
     page_num = request.GET.get('page')
     try:
-        page_num = int(page_num)
-    except Exception:
+        if page_num is None:
+            page_num = 1
+        else:
+            page_num = int(page_num)
+    except ValueError:
         page_num = 1
 
     if not total or num_done + num_doing + 1 <= page_num:

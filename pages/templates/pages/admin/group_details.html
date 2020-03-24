@@ -1,22 +1,23 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
 <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link" id="nav-user-tab" data-toggle="tab" href="#nav-user" role="tab" aria-controls="nav-user" aria-selected="true">User</a>
-        <a class="nav-item nav-link" id="nav-data-tab" data-toggle="tab" href="#nav-data" role="tab" aria-controls="nav-data" aria-selected="false">Data</a>
-        <a class="nav-item nav-link" id="nav-report-tab" data-toggle="tab" href="#nav-report" role="tab" aria-controls="nav-report" aria-selected="false">Report</a>
+        <a class="nav-item nav-link" id="nav-user-tab" data-toggle="tab" href="#nav-user" role="tab" aria-controls="nav-user" aria-selected="true">{% trans "User" %}</a>
+        <a class="nav-item nav-link" id="nav-data-tab" data-toggle="tab" href="#nav-data" role="tab" aria-controls="nav-data" aria-selected="false">{% trans "Data" %}</a>
+        <a class="nav-item nav-link" id="nav-report-tab" data-toggle="tab" href="#nav-report" role="tab" aria-controls="nav-report" aria-selected="false">{% trans "Report" %}</a>
     </div>
 </nav>
 <div class="tab-content">
     <div class="tab-pane fade" id="nav-user" style="background-color: white" role="tabpanel" aria-labelledby="nav-user-tab">
         <div id="pending">
-            <a href="/#pending" class="link-dark"><h5>Pending Users</h5></a>
+            <a href="/#pending" class="link-dark"><h5>{% trans "Pending Users" %}</h5></a>
             {% include 'pages/admin/partial/pending_users.html' with users=pending_users %}
         </div>
 
         <div id="approved">
-            <a href="/#approved" class="link-dark"><h5>Approved Users</h5></a>
+            <a href="/#approved" class="link-dark"><h5>{% trans "Approved Users" %}</h5></a>
             {% include 'pages/admin/partial/approved_users.html' with users=approved_users %}
         </div>
     </div>

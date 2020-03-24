@@ -1,9 +1,11 @@
+{% load i18n static %}
+
 <div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
      tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Delete Group</h4>
+                <h4 class="modal-title" id="myModalLabel">{% trans "Delete Group" %}</h4>
                 <button aria-label="Close" class="close" data-dismiss="modal" type="button">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -13,16 +15,16 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <p class="text-danger">
-                        <b>Warning:</b> This action <b>CANNOT</b> be undone. This will delete <b id="group_name"></b>
-                        users, data, logs permanently.
+                        <b>{% trans "Warning" %}:</b> {% blocktrans %} This action <b>CANNOT</b> be undone {% endblocktrans %}.
+                        {% blocktrans %}This will delete <b id="group_name"></b> users, data, logs permanently.{% endblocktrans %}
                     </p>
-                    <p class="text-secondary"><b>Note:</b> Input group name to confirm deletion.</p>
+                    <p class="text-secondary"><b>{% trans "Note" %}:</b> {% trans "Input group name to confirm deletion." %}</p>
                     <input type="hidden" id="{{ check_id }}" name="{{ check_id }}">
                     <input class="form-control" id="{{ confirm_id }}" name="{{ confirm_id }}">
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-outline-danger btn-block" type="submit" id="{{ btn_id }}">I understand the
-                        consequences, delete the group.
+                    <button class="btn btn-outline-danger btn-block" type="submit" id="{{ btn_id }}">
+                        {% trans "I understand the consequences, delete the group." %}
                     </button>
                 </div>
             </form>

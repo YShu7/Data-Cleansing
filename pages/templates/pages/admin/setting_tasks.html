@@ -1,7 +1,8 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
-    <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+    <button id="collapse_all" class="btn btn-outline-primary float-right">{% trans "Expand/Collapse All" %}</button>
 
     <div id="taskList">
         <input id="door" type="hidden" value="1">
@@ -12,18 +13,18 @@
                 {% endfor %}
             </datalist>
             <div class="input-group mb-3" style="width: 40vw">
-                <input class="form-control border-primary" list="data" type="search" placeholder="Search"
+                <input class="form-control border-primary" list="data" type="search" placeholder="{% trans 'Search' %}"
                        aria-label="Search" name="search">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                    <button class="btn btn-primary" type="submit">{% trans "Search" %}</button>
                 </div>
             </div>
         </form>
         <table type="table" class="table table-hover">
             <thead class="thead-light">
             <tr>
-                <th scope="col" style="width: 20%">ID</th>
-                <th scope="col" style="width: 60%">Question</th>
+                <th scope="col" style="width: 20%">{% trans "ID" %}</th>
+                <th scope="col" style="width: 60%">{% trans "Question" %}</th>
                 <th scope="col" style="width: 20%"></th>
             </tr>
             </thead>
@@ -53,7 +54,7 @@
                                 {% endfor %}
                                 <label id="new_ans_{{ question.id }}" style="color: green"></label><br/>
                                 <a href="#" onclick="show_modal({{ question.id }})" class="new_ans_btn">
-                                    New Answer
+                                    {% trans "New Answer" %}
                                 </a>
                             </div>
 
@@ -61,7 +62,7 @@
                         <td>
                             <button id="vote_{{ question.id }}" type="submit"
                                     class="vote btn btn-outline-primary btn-sm btn-block">
-                                Update
+                                {% trans "Update" %}
                             </button>
                         </td>
                     </tr>
