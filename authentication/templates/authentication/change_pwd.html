@@ -1,3 +1,4 @@
+{% load i18n static %}
 {% load staticfiles %}
 <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
@@ -9,7 +10,7 @@
             {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Change Password</h4>
+                    <h4 class="modal-title" id="myModalLabel">{% trans "Change Password" %}</h4>
                     <button type="button" id="close" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -33,7 +34,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="update_pwd" class="btn btn-primary">Confirm</button>
+                    <button id="update_pwd" class="btn btn-primary">{% trans "Confirm" %}</button>
                 </div>
             </div>
         </form>

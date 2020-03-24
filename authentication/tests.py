@@ -47,27 +47,15 @@ class UtilsTestCase(TestCase):
         self.assertEqual(report, expected_report)
 
     def test_get_pending_users(self):
-        users = get_pending_users(group=self.groups[0], is_superuser=True)
-        self.assertEqual(list(users), self.all_pending_user)
-
-        users = get_pending_users(group=self.groups[0], is_superuser=False)
+        users = get_pending_users(group=self.groups[0])
         self.assertEqual(list(users), [u for u in self.all_pending_user if u.group == self.groups[0]])
 
-        users = get_pending_users(group=None, is_superuser=True)
+        users = get_pending_users(group=None)
         self.assertEqual(list(users), self.all_pending_user)
 
-        users = get_pending_users(group=None, is_superuser=False)
-        self.assertEqual(list(users), [])
-
     def test_get_approved_users(self):
-        users = get_approved_users(group=self.groups[0], is_superuser=True)
-        self.assertEqual(list(users), self.all_approved_user)
-
-        users = get_approved_users(group=self.groups[0], is_superuser=False)
+        users = get_approved_users(group=self.groups[0])
         self.assertEqual(list(users), [u for u in self.all_approved_user if u.group == self.groups[0]])
 
-        users = get_approved_users(group=None, is_superuser=True)
+        users = get_approved_users(group=None)
         self.assertEqual(list(users), self.all_approved_user)
-
-        users = get_approved_users(group=None, is_superuser=False)
-        self.assertEqual(list(users), [])

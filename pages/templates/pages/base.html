@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ request.path|get_lang }}">
 <head>
     <meta charset="UTF-8">
     {% load i18n static %}
@@ -68,10 +68,10 @@
             <div class="card-header"></div>
             <div class="card-body text-center">
                 {% if request.user.is_approved == None %}
-                    Your account is still pending for admin's approval.
+                    {% trans "Your account is still pending for admin's approval." %}
                 {% else %}
-                    Sorry, your account is rejected to be activated.
-                    <a href="/retry_sign_up">Try again.</a>
+                    {% trans "Sorry, your account is rejected to be activated." %}
+                    <a href="/retry_sign_up">{% trans "Try again." %}</a>
                 {% endif %}
             </div>
             <div class="card-footer"></div>

@@ -36,6 +36,7 @@ urlpatterns = [
     path('summarize', admin.summarize, name='summarize'),
     path('import_dataset', admin.import_dataset, name='import_dataset'),
     path('group', admin.group, name='group'),
+    path('group/<str:group_name>', admin.group_details, name='group_details'),
     path('delete_group', admin.delete_group, name='delete_group'),
     path('create_group', admin.create_group, name='create_group'),
 ]

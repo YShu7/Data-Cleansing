@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models import Count
 from django.utils import timezone
 
 from assign.models import Assignment
@@ -126,18 +125,19 @@ def get_admin_logs(user, logs, func, logger):
                 if getattr(this_log, logger).is_admin and getattr(this_log, logger).group == user.group]
 
 
-def get_num_per_group_dict(model):
-    num_per_groups = model.objects.values('group').annotate(dcount=Count('group'))
-    num_per_groups_dict = {}
-    for num_per_group in num_per_groups:
-        num_per_groups_dict[num_per_group['group']] = num_per_group['dcount']
+def get_num_per_group_dict(model, condition=lambda x: x is not None):
+    group_values = [x.group.id for x in model.objects.all() if condition and x.group is not None]
+    group_keys = [group.id for group in CustomGroup.objects.all()]
+    num_per_groups_dict = dict.fromkeys(group_keys, 0)
+    for grp in group_values:
+        num_per_groups_dict[grp] += 1
     return num_per_groups_dict
 
 
 def get_group_info_context(groups, info_dict):
     groups_info = []
     for grp in groups:
-        group_info = {'name': grp.name}
+        group_info = {'name': grp.name, 'created_at': grp.created_at, 'updated_at': grp.updated_at}
         for k in info_dict:
             v = 0
             if grp.id in info_dict[k]:
@@ -189,10 +189,22 @@ def done_assignment(task_id, tasker_id):
         pass
 
 
-def compute_paginator(request, data):
+def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
     paginator = Paginator(data, 1)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_num = request.GET.get('page')
+    try:
+        if page_num is None:
+            page_num = 1
+        else:
+            page_num = int(page_num)
+    except ValueError:
+        page_num = 1
+
+    if not total or num_done + num_doing + 1 <= page_num:
+        pass
+    else:
+        page_num = page_num + num_done
+    page_obj = paginator.get_page(page_num)
     return page_obj
 
 

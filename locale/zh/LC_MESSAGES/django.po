@@ -1,0 +1,734 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-24 07:28+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: authentication/forms.py:11 authentication/forms.py:12
+#: authentication/forms.py:23 authentication/forms.py:68
+#: authentication/forms.py:73
+#: pages/templates/pages/admin/partial/approved_users.html:13
+#: pages/templates/pages/admin/partial/individual_report.html:7
+#: pages/templates/pages/admin/partial/pending_users.html:13
+#: pages/templates/pages/user/profile.html:26
+msgid "Email"
+msgstr "邮箱"
+
+#: authentication/forms.py:14 authentication/forms.py:31
+#: authentication/templates/authentication/login.html:45
+msgid "Password"
+msgstr "密码"
+
+#: authentication/forms.py:25
+#: pages/templates/pages/admin/partial/approved_users.html:11
+#: pages/templates/pages/admin/partial/pending_users.html:11
+msgid "Username"
+msgstr "用户名"
+
+#: authentication/forms.py:26
+#: pages/templates/pages/admin/partial/approved_users.html:12
+#: pages/templates/pages/admin/partial/pending_users.html:12
+msgid "Certificate"
+msgstr "证书"
+
+#: authentication/forms.py:27 pages/templates/pages/admin/group.html:9
+#: pages/templates/pages/admin/partial/approved_users.html:15
+#: pages/templates/pages/admin/partial/finalized_data.html:13
+#: pages/templates/pages/admin/partial/pending_users.html:15
+#: pages/templates/pages/admin/report.html:17
+#: pages/templates/pages/user/profile.html:22
+msgid "Group"
+msgstr "小组"
+
+#: authentication/forms.py:33
+msgid "Password Confirmation"
+msgstr "确认密码"
+
+#: authentication/forms.py:51
+msgid "New Password"
+msgstr "新密码"
+
+#: authentication/forms.py:55 authentication/forms.py:62
+msgid "Password cannot be empty"
+msgstr "密码不可为空"
+
+#: authentication/forms.py:56 authentication/forms.py:63
+msgid "Password should have at least 8 characters."
+msgstr "密码至少包含8个字符"
+
+#: authentication/forms.py:58
+msgid "Confirm New Password"
+msgstr "确认新密码"
+
+#: authentication/forms.py:70
+msgid "Email cannot be empty"
+msgstr "邮箱不可为空"
+
+#: authentication/forms.py:71
+msgid "Input is invalid email"
+msgstr "邮箱地址不合法"
+
+#: authentication/forms.py:86
+msgid "Group Name"
+msgstr "小组名称"
+
+#: authentication/forms.py:88
+msgid "Input group name here"
+msgstr "输入小组名"
+
+#: authentication/models.py:125
+msgid "activate"
+msgstr "激活"
+
+#: authentication/models.py:126
+msgid "deactivate"
+msgstr "停用"
+
+#: authentication/models.py:127
+msgid "approve"
+msgstr "通过"
+
+#: authentication/models.py:128
+msgid "reject"
+msgstr "拒绝"
+
+#: authentication/templates/authentication/change_pwd.html:13
+#: pages/templates/pages/user/profile.html:42
+msgid "Change Password"
+msgstr "更改密码"
+
+#: authentication/templates/authentication/change_pwd.html:37
+#: pages/templates/pages/admin/partial/new_group_modal.html:18
+#: pages/templates/pages/partial/new_ans_modal.html:16
+msgid "Confirm"
+msgstr "确认"
+
+#: authentication/templates/authentication/login.html:5
+msgid "Account Login"
+msgstr "登陆账号"
+
+#: authentication/templates/authentication/login.html:22
+msgid "Your username and password didn't match. Please try again."
+msgstr "您的账号和密码不匹配。请重试。"
+
+#: authentication/templates/authentication/login.html:27
+#: authentication/templates/authentication/password_reset_complete.html:9
+#: authentication/templates/authentication/password_reset_done.html:10
+msgid "Log in"
+msgstr "登陆"
+
+#: authentication/templates/authentication/login.html:33
+msgid "Sign up"
+msgstr "注册"
+
+#: authentication/templates/authentication/login.html:41
+msgid "Forgot"
+msgstr "忘记"
+
+#: authentication/templates/authentication/password_reset_complete.html:5
+msgid "Your password has been set. You may go ahead and log in now."
+msgstr "您的密码已设置。您可以进行登陆了。"
+
+#: authentication/templates/authentication/password_reset_confirm.html:5
+#: authentication/templates/authentication/reset_pwd.html:5
+msgid "Forget Password"
+msgstr "忘记密码"
+
+#: authentication/templates/authentication/password_reset_confirm.html:10
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr "请两次输入您的新密码。"
+
+#: authentication/templates/authentication/password_reset_confirm.html:25
+msgid "Change my password"
+msgstr "更改我的密码"
+
+#: authentication/templates/authentication/password_reset_done.html:5
+msgid ""
+"We've emailed you instructions for setting your password, if an account "
+"exists with the email you entered. You should receive them shortly."
+msgstr "我们已向您的邮箱发送重设密码的流程。"
+
+#: authentication/templates/authentication/password_reset_done.html:6
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with, and check your spam folder."
+msgstr "如果您没有收到邮件，请检查邮箱输入是否正确并检查您的垃圾邮件。"
+
+#: authentication/templates/authentication/signup.html:5
+msgid "User Registration"
+msgstr "用户注册"
+
+#: authentication/templates/authentication/signup.html:64
+msgid "Sign Up"
+msgstr "注册"
+
+#: authentication/templates/authentication/signup.html:71
+#: pages/templates/pages/partial/header.html:6
+msgid "Log In"
+msgstr "登陆"
+
+#: datacleansing/settings.py:126
+msgid "English"
+msgstr "英文"
+
+#: datacleansing/settings.py:126
+msgid "Chinese"
+msgstr "中文"
+
+#: datacleansing/settings.py:170
+msgid "Please choose an answer."
+msgstr "请选择一个答案。"
+
+#: datacleansing/settings.py:171
+msgid "Data #{} doesn't exist."
+msgstr "数据 #{} 不存在。"
+
+#: datacleansing/settings.py:172
+msgid "Label #{} doesn't exist."
+msgstr "标签 #{} 不存在。"
+
+#: datacleansing/settings.py:174
+msgid "User registration succeed."
+msgstr "用户注册成功。"
+
+#: datacleansing/settings.py:175
+msgid "Email {} has been used."
+msgstr "邮箱 {} 已经被使用。"
+
+#: datacleansing/settings.py:176
+msgid "Certificate {} has been used."
+msgstr "证件 {} 已经被使用。"
+
+#: datacleansing/settings.py:177
+msgid "Please fill in {}."
+msgstr "请填入{}。"
+
+#: datacleansing/settings.py:178
+msgid "Group names didn't match."
+msgstr "小组名称不匹配。"
+
+#: datacleansing/settings.py:180 datacleansing/settings.py:181
+msgid "Update Succeed."
+msgstr "更新成功。"
+
+#: datacleansing/settings.py:182
+msgid "Password was changed."
+msgstr "密码已更改。"
+
+#: datacleansing/settings.py:183
+msgid "Sign up successfully."
+msgstr "注册成功。"
+
+#: datacleansing/settings.py:184
+msgid "Your request has been sent."
+msgstr "您的请求已发送。"
+
+#: datacleansing/settings.py:185
+msgid "Assign Tasks Succeed"
+msgstr "任务分配已完成。"
+
+#: datacleansing/settings.py:186
+msgid "Summarize Succeed"
+msgstr "统计已完成。"
+
+#: datacleansing/settings.py:187
+msgid ""
+"Database is successfully imported. Click 'Assign Tasks' to re-assign all "
+"tasks to users."
+msgstr "数据库导入成功。请点击'分配任务'，为用户重新分配任务。"
+
+#: datacleansing/settings.py:188
+msgid "Group {} was successfully deleted."
+msgstr "小组 {} 已被成功删除。"
+
+#: datacleansing/settings.py:189
+msgid "Group {} was successfully created."
+msgstr "小组 {} 已被成功建立。"
+
+#: datacleansing/settings.py:191
+msgid "validate"
+msgstr "检测"
+
+#: datacleansing/settings.py:192
+msgid "vote"
+msgstr "投票"
+
+#: datacleansing/settings.py:193
+msgid "select"
+msgstr "选择"
+
+#: pages/templates/pages/admin/dataset.html:6
+msgid "Summary"
+msgstr "统计"
+
+#: pages/templates/pages/admin/dataset.html:10
+msgid "Current Data #:"
+msgstr "当前数据量："
+
+#: pages/templates/pages/admin/dataset.html:15
+msgid "Number of Data for "
+msgstr "数据量-"
+
+#: pages/templates/pages/admin/dataset.html:26
+msgid "all"
+msgstr "全部"
+
+#: pages/templates/pages/admin/group.html:5
+msgid "Create New Group"
+msgstr "创建新的小组"
+
+#: pages/templates/pages/admin/group.html:10
+msgid "# of Accounts"
+msgstr "账号总数"
+
+#: pages/templates/pages/admin/group.html:11
+msgid "# of Data"
+msgstr "数据总数"
+
+#: pages/templates/pages/admin/group.html:12
+msgid "Created At"
+msgstr "创建于"
+
+#: pages/templates/pages/admin/group.html:13
+msgid "Updated At"
+msgstr "更新于"
+
+#: pages/templates/pages/admin/group.html:22
+msgid "users"
+msgstr "用户"
+
+#: pages/templates/pages/admin/group.html:22
+msgid "admins"
+msgstr "管理员"
+
+#: pages/templates/pages/admin/group.html:30
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:8
+msgid "Delete Group"
+msgstr "删除小组"
+
+#: pages/templates/pages/admin/group_details.html:7
+msgid "User"
+msgstr "用户"
+
+#: pages/templates/pages/admin/group_details.html:8
+#: pages/templates/pages/admin/partial/sidebar.html:37
+msgid "Data"
+msgstr "数据"
+
+#: pages/templates/pages/admin/group_details.html:9 pages/views/admin.py:165
+#: pages/views/admin.py:175
+msgid "Report"
+msgstr "报告"
+
+#: pages/templates/pages/admin/group_details.html:15
+#: pages/templates/pages/admin/modify_users.html:7
+msgid "Pending Users"
+msgstr "待审核用户"
+
+#: pages/templates/pages/admin/group_details.html:20
+#: pages/templates/pages/admin/modify_users.html:12
+msgid "Approved Users"
+msgstr "已通过用户"
+
+#: pages/templates/pages/admin/log.html:8
+#: pages/templates/pages/admin/partial/finalized_data.html:11
+#: pages/templates/pages/admin/setting_tasks.html:26
+#: pages/templates/pages/user/image_tasks.html:14
+#: pages/templates/pages/user/keywords_tasks.html:28
+#: pages/templates/pages/user/profile.html:18
+#: pages/templates/pages/user/validating_tasks.html:17
+#: pages/templates/pages/user/voting_tasks.html:14
+msgid "ID"
+msgstr "ID"
+
+#: pages/templates/pages/admin/log.html:9
+msgid "Timestamp"
+msgstr "时间戳"
+
+#: pages/templates/pages/admin/log.html:10
+msgid "Action"
+msgstr "操作"
+
+#: pages/templates/pages/admin/partial/approved_users.html:39
+msgid "Admin"
+msgstr "管理员"
+
+#: pages/templates/pages/admin/partial/approved_users.html:45
+#: pages/templates/pages/admin/partial/approved_users.html:48
+msgid "Activate"
+msgstr "激活"
+
+#: pages/templates/pages/admin/partial/approved_users.html:46
+#: pages/templates/pages/admin/partial/approved_users.html:49
+msgid "Deactivate"
+msgstr "停用"
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:18
+msgid "Warning"
+msgstr "警告"
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:18
+msgid " This action <b>CANNOT</b> be undone "
+msgstr " 此操作<b>不能</b>被撤销 "
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:19
+msgid ""
+"This will delete <b id=\"group_name\"></b> users, data, logs permanently."
+msgstr "这将会永久删除<b id=\"group_name\"></b>的用户，数据，和日志。"
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:21
+msgid "Note"
+msgstr "注意"
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:21
+msgid "Input group name to confirm deletion."
+msgstr "输入小组名以确认删除该小组。"
+
+#: pages/templates/pages/admin/partial/confirm_delete_group_modal.html:27
+msgid "I understand the consequences, delete the group."
+msgstr "我了解后果，删除小组。"
+
+#: pages/templates/pages/admin/partial/finalized_data.html:5
+msgid "Download All Data"
+msgstr "下载全部数据"
+
+#: pages/templates/pages/admin/partial/finalized_data.html:6
+#: pages/templates/pages/admin/setting_tasks.html:5
+#: pages/templates/pages/user/image_tasks.html:8
+#: pages/templates/pages/user/validating_tasks.html:8
+#: pages/templates/pages/user/voting_tasks.html:8
+msgid "Expand/Collapse All"
+msgstr "展开/折叠全部"
+
+#: pages/templates/pages/admin/partial/finalized_data.html:15
+#: pages/templates/pages/admin/setting_tasks.html:27
+#: pages/templates/pages/user/keywords_tasks.html:29
+#: pages/templates/pages/user/validating_tasks.html:18
+#: pages/templates/pages/user/voting_tasks.html:15
+msgid "Question"
+msgstr "问题"
+
+#: pages/templates/pages/admin/partial/finalized_data.html:16
+#: pages/templates/pages/user/keywords_tasks.html:30
+#: pages/templates/pages/user/validating_tasks.html:19
+#: pages/templates/pages/user/voting_tasks.html:16
+msgid "Answer"
+msgstr "答案"
+
+#: pages/templates/pages/admin/partial/individual_report.html:6
+#: pages/templates/pages/user/profile.html:14
+msgid "Name"
+msgstr "用户名"
+
+#: pages/templates/pages/admin/partial/individual_report.html:8
+msgid "# of Questions Answered"
+msgstr "回答过的问题总数"
+
+#: pages/templates/pages/admin/partial/individual_report.html:9
+msgid "Points"
+msgstr "积分"
+
+#: pages/templates/pages/admin/partial/individual_report.html:10
+msgid "Accuracy"
+msgstr "准确率"
+
+#: pages/templates/pages/admin/partial/pending_users.html:33
+#: pages/templates/pages/user/validating_tasks.html:60
+msgid "Approve"
+msgstr "通过"
+
+#: pages/templates/pages/admin/partial/pending_users.html:34
+msgid "Reject"
+msgstr "拒绝"
+
+#: pages/templates/pages/admin/partial/sidebar.html:18
+#: pages/templates/pages/admin/partial/sidebar.html:27
+msgid "User List"
+msgstr "用户清单"
+
+#: pages/templates/pages/admin/partial/sidebar.html:24
+msgid "Accounts"
+msgstr "账号"
+
+#: pages/templates/pages/admin/partial/sidebar.html:30 pages/views/admin.py:298
+msgid "Groups"
+msgstr "小组"
+
+#: pages/templates/pages/admin/partial/sidebar.html:40
+msgid "Dataset"
+msgstr "数据集"
+
+#: pages/templates/pages/admin/partial/sidebar.html:43
+msgid "Update Data"
+msgstr "更新数据"
+
+#: pages/templates/pages/admin/partial/sidebar.html:49
+msgid "Working Report"
+msgstr "工作报告"
+
+#: pages/templates/pages/admin/partial/sidebar.html:53 pages/views/admin.py:209
+msgid "Admin Log"
+msgstr "管理员日志"
+
+#: pages/templates/pages/admin/partial/sidebar.html:61
+msgid "Import Dataset"
+msgstr "导入数据集"
+
+#: pages/templates/pages/admin/partial/sidebar.html:67
+msgid "Assign Tasks"
+msgstr "分配任务"
+
+#: pages/templates/pages/admin/partial/sidebar.html:72
+msgid "Summarize"
+msgstr "统计"
+
+#: pages/templates/pages/admin/report.html:12
+msgid "Download Individual Report"
+msgstr "下载个人报告"
+
+#: pages/templates/pages/admin/report.html:18
+msgid "Individual"
+msgstr "个人"
+
+#: pages/templates/pages/admin/setting_tasks.html:16
+#: pages/templates/pages/admin/setting_tasks.html:19
+msgid "Search"
+msgstr "搜索"
+
+#: pages/templates/pages/admin/setting_tasks.html:57
+#: pages/templates/pages/partial/new_ans_modal.html:7
+msgid "New Answer"
+msgstr "新答案"
+
+#: pages/templates/pages/admin/setting_tasks.html:65
+msgid "Update"
+msgstr "更新"
+
+#: pages/templates/pages/base.html:71
+msgid "Your account is still pending for admin's approval."
+msgstr "您的账号仍在等待管理员认证。"
+
+#: pages/templates/pages/base.html:73
+msgid "Sorry, your account is rejected to be activated."
+msgstr "对不起，您的账号申请被拒绝。"
+
+#: pages/templates/pages/base.html:74
+msgid "Try again."
+msgstr "重试。"
+
+#: pages/templates/pages/partial/file_drop.html:8
+msgid "Upload a file"
+msgstr "上传一个文件"
+
+#: pages/templates/pages/partial/file_drop.html:17
+msgid "Browse"
+msgstr "浏览"
+
+#: pages/templates/pages/partial/file_drop.html:21
+msgid "Only accepts CSV files. Column index start from 0."
+msgstr "只接受CSV文件。列索引从0开始。"
+
+#: pages/templates/pages/partial/file_drop.html:25
+msgid "Input the index of question column."
+msgstr "输入问题列的索引。"
+
+#: pages/templates/pages/partial/file_drop.html:30
+msgid "Input the index of answer column."
+msgstr "输入答案列的索引。"
+
+#: pages/templates/pages/partial/file_drop.html:36
+msgid "Upload"
+msgstr "上传"
+
+#: pages/templates/pages/partial/header.html:3
+msgid "Data Cleansing"
+msgstr "数据清理"
+
+#: pages/templates/pages/partial/header.html:9
+msgid "Welcome"
+msgstr "欢迎"
+
+#: pages/templates/pages/partial/header.html:11
+msgid "Log Out"
+msgstr "登出"
+
+#: pages/templates/pages/partial/header.html:12
+msgid "Help"
+msgstr "帮助"
+
+#: pages/templates/pages/partial/page_footer.html:7
+#: pages/templates/pages/partial/page_footer.html:10
+msgid "first"
+msgstr "第1页"
+
+#: pages/templates/pages/partial/page_footer.html:8
+#: pages/templates/pages/partial/page_footer.html:11
+msgid "previous"
+msgstr "前1页"
+
+#: pages/templates/pages/partial/page_footer.html:16
+#, python-format
+msgid "Page %(page_obj.number)s of %(page_obj.paginator.num_pages)s"
+msgstr "%(page_obj.number)s - %(page_obj.paginator.num_pages)s"
+
+#: pages/templates/pages/partial/page_footer.html:21
+#: pages/templates/pages/partial/page_footer.html:24
+msgid "next"
+msgstr "下1页"
+
+#: pages/templates/pages/partial/page_footer.html:22
+#: pages/templates/pages/partial/page_footer.html:25
+msgid "last"
+msgstr "最后1页"
+
+#: pages/templates/pages/user/image_tasks.html:15
+#: pages/templates/pages/user/partial/sidebar.html:31
+msgid "Image"
+msgstr "图像"
+
+#: pages/templates/pages/user/image_tasks.html:16
+msgid "Labels"
+msgstr "标签"
+
+#: pages/templates/pages/user/image_tasks.html:54
+#: pages/templates/pages/user/validating_tasks.html:197
+#: pages/templates/pages/user/voting_tasks.html:87
+msgid "You have complete all validating tasks."
+msgstr "您已经完成全部的检测任务。"
+
+#: pages/templates/pages/user/keywords_tasks.html:53
+#: pages/templates/pages/user/validating_tasks.html:76
+msgid "Submit"
+msgstr "提交"
+
+#: pages/templates/pages/user/keywords_tasks.html:105
+msgid "You have complete all keyword selection tasks."
+msgstr "您已经完成全部的关键词摘取任务。"
+
+#: pages/templates/pages/user/partial/progress_bar.html:6
+#, python-format
+msgid "%(num_done)s of %(num_total)s"
+msgstr "%(num_done)s - %(num_total)s"
+
+#: pages/templates/pages/user/partial/progress_bar.html:10
+#, python-format
+msgid "%(num_doing)s of %(num_total)s"
+msgstr "%(num_doing)s - %(num_total)s"
+
+#: pages/templates/pages/user/partial/sidebar.html:18
+msgid "Tasks"
+msgstr "任务"
+
+#: pages/templates/pages/user/partial/sidebar.html:22
+msgid "Validating"
+msgstr "检测答案"
+
+#: pages/templates/pages/user/partial/sidebar.html:25
+msgid "Voting"
+msgstr "投票挑选正确答案"
+
+#: pages/templates/pages/user/partial/sidebar.html:28
+msgid "Keywords"
+msgstr "关键词摘取"
+
+#: pages/templates/pages/user/partial/sidebar.html:37 pages/views/user.py:25
+msgid "Profile"
+msgstr "个人信息"
+
+#: pages/templates/pages/user/profile.html:30
+msgid "Current Point"
+msgstr "当前积分"
+
+#: pages/templates/pages/user/profile.html:34
+msgid "Overall Accuracy"
+msgstr "准确度"
+
+#: pages/templates/pages/user/validating_tasks.html:24
+msgid "Status"
+msgstr "状态"
+
+#: pages/templates/pages/user/validating_tasks.html:27
+msgid "Approved"
+msgstr "已通过"
+
+#: pages/templates/pages/user/validating_tasks.html:28
+msgid "Disapproved"
+msgstr "已拒绝"
+
+#: pages/templates/pages/user/validating_tasks.html:66
+msgid "Change"
+msgstr "更改"
+
+#: pages/templates/pages/user/voting_tasks.html:45
+msgid "Vote"
+msgstr "投票"
+
+#: pages/views/admin.py:63
+msgid "Users"
+msgstr "用户"
+
+#: pages/views/admin.py:87 pages/views/admin.py:146
+msgid "Data Set"
+msgstr "数据集"
+
+#: pages/views/admin.py:190
+msgid "id"
+msgstr "id"
+
+#: pages/views/admin.py:190
+msgid "username"
+msgstr "用户名"
+
+#: pages/views/admin.py:190
+msgid "certificate"
+msgstr "证书"
+
+#: pages/views/admin.py:190
+msgid "point"
+msgstr "积分"
+
+#: pages/views/admin.py:190
+msgid "accuracy"
+msgstr "准确度"
+
+#: pages/views/admin.py:221
+msgid "No file is input."
+msgstr "没有文件输入"
+
+#: pages/views/admin.py:227
+msgid "No column index is input."
+msgstr "没有输入列索引。"
+
+#: pages/views/admin.py:232
+msgid "Input file is not a .csv file."
+msgstr "输入文件不是.csv文件。"
+
+#: pages/views/user.py:53
+msgid "Validating Tasks"
+msgstr "检测任务"
+
+#: pages/views/user.py:146
+msgid "Voting Tasks"
+msgstr "投票任务"
+
+#: pages/views/user.py:180
+msgid "Keyword Selection Tasks"
+msgstr "关键词摘取任务"
+
+#: pages/views/user.py:221
+msgid "Image Label Validation Tasks"
+msgstr "图像标签识别任务"

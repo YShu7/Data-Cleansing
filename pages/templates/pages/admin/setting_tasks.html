@@ -1,9 +1,11 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
-    <button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+    <button id="collapse_all" class="btn btn-outline-primary float-right">{% trans "Expand/Collapse All" %}</button>
 
     <div id="taskList">
+        <input id="door" type="hidden" value="1">
         <form class="form-inline my-2 my-lg-0">
             <datalist id="data">
                 {% for d in data %}
@@ -11,18 +13,18 @@
                 {% endfor %}
             </datalist>
             <div class="input-group mb-3" style="width: 40vw">
-                <input class="form-control border-primary" list="data" type="search" placeholder="Search"
+                <input class="form-control border-primary" list="data" type="search" placeholder="{% trans 'Search' %}"
                        aria-label="Search" name="search">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                    <button class="btn btn-primary" type="submit">{% trans "Search" %}</button>
                 </div>
             </div>
         </form>
         <table type="table" class="table table-hover">
             <thead class="thead-light">
             <tr>
-                <th scope="col" style="width: 20%">ID</th>
-                <th scope="col" style="width: 60%">Question</th>
+                <th scope="col" style="width: 20%">{% trans "ID" %}</th>
+                <th scope="col" style="width: 60%">{% trans "Question" %}</th>
                 <th scope="col" style="width: 20%"></th>
             </tr>
             </thead>
@@ -52,7 +54,7 @@
                                 {% endfor %}
                                 <label id="new_ans_{{ question.id }}" style="color: green"></label><br/>
                                 <a href="#" onclick="show_modal({{ question.id }})" class="new_ans_btn">
-                                    New Answer
+                                    {% trans "New Answer" %}
                                 </a>
                             </div>
 
@@ -60,7 +62,7 @@
                         <td>
                             <button id="vote_{{ question.id }}" type="submit"
                                     class="vote btn btn-outline-primary btn-sm btn-block">
-                                Update
+                                {% trans "Update" %}
                             </button>
                         </td>
                     </tr>
@@ -69,7 +71,7 @@
             </tbody>
         </table>
 
-        {% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+        {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
     </div>
     {% include 'pages/partial/new_ans_modal.html' with modal_id="new_ans_modal" btn_id="update_btn" %}
 
@@ -79,6 +81,7 @@
                 $('.module label.collapse').collapse('toggle');
             });
             $(".custom-radio .custom-control-input").on("click", function () {
+                $("#door").val(0);
                 var qns_id = $(this).parent().attr('value');
                 var ans_id = $(this).attr('value');
                 $("#vote_" + qns_id).val(ans_id);
@@ -89,6 +92,7 @@
                 label.css('color', 'green');
             });
             $("#update_btn").on('click', function (e) {
+                $("#door").val(0);
                 var ans = $("#new_ans").val();
                 var qns_id = $(this).val();
                 $("#new_ans_" + qns_id).text(ans);
@@ -99,6 +103,7 @@
                 x.setAttribute('style', "display: none");
             });
             $(".vote").on('click', function () {
+                $("#door").val(1);
                 var choice = $(this).attr('value');
                 $("#choice").val(choice);
             });
@@ -109,7 +114,9 @@
         }
 
         window.onbeforeunload = function (event) {
-            return confirm("Confirm refresh");
+            if ($("#door").val() == 0) {
+                return confirm("Confirm refresh");
+            }
         };
     </script>
 {% endblock %}

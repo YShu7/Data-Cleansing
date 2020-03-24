@@ -1,7 +1,8 @@
 {% extends "authentication/base.html" %}
+{% load i18n %}
 
 {% block width %}30{% endblock %}
-{% block title %}Forget Password{% endblock %}
+{% block title %}{% trans "Forget Password" %}{% endblock %}
 
 {% block content %}
     <form action="{% url 'password_reset' %}" method="POST" novalidate autocomplete="off">

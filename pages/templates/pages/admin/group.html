@@ -1,24 +1,33 @@
 {% extends "pages/admin/base.html" %}
+{% load i18n static %}
 
 {% block content %}
-    <button id="create_btn" class="btn btn-primary">Create New Group</button>
+    <button id="create_btn" class="btn btn-primary">{% trans "Create New Group" %}</button>
     <table type="table" class="table table-hover">
         <thead class="thead-light">
         <tr>
-            <th scope="col">Group</th>
-            <th scope="col"># of Accounts</th>
-            <th scope="col"># of Data</th>
+            <th scope="col">{% trans "Group" %}</th>
+            <th scope="col">{% trans "# of Accounts" %}</th>
+            <th scope="col">{% trans "# of Data" %}</th>
+            <th scope="col">{% trans "Created At" %}</th>
+            <th scope="col">{% trans "Updated At" %}</th>
             <th scope="col" width="30%"></th>
         </tr>
         </thead>
         {% for group in groups %}
             <tr>
-                <td>{{ group.name }}</td>
-                <td>{{ group.user_num }}</td>
-                <td>{{ group.data_num }}</td>
+                <td><a href="/group/{{ group.name }}">{{ group.name }}</a></td>
+                <td>
+                    <a href="/group/{{ group.name }}#nav-user">
+                        {{ group.user_num }} {% trans "users" %} ({{ group.admin_num }} {% trans "admins" %})
+                    </a>
+                </td>
+                <td><a href="/group/{{ group.name }}#nav-data">{{ group.data_num }}</a></td>
+                <td>{{ group.created_at }}</td>
+                <td>{{ group.updated_at }}</td>
                 <td>
                     <button class="btn btn-danger delete_btn" name="delete" type="submit" value="{{ group.name }}">
-                        Delete Group
+                        {% trans "Delete Group" %}
                     </button>
                 </td>
             </tr>

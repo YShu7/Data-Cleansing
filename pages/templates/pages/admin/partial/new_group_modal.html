@@ -1,3 +1,4 @@
+{% load i18n static %}
 <div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
      tabindex="-1">
     <div class="modal-dialog" role="document">
@@ -14,7 +15,7 @@
                     {{ form_obj.name }}
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" id="confirm_create_btn">Confirm</button>
+                    <button class="btn btn-primary" id="confirm_create_btn">{% trans "Confirm" %}</button>
                 </div>
             </form>
         </div>

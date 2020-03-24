@@ -4,6 +4,7 @@ import io
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
+from django.utils import translation
 
 
 from assign.models import Assignment
@@ -63,6 +64,7 @@ class UserViewTestCase(TestCase):
                 ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))
 
     def setUp(self) -> None:
+        translation.activate('en')
         self.setUp_client()
         self.setUp_validating()
         self.setUp_voting()
@@ -70,16 +72,16 @@ class UserViewTestCase(TestCase):
         self.setUp_image()
 
     def test_get(self):
-        response = self.client.get('/tasks/validate')
+        response = self.client.get(reverse('tasks/validate'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/tasks/vote')
+        response = self.client.get(reverse('tasks/vote'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/tasks/keywords')
+        response = self.client.get(reverse('tasks/keywords'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/tasks/image')
+        response = self.client.get(reverse('tasks/image'))
         self.assertEqual(response.status_code, 200)
 
     def test_post_validate_add_data(self):
@@ -98,7 +100,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path='/tasks/validate',
+        response = self.client.post(path= reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -129,7 +131,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path='/tasks/validate',
+        response = self.client.post(path= reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -167,7 +169,7 @@ class UserViewTestCase(TestCase):
             data["approve_value_{}".format(val.id)] = 'false'
             data["new_ans_{}".format(val.id)] = 'New Answer {}'.format(val.id)
         data['validate_ids'] = val_ids
-        response = self.client.post(path='/tasks/validate',
+        response = self.client.post(path= reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -202,7 +204,7 @@ class UserViewTestCase(TestCase):
         val.save()
         data_id = val.id
 
-        response = self.client.post(path='/tasks/validate',
+        response = self.client.post(path= reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -225,7 +227,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(choice.num_votes, 0)
         self.assertFalse(assignment.done)
 
-        response = self.client.post(path='/{}/vote'.format(vote.id), data={"choice": [choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Choice.objects.get(pk=choice.id).num_votes, 1)
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
@@ -237,7 +239,7 @@ class UserViewTestCase(TestCase):
         choice.save()
         self.assertEqual(choice.num_votes, 4)
 
-        response = self.client.post(path='/{}/vote'.format(vote.id), data={"choice": [choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertIsNone(VotingData.objects.filter(pk=vote.pk).first())
@@ -252,7 +254,7 @@ class UserViewTestCase(TestCase):
         second_choice.num_votes = 2
         second_choice.save()
 
-        response = self.client.post(path='/{}/vote'.format(vote.id), data={"choice": [first_choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [first_choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertEqual(FinalizedData.objects.get(pk=vote.pk).answer_text, first_choice.answer)
@@ -268,7 +270,7 @@ class UserViewTestCase(TestCase):
         second_choice.num_votes = 2
         second_choice.save()
 
-        response = self.client.post(path='/{}/vote'.format(vote.id),
+        response = self.client.post(path=reverse('vote', args=(vote.id,)),
                                     data={"choice": [vote.choice_set.all()[2].id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
@@ -285,7 +287,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(keywords.qns_keywords, "")
         self.assertEqual(keywords.ans_keywords, "")
 
-        response = self.client.post(path='/{}/keywords'.format(keywords.id),
+        response = self.client.post(path=reverse('keywords', args=(keywords.id,)),
                                     data={
                                         "qns_keywords": 'This,a,',
                                         "ans_keywords": 'This,answer,.,',
@@ -296,7 +298,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(keywords.ans_keywords, 'This,answer,.,')
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).is_done)
 
-        response = self.client.post(path='/{}/keywords'.format(keywords.id),
+        response = self.client.post(path=reverse('keywords', args=(keywords.id,)),
                                     data={
                                         "qns_keywords": 'question.,',
                                         "ans_keywords": 'is,',
@@ -314,7 +316,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(label.num_votes, 0)
         self.assertFalse(assignment.done)
 
-        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ImageLabel.objects.get(pk=label.id).num_votes, 1)
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
@@ -325,8 +327,7 @@ class UserViewTestCase(TestCase):
         label.num_votes = 4
         label.save()
         self.assertEqual(label.num_votes, 4)
-
-        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
         self.assertEqual(FinalizedImageData.objects.get(pk=img.pk).label, label.label)
@@ -342,7 +343,7 @@ class UserViewTestCase(TestCase):
         second_label.num_votes = 2
         second_label.save()
 
-        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [first_abel.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [first_abel.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
         self.assertEqual(FinalizedImageData.objects.get(pk=img.pk).label, first_abel.label)
@@ -359,7 +360,7 @@ class UserViewTestCase(TestCase):
         second_label.save()
 
         label = img.imagelabel_set.all()[2]
-        response = self.client.post(path='/{}/image'.format(img.id), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
         self.assertIn(FinalizedImageData.objects.get(pk=img.pk).label, [first_abel.label, second_label.label])
@@ -396,6 +397,7 @@ class AdminViewTestCase(TestCase):
                 self.users.append(user)
 
     def setUp(self) -> None:
+        translation.activate('en')
         self.setUp_client()
 
     def test_admin_get(self):
@@ -632,6 +634,7 @@ class UtilsTestCase(TestCase):
             self.finalized_data.append(data)
 
     def setUp(self):
+        translation.activate('en')
         self.factory = RequestFactory()
         self.setUp_auth()
         self.setUp_vote()
@@ -713,11 +716,15 @@ class UtilsTestCase(TestCase):
         expected_groups_info = [
             {
                 "name": self.group.name,
+                "created_at": self.group.created_at,
+                "updated_at": self.group.updated_at,
                 "user": self.num_kkh,
                 "data": self.num_vote_kkh,
             },
             {
                 "name": self.other_group.name,
+                "created_at": self.other_group.created_at,
+                "updated_at": self.other_group.updated_at,
                 "user": self.num_other,
                 "data": self.num_vote_other,
             }

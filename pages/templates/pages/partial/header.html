@@ -1,13 +1,14 @@
+{% load i18n static %}
 <span class="navbar-brand">
-    Data Cleansing
+    {% trans "Data Cleansing" %}
 </span>
 {% if user_name == "" %}
-    <a href='/authentication/login'>Log In</a>
+    <a href='/authentication/login'>{% trans "Log In" %}</a>
 {% else %}
     <div>
-        <div class="navbar-text">Welcome, {{ user_name }} &nbsp;</div>
+        <div class="navbar-text">{% trans "Welcome" %}, {{ user_name }} &nbsp;</div>
 
-        <a href='/authentication/logout' class="btn btn-outline-danger btn-sm">Log Out</a>
-        <a href='/help' class="btn btn-outline-secondary btn-sm">Help</a>
+        <a href='/authentication/logout' class="btn btn-outline-danger btn-sm">{% trans "Log Out" %}</a>
+        <a href='/help' class="btn btn-outline-secondary btn-sm">{% trans "Help" %}</a>
     </div>
 {% endif %}

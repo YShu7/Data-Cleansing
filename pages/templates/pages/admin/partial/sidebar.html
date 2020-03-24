@@ -1,62 +1,116 @@
+{% load i18n static %}
 {% load staticfiles %}
 <script src="{% static 'jquery-3.4.1.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 
-<ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" id="/modify_users" href="/modify_users">User List</a>
-    </li>
+<style>
+    .section-header {
+        border-color: grey;
+        border-style: solid;
+        border-width: 1px;
+    }
+</style>
 
-    {% if request.user.is_superuser %}
-        <li class="nav-item">
-            <a class="nav-link" id="/group" href="/group">Groups</a>
+<aside id="basicSidebar" role="navigation">
+    <ul class="navbar-nav">
+        {% if request.user.is_admin %}
+            <li class="nav-item">
+                <a class="nav-link" id="/modify_users" href="/modify_users">{% trans "User List" %}</a>
+            </li>
+        {% endif %}
+
+        {% if request.user.is_superuser %}
+            <li class="nav-item" id="account-toggle">
+                <a data-toggle="collapse" data-target="#accounts" aria-controls="accounts" class="nav-link dropdown-toggle section-header">{% trans "Accounts" %}</a>
+                <ul class="collapse navbar-nav p-2" id="accounts" data-parent="#account-toggle">
+                    <li class="nav-item">
+                        <a class="nav-link" id="/modify_users" href="/modify_users">{% trans "User List" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="/group" href="/group">{% trans "Groups" %}</a>
+                    </li>
+                </ul>
+            </li>
+        {% endif %}
+
+        <li class="nav-item" id="data-toggle">
+            <a data-toggle="collapse" data-target="#data" aria-controls="data" class="nav-link dropdown-toggle section-header">{% trans "Data" %}</a>
+            <ul class="collapse navbar-nav p-2" id="data" data-parent="#data-toggle">
+                <li class="nav-item">
+                    <a class="nav-link" id="/dataset" href="/dataset">{% trans "Dataset" %}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="/update" href="/update">{% trans "Update Data" %}</a>
+                </li>
+            </ul>
         </li>
-    {% endif %}
 
-    <li class="nav-item">
-        <a class="nav-link" id="/dataset" href="/dataset">Dataset</a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" id="/update" href="/update">Update Data</a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" id="/report" href="/report">Working Report</a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" id="/log" href="/log">Admin Log</a>
-    </li>
-
-    {% if not request.user.is_superuser %}
-        <br/>
-        <li class="nav-item">
-            <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal"
-                    data-target="#file_modal" class="btn btn-outline-primary btn-sm">
-                Import Dataset
-            </button>
+        <li class="nav-item section-header">
+            <a class="nav-link" id="/report" href="/report">{% trans "Working Report" %}</a>
         </li>
 
-        <br/>
-        <li class="nav-item">
-            <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">Assign Tasks</a>
+        <li class="nav-item section-header">
+            <a class="nav-link" id="/log" href="/log">{% trans "Admin Log" %}</a>
         </li>
 
-        <br/>
-        <li class="nav-item">
-            <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">Summarize</a>
-        </li>
-    {% endif %}
-</ul>
+        {% if not request.user.is_superuser %}
+            <br/>
+            <li class="nav-item">
+                <button onclick="show_file_modal()" id="/import_dataset" type="button" data-toggle="modal"
+                        data-target="#file_modal" class="btn btn-outline-primary btn-sm">
+                    {% trans "Import Dataset" %}
+                </button>
+            </li>
+
+            <br/>
+            <li class="nav-item">
+                <a class="btn btn-primary btn-sm" id="/assign_tasks" href="/assign_tasks">{% trans "Assign Tasks" %}</a>
+            </li>
+
+            <br/>
+            <li class="nav-item">
+                <a class="btn btn-primary btn-sm" id="/summarize" href="/summarize">{% trans "Summarize" %}</a>
+            </li>
+        {% endif %}
+    </ul>
+</aside>
 
 {% include "pages/partial/file_drop.html" with modal_id="file_modal" btn_id="upload_btn" %}
 
 <script type="text/javascript">
-    var ele = document.getElementById("{{ request.path }}");
-    ele.classList.add("active");
 
-    function show_file_modal() {
-        $("#file_modal").modal();
-    }
+
+    $(document).ready(function () {
+        var ele = document.getElementById("{{ request.path|remove_lang }}");
+        ele.classList.add("active");
+
+        function show_file_modal() {
+            $("#file_modal").modal();
+        }
+
+        var panels = localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels); //get all panels
+        for (var i in panels) {
+            if ($("#" + panels[i]).hasClass('collapse'))
+            {
+                $("#" + panels[i]).collapse('show');
+            }
+        }
+
+        $("ul").on('shown.bs.collapse', function () {
+            var active = $(this).attr('id');
+            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
+            if ($.inArray(active, panels)==-1) //check that the element is not in the array
+                panels.push(active);
+            localStorage.panels=JSON.stringify(panels);
+        }).on('hidden.bs.collapse', function () {
+            var active = $(this).attr('id');
+            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
+            var elementIndex=$.inArray(active,panels);
+            if (elementIndex!==-1) //check the array
+            {
+                panels.splice(elementIndex,1); //remove item from array
+            }
+            localStorage.panels=JSON.stringify(panels); //save array on localStorage
+        });
+    });
 </script>

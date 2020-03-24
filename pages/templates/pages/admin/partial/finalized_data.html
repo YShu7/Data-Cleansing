@@ -1,18 +1,19 @@
+{% load i18n static %}
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'custom.css' %}" type="text/css"/>
 
-<a id="download_btn" href="/download_dataset/{{ group_name }}" class="btn btn-primary">Download All Data</a>
-<button id="collapse_all" class="btn btn-outline-primary float-right">Expand/Collapse All</button>
+<a id="download_btn" href="/download_dataset/{{ group_name }}" class="btn btn-primary">{% trans "Download All Data" %}</a>
+<button id="collapse_all" class="btn btn-outline-primary float-right">{% trans "Expand/Collapse All" %}</button>
 
 <table type="table" class="table table-hover">
     <thead class="thead-light">
     <tr>
-        <th scope="col" width="5%">ID</th>
+        <th scope="col" width="5%">{% trans "ID" %}</th>
         {% if request.user.is_superuser %}
-            <th scope="col" width="5%">Group</th>
+            <th scope="col" width="5%">{% trans "Group" %}</th>
         {% endif %}
-        <th scope="col" width="40%">Question</th>
-        <th scope="col" width="50%">Answer</th>
+        <th scope="col" width="40%">{% trans "Question" %}</th>
+        <th scope="col" width="50%">{% trans "Answer" %}</th>
     </tr>
     </thead>
     <tbody>
@@ -33,7 +34,7 @@
     </tbody>
 </table>
 
-{% include "pages/partial/page_footer.html" with page_obj=page_obj %}
+{% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
 
 <script>
     $(document).ready(function () {
