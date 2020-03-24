@@ -3,6 +3,7 @@
 /env
 /venv
 /node_modules
+/.idea
 
 *.log
 
