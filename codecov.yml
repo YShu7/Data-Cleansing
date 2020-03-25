@@ -22,3 +22,6 @@ comment:
 ignore:
   - "set_up.py"
   - "datacleansing"
+
+fixes:
+  - "io/github/Data-Cleansing::src/main/io.github.Data-Cleansing"
