@@ -5,10 +5,18 @@ from pages.models.models import Data
 
 
 def assign(all_users, AssignModel, all_tasks, TaskModel=Data, PREDEFINED_MAX=sys.maxsize, NUM_USER_PER_TASK=3):
-    num_users = all_users.count()
+    try:
+        num_users = all_users.count()
+    except TypeError:
+        num_users = len(all_users)
+
     if num_users == 0:
         return
-    num_tasks = all_tasks.count()
+
+    try:
+        num_tasks = all_tasks.count()
+    except TypeError:
+        num_tasks = len(all_tasks)
     num_tasks_per_user = min(PREDEFINED_MAX, floor(num_tasks * NUM_USER_PER_TASK / num_users))
 
     tasks = [i for i in all_tasks]

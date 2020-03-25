@@ -169,7 +169,7 @@ class UserViewTestCase(TestCase):
             data["approve_value_{}".format(val.id)] = 'false'
             data["new_ans_{}".format(val.id)] = 'New Answer {}'.format(val.id)
         data['validate_ids'] = val_ids
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
