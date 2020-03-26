@@ -12,3 +12,6 @@ class Assignment(models.Model):
     def is_done(self):
         self.done = True
         self.save()
+
+    def __str__(self):
+        return "{} {} {}".format(self.tasker.pk, self.task.title, self.done)

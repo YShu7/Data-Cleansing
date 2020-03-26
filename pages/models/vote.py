@@ -57,12 +57,6 @@ class Choice(models.Model):
     def __str__(self):
         return "ID: {}, A: {}, N: {}".format(self.data, self.answer, self.num_votes)
 
-    @classmethod
-    def create(cls, data, ans, num_votes):
-        data = cls(data=data, answer=ans, num_votes=num_votes)
-        data.save()
-        return data
-
     def vote(self):
         self.num_votes += 1
         self.save()
