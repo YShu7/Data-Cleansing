@@ -1,5 +1,7 @@
 - [To validate data](#validate)  
 - [To vote data](#vote)  
+- [To select keywords for data](#keywords)
+- [To select the correct label for image](#image)
 - [To change password](#change_pwd)  
 
 <hr/>
@@ -34,6 +36,22 @@
 > The selected answer should be highlighted with green.  
 1. Click `Vote` to submit the response.  
 > User should be able to see progress bar updated.
+
+### To select keywords for data <a name="keywords"></a>
+1. Navigate to page `Tasks/Keywords`.  
+> User should be able to see a pair of question and answer.  
+1. Drag the cursor to select/deselect keywords for both question and answer.  
+> User should be able to see selected parts highlighted in blue.  
+> If there are other parts that are the same as the selected part, they should all be highlighted.  
+1. Click `Submit` to submit the response.  
+> User should be able to see progress bar updated.  
+
+### To select the correct label for image <a name="image"></a>
+1. Navigate to page `Tasks/Image`.  
+> User should be able to see a picture and its assigned labels.
+1. Choose the label that you think best fit the image.
+> The result should be directly submitted.  
+> User should be able to see a success message and progress bar updated.
 
 ### To change password <a name="change_pwd"></a>
 1. Navigate to page `Profile`.  
