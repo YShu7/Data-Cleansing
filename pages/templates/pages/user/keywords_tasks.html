@@ -67,7 +67,18 @@
                     var selectedText = getSelectionText();
                     if (selectedText == "") return;
                     var selectedTextRegExp = new RegExp(selectedText,"g");
-                    var text = $(this).text().replace(selectedTextRegExp, "<mark class='highlight'>" + selectedText + "</mark>");
+
+                    var exist = false;
+                    $(this).find("mark").each(function () {
+                        if ($(this).html() == selectedText) {
+                            exist = exist || true;
+                        }
+                    });
+                    if (exist) {
+                        var text = $(this).html().replace(new RegExp('<mark class="highlight">' + selectedText + "</mark>","g"), selectedText);
+                    } else {
+                        var text = $(this).html().replace(selectedTextRegExp, "<mark class='highlight'>" + selectedText + "</mark>");
+                    }
                     $(this).html(text);
 
                     updateKeyword($(this), selectedText);
@@ -91,11 +102,19 @@
                     var input_ele = ele.siblings('.keyword');
                     var old_val = input_ele.val();
 
-                    if (ele.hasClass("highlight")) {
+                    var marker = ele.find("mark");
+                    var exist = false;
+                    marker.each(function () {
+                        if ($(this).text() == keyword) {
+                            exist = exist || true;
+                        }
+                    });
+                    if (marker.hasClass("highlight") && exist) {
                         input_ele.val(old_val + keyword + ",");
                     } else {
                         input_ele.val(old_val.replace(keyword + ",", ""));
                     }
+                    alert(input_ele.val());
                 }
             });
         </script>
