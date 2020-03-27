@@ -6,10 +6,9 @@ from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
 from django.utils import translation
 
-
 from assign.models import Assignment
-from authentication.models import CustomGroup, CustomUser
 from authentication.forms import CreateGroupForm
+from authentication.models import CustomGroup, CustomUser
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
 from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
@@ -100,7 +99,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -131,7 +130,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -204,7 +203,7 @@ class UserViewTestCase(TestCase):
         val.save()
         data_id = val.id
 
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -254,7 +253,8 @@ class UserViewTestCase(TestCase):
         second_choice.num_votes = 2
         second_choice.save()
 
-        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [first_choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [first_choice.id]},
+                                    follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertEqual(FinalizedData.objects.get(pk=vote.pk).answer_text, first_choice.answer)
@@ -510,7 +510,8 @@ class AdminViewTestCase(TestCase):
         expected_data = []
         for i in range(data_len):
             str += "Q{}, A{}\r\n".format(i, i)
-            expected_data.append(ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
+            expected_data.append(
+                ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
         csv_file = SimpleUploadedFile("file.csv", str.encode('UTF-8'), content_type="text/csv")
         self.admin_client.post(path=reverse("import_dataset"), data={'file': csv_file, 'qns_col': 0, 'ans_col': 1})
         data = [data for data in ValidatingData.objects.all()]
@@ -552,7 +553,7 @@ class AdminViewTestCase(TestCase):
 
     def test_delete_group(self):
         response = self.super_client.post(path=reverse('delete_group'),
-                                          data={'input': self.group.name,'confirm_input': self.group.name},
+                                          data={'input': self.group.name, 'confirm_input': self.group.name},
                                           follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(CustomGroup.objects.filter(name=self.group.name).first())

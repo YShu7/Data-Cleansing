@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from .views import assign
@@ -22,7 +21,6 @@ class UserViewTestCase(TestCase):
         for i in range(self.num_data):
             data = ValidatingData.create("title{}".format(i), group, "ans")
             self.all_tasks.append(data)
-        return
 
     def test_assign(self):
         assign(self.all_users, Assignment, self.all_tasks)
