@@ -114,6 +114,10 @@ def vote(request, vote_id=None):
             choice = request.POST['choice']
             data = VotingData.objects.get(pk=vote_id)
             selected_choice = Choice.objects.get(data_id=vote_id, pk=choice)
+        except ValueError:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+            return HttpResponseRedirect(reverse('tasks/vote'))
         except VotingData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=_(MSG_FAIL_DATA_NONEXIST), extra_tags="danger")

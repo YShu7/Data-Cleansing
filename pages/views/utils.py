@@ -30,7 +30,7 @@ def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
         try:
             d_obj = model.objects.get(pk=d)
             if condition(d_obj):
-                data.append(d_obj)
+                pass
             else:
                 done_num -= 1
         except model.DoesNotExist:

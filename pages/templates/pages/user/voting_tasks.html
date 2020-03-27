@@ -30,7 +30,7 @@
                                 {% for ans in question.answers %}
                                     <div class="custom-control custom-radio module" value="{{ question.id }}">
                                         <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
-                                               name="ansRadio" value="{{ ans.answer }}">
+                                               name="ansRadio" value="{{ ans.id }}">
                                         <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
                                                for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
                                         <a role="button" class="collapsed" data-toggle="collapse"
