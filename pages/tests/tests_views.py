@@ -583,6 +583,7 @@ class UtilsTestCase(TestCase):
 
     def setUp_vote(self):
         self.active_voting_data = []
+        self.assigned_not_done_voting_data = []
         self.unassigned_voting_data = []
         # active voting data
         for q in range(20):
@@ -612,6 +613,7 @@ class UtilsTestCase(TestCase):
             if i > 10:
                 if i % 2 == 0:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=False)
+                    self.assigned_not_done_voting_data.append(data)
                     self.num_todo += 1
                 else:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=True)
@@ -642,7 +644,7 @@ class UtilsTestCase(TestCase):
 
     def test_get_assigned_tasks_context(self):
         data, task_num = get_assigned_tasks_context(self.user, VotingData, condition=(lambda x: x.is_active))
-        expected_data = self.active_voting_data[11:]
+        expected_data = self.assigned_not_done_voting_data
         expected_task_num = {
             'todo': self.num_todo,
             'done': self.num_done,
