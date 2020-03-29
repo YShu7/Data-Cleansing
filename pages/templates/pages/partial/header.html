@@ -1,14 +1,35 @@
 {% load i18n static %}
+
 <span class="navbar-brand">
-    {% trans "Data Cleansing" %}
+    <form action="{% url 'set_language' %}" method="post" class="form-inline">{% csrf_token %}
+        {% trans "Data Cleansing" %} &nbsp;
+        <input name="next" type="hidden" value="{{ request.path|remove_lang }}">
+        <select name="language" class="form-control btn-outline-primary">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                    {{ language.name_local }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 </span>
 {% if user_name == "" %}
     <a href='/authentication/login'>{% trans "Log In" %}</a>
 {% else %}
     <div>
-        <div class="navbar-text">{% trans "Welcome" %}, {{ user_name }} &nbsp;</div>
-
+        <div class="navbar-text">{% trans "Welcome" %}, {{ user_name }} &nbsp</div>
         <a href='/authentication/logout' class="btn btn-outline-danger btn-sm">{% trans "Log Out" %}</a>
         <a href='/help' class="btn btn-outline-secondary btn-sm">{% trans "Help" %}</a>
     </div>
 {% endif %}
+
+<script>
+    $(document).ready(function () {
+        $('select').change(function () {
+            $(this).closest('form').submit();
+        });
+    });
+</script>
