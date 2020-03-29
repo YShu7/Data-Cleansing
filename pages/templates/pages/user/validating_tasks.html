@@ -78,7 +78,6 @@
             </form>
         </div>
         {% include 'pages/partial/new_ans_modal.html' with modal_id="dialog" btn_id="update_btn" %}
-        {{ request.session.data }}
         <script>
             $(document).ready(function () {
                 $("#collapse_all").on("click", function () {

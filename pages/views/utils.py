@@ -209,8 +209,7 @@ def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
 
 
 def compute_progress(request):
-    doing = 0
-    if 'session' in request and 'data' in request.session:
-        doing = len(get_ids(request.session['data']['validate_ids']))
-
-    return doing
+    try:
+        return len(get_ids(request.session['data']['validate_ids']))
+    except Exception:
+        return 0

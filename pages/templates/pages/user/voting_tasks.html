@@ -74,7 +74,7 @@
                     $("#choice").val(choice);
                     $("#door").val(1);
                 });
-                window.onbeforeunload = function (event) {
+                window.onbeforeunload = function () {
                     if ($("#door").val() == 0) {
                         return confirm("Confirm refresh");
                     }

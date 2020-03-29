@@ -582,8 +582,8 @@ msgstr "前1页"
 
 #: pages/templates/pages/partial/page_footer.html:16
 #, python-format
-msgid "Page %(page_obj.number)s of %(page_obj.paginator.num_pages)s"
-msgstr "%(page_obj.number)s - %(page_obj.paginator.num_pages)s"
+msgid "Page %(num)s of %(total_num)s"
+msgstr "%(num)s - %(total_num)s"
 
 #: pages/templates/pages/partial/page_footer.html:21
 #: pages/templates/pages/partial/page_footer.html:24

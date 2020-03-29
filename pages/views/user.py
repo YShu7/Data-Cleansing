@@ -184,7 +184,7 @@ def keywords(request, data_id=None):
             'title': _('Keyword Selection Tasks'),
             'num_done': task_num["done"],
             'num_total': task_num["total"],
-            'num_doing': doing,
+            'num_doing': 0,
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(reverse('tasks/keywords'))
@@ -225,7 +225,7 @@ def image(request, img_id=None):
             'title': _('Image Label Validation Tasks'),
             'num_done': task_num["done"],
             'num_total': task_num["total"],
-            'num_doing': doing,
+            'num_doing': 0,
         }
         return HttpResponse(template.render(request=request, context=context))
 

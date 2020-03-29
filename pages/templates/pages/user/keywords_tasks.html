@@ -63,6 +63,9 @@
 
         <script type="application/javascript">
             $(document).ready(function () {
+                $(".submit").on('click', function () {
+                    $("#door").val(1);
+                });
                 $(".text").on('mouseup', function () {
                     var selectedText = getSelectionText();
 
