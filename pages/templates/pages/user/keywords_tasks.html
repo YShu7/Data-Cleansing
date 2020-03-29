@@ -25,10 +25,10 @@
             <table type="table" class="table">
                 <thead class="thead-light">
                 <tr>
-                    <th scope="col" width="5%">{% trans "ID" %}</th>
-                    <th scope="col" width="30%">{% trans "Question" %}</th>
-                    <th scope="col" width="40%">{% trans "Answer" %}</th>
-                    <th scope="col" width="25%"></th>
+                    <th scope="col" style="width: 5%">{% trans "ID" %}</th>
+                    <th scope="col" style="width: 30%">{% trans "Question" %}</th>
+                    <th scope="col" style="width: 40%">{% trans "Answer" %}</th>
+                    <th scope="col" style="width: 25%"></th>
                 </tr>
                 </thead>
                 <tbody id="voting_tasks">
@@ -61,41 +61,73 @@
             {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
         </div>
 
-        <script>
+        <script type="application/javascript">
             $(document).ready(function () {
                 $(".text").on('mouseup', function () {
                     var selectedText = getSelectionText();
-                    if (selectedText == "") return;
-                    var selectedTextRegExp = new RegExp(selectedText,"g");
+
+                    if (selectedText === "") return;
+                    var regText = selectedText;
+
+                    var myReg = /[?^.[]$()*]/g;
+                    var substring;
+                    var substringSet = new Set();
+                    while ((substring = myReg.exec(selectedText)) != null) {
+                        substringSet.add(substring);
+                    }
+                    substringSet.forEach(function(s) {
+                        regText = regText.replace(s, '\\' + s);
+                    });
 
                     var exist = false;
                     $(this).find("mark").each(function () {
-                        if ($(this).html() == selectedText) {
+                        if ($(this).html().indexOf(selectedText) !== -1) {
                             exist = exist || true;
                         }
                     });
+                    var text;
                     if (exist) {
-                        var text = $(this).html().replace(new RegExp('<mark class="highlight">' + selectedText + "</mark>","g"), selectedText);
+                        text = $(this).html().replace(
+                            new RegExp('<mark class="highlight">' + regText + "</mark>","g"), selectedText);
                     } else {
-                        var text = $(this).html().replace(selectedTextRegExp, "<mark class='highlight'>" + selectedText + "</mark>");
+                        text = $(this).html().replace(
+                            new RegExp(regText,"g"), "<mark class='highlight'>" + selectedText + "</mark>");
                     }
                     $(this).html(text);
 
                     updateKeyword($(this), selectedText);
                 });
-                window.onbeforeunload = function (event) {
+                window.onbeforeunload = function () {
                     if ($("#door").val() == 0) {
                         return confirm("Confirm refresh");
                     }
                 };
                 function getSelectionText() {
-                    var text = "";
-                    if (window.getSelection) {
-                        text = window.getSelection().toString();
-                    } else if (document.selection && document.selection.type != "Control") {
-                        text = document.selection.createRange().text;
+                    var el= document.createElement('span'), sel= window.getSelection().getRangeAt(0), prev= '', next= '';
+                    el.className= 'selected';
+                    sel.surroundContents(el);
+                    if(!sel.toString().match(/^\W/)) {
+                        prev= el.previousSibling.nodeValue;
+                        if(prev.match(/\W$/)) {
+                            prev= '';
+                        } else {
+                            prev= prev.split(/\W/).pop();
+                        }
                     }
-                    return text;
+                    if(!sel.toString().match(/\W$/)) {
+                        next= el.nextSibling.nodeValue;
+                        if(next.match(/^\W/)) {
+                            next= '';
+                        } else {
+                            next= next.split(/\W/).shift();
+                        }
+                    }
+                    var res = prev+sel.toString()+next;
+                    var selectedEle = $(".selected");
+                    selectedEle.contents().unwrap();
+                    selectedEle.remove();
+                    document.body.normalize();
+                    return res;
                 }
                 function updateKeyword(ele, keyword) {
                     $("#door").val(0);
