@@ -251,7 +251,7 @@ def assign_tasks(request):
     grp = getattr(request.user, 'group')
     users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=grp)
     validating_data = ValidatingData.objects.filter(group=grp)
-    voting_data = VotingData.objects.filter(is_active=True, group=grp)
+    voting_data = VotingData.objects.filter(is_active=True, group=grp, num_votes__lte=15)
 
     Assignment.objects.all().delete()
     assign(users, Assignment, validating_data, Data)

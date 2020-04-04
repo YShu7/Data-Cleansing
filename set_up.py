@@ -232,6 +232,6 @@ for url in urls:
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
 assign(users, Assignment, ValidatingData.objects.all(), Data, NUM_USER_PER_TASK=3)
-assign(users, Assignment, VotingData.objects.filter(is_active=True), Data, NUM_USER_PER_TASK=5)
+assign(users, Assignment, VotingData.objects.filter(is_active=True, num_votes__lte=15), Data, NUM_USER_PER_TASK=5)
 assign(users, Assignment, FinalizedData.objects.all(), Data, NUM_USER_PER_TASK=3)
 assign(users, Assignment, ImageData.objects.all(), Data, NUM_USER_PER_TASK=3)
