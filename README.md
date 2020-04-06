@@ -55,6 +55,14 @@ It provides function including:
 
 6. To start Django server: run `python manage.py runserver`
 
+7. To log into the website:
+
+   Superuser account: `superuser@gmail.com` password: `superuser`
+
+   Admin account: `admin@gmail.com` password: `admin`
+   
+   User account: `alice@gmail.com` password: `alice`
+
 # Roles
 
 ## Superuser
