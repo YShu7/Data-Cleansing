@@ -81,22 +81,14 @@ def log(user, task, action, response):
                                      response=response, timestamp=timezone.now())
 
 
-def get_unassigned_voting_data(group=None, search_term=None):
+def get_controversial_voting_data(group=None, search_term=None):
     # get all VotingData ids that are not allocated to any user
-    voting_data = VotingData.objects.all()
+    voting_data = VotingData.objects.filter(num_votes__gt=15)
     if group:
         voting_data = voting_data.filter(group=group)
     if search_term:
         voting_data = voting_data.filter(title__icontains=search_term)
     voting_ids = [i.id for i in voting_data]
-
-    exclude_ids = [i.task.id for i in Assignment.objects.all()]
-
-    if settings.DEBUG:
-        exclude_ids = []
-    for exclude_id in exclude_ids:
-        if exclude_id in voting_ids:
-            voting_ids.remove(exclude_id)
 
     # get all VotingData objects and combine them with their respective choices
     voting_data = []

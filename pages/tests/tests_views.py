@@ -13,7 +13,7 @@ from pages.models.image import ImageData, ImageLabel, FinalizedImageData
 from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
+from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_controversial_voting_data, \
     get_num_per_group_dict, get_group_info_context
 
 
@@ -673,12 +673,12 @@ class UtilsTestCase(TestCase):
         self.assertEqual(set(data), set(expected_data))
 
     def test_get_unassigned_voting_data(self):
-        data = get_unassigned_voting_data()
+        data = get_controversial_voting_data()
         expected_data = self.unassigned_voting_data
         self.assertEqual(len(data), len(expected_data))
         self.assertEqual(set(data), set(expected_data))
 
-        data = get_unassigned_voting_data(group=self.group)
+        data = get_controversial_voting_data(group=self.group)
         expected_data = [data for data in self.unassigned_voting_data if data.group == self.group]
         self.assertEqual(len(data), len(expected_data))
         self.assertEqual(set(data), set(expected_data))

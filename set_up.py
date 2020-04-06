@@ -161,10 +161,16 @@ voting_qas = {
     ]
 }
 
-for q in voting_qas:
+for i, q in enumerate(voting_qas):
     voting_data = VotingData.create(title=q, group=groups[0], is_active=True)
-    for a in voting_qas[q]:
-        choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
+    if i < 2:
+        for a in voting_qas[q]:
+            choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=10)
+            voting_data.num_votes += 10
+        voting_data.save()
+    else:
+        for a in voting_qas[q]:
+            choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
 validating_qns = [
     "What is the least intelligent thing you've ever seen a tourist do?",

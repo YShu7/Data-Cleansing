@@ -25,7 +25,7 @@ from pages.decorators import superuser_admin_login_required, admin_login_require
 from pages.models.models import Data, FinalizedData, Log
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData
-from pages.views.utils import get_unassigned_voting_data, get_finalized_data, get_group_report_context, \
+from pages.views.utils import get_controversial_voting_data, get_finalized_data, get_group_report_context, \
     get_log_msg as get_data_log_msg, get_admin_logs, get_num_per_group_dict, get_group_info_context
 
 
@@ -135,7 +135,7 @@ def update(request, data_ptr_id=None):
         search_term = None
         if 'search' in request.GET:
             search_term = request.GET['search']
-        voting_data = get_unassigned_voting_data(getattr(request.user, 'group'), search_term)
+        voting_data = get_controversial_voting_data(getattr(request.user, 'group'), search_term)
 
         # Initiate paginator
         paginator = Paginator(voting_data, 25)
@@ -146,8 +146,22 @@ def update(request, data_ptr_id=None):
             'title': _('Data Set'),
             'page_obj': page_obj,
             'data': VotingData.objects.all(),
+            'taskers': get_approved_users(getattr(request.user, 'group'))
         }
         return HttpResponse(template.render(request=request, context=context))
+
+
+@admin_login_required
+@csrf_protect
+def assign(request):
+    if request.method == 'POST':
+        task_arr = request.POST['select_list'].split(',')
+        tasker_id = request.POST['assign_tasker']
+        tasker = get_user_model().objects.get(pk=tasker_id)
+        for task_id in task_arr:
+            task = VotingData.objects.get(pk=task_id)
+            Assignment.objects.create(tasker=tasker, task=task)
+        return HttpResponseRedirect(reverse('update'))
 
 
 @superuser_admin_login_required
