@@ -118,4 +118,3 @@
  * */
 
 'use strict';
-import '../../modules/boost/boost.js';

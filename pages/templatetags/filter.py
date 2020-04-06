@@ -20,7 +20,11 @@ def split(s, spliter=None):
 
 @register.filter
 def remove_lang(s):
-    return '/' + s.split('/')[-1]
+    urls = s.split('/')
+    res = ''
+    for i in range(2, len(urls)):
+        res += '/' + urls[i]
+    return res
 
 
 @register.filter

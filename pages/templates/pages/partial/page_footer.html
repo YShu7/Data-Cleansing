@@ -13,7 +13,9 @@
              </div>
 
             <span class="current">
-                {% blocktrans %}Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endblocktrans %}
+                {% blocktrans with num=page_obj.number total_num=page_obj.paginator.num_pages %}
+                    Page {{ num }} of {{ total_num }}
+                {% endblocktrans %}
             </span>
 
             <div class="btn-group" role="group" aria-label="Basic example">

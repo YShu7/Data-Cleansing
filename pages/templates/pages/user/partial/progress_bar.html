@@ -5,8 +5,10 @@
          aria-valuemin="0" aria-valuemax="100">
         {% blocktrans %}{{ num_done }} of {{ num_total }}{% endblocktrans %}
     </div>
-    <div id="curr_progress" class="progress-bar" role="progressbar"
-         style="width: {% widthratio num_doing num_total 100 %}%" aria-valuemin="0" aria-valuemax="100">
-        {% blocktrans %}{{ num_doing }} of {{ num_total }}{% endblocktrans %}
-    </div>
+    {% if num_doing != 0 %}
+        <div id="curr_progress" class="progress-bar" role="progressbar"
+             style="width: {% widthratio num_doing num_total 100 %}%" aria-valuemin="0" aria-valuemax="100">
+            {% blocktrans %}{{ num_doing }} of {{ num_total }}{% endblocktrans %}
+        </div>
+    {% endif %}
 </div>

@@ -1,5 +1,8 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from math import ceil
 
+from assign.models import Assignment
 from pages.models.models import Data, FinalizedData
 
 
@@ -9,6 +12,7 @@ class VotingData(Data):
     """
     data_ptr = models.OneToOneField(to=Data, on_delete=models.CASCADE, parent_link=True)
     is_active = models.BooleanField(default=False)
+    num_votes = models.IntegerField(default=0)
 
     def __str__(self):
         return "Q: {}, T: {}".format(self.data_ptr.title, self.data_ptr.group)
@@ -23,26 +27,30 @@ class VotingData(Data):
         voting_data.save()
         return voting_data
 
+    def finalize(self, choice):
+        FinalizedData.create(title=self.data_ptr.title, ans=choice.answer, group=self.group)
+        self.delete(keep_parents=True)
+
     def vote(self, selected_choice):
         # update num of votes of the selected choice
         selected_choice.vote()
+        self.num_votes += 1
+        self.save()
 
         # get the number of choices that have been made for this question
-        choices = Choice.objects.filter(data_id=self.id)
-        sum_votes = 0
-        max_votes = selected_choice.num_votes
-        win_choice = selected_choice
-        for c in choices:
-            sum_votes += c.num_votes
-            if c.num_votes > max_votes:
-                max_votes = c.num_votes
-                win_choice = c
+        choices = self.choice_set.all()
 
-        # if enough users have made responses to this question and this choice has the maximum num of votes,
+        # if enough users have made responses to this question and this choice has more than half of the votes,
         # this question is done
-        if sum_votes >= 5:
-            FinalizedData.create(title=self.data_ptr.title, ans=win_choice.answer, group=self.group)
-            self.delete(keep_parents=True)
+        if self.num_votes >= 5 and self.num_votes <= 15:
+            for c in choices:
+                if c.num_votes > ceil(self.num_votes / 2.0):
+                    self.finalize(c)
+                    return
+            Assignment.reassign(self, get_user_model().objects.all())
+
+        if self.num_votes > 15:
+            self.assignment_set.all().delete()
 
     def activate(self):
         self.is_active = True

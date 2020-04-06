@@ -1,0 +1,24 @@
+{% load i18n static %}
+<div aria-hidden="true" aria-labelledby="myModalLabel" class="modal fade" id="{{ modal_id }}" role="dialog"
+     tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Assign To" %}</h4>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select class="form-control" id="opt">
+                {% for tasker in taskers %}
+                    <option value="{{ tasker.pk }}">&nbsp;{{ tasker.username }} ({{ tasker.certificate }}) </option>
+                {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" name="assign" data-dismiss="modal" id="{{ btn_id }}">{% trans "Confirm" %}</button>
+            </div>
+        </div>
+    </div>
+</div>

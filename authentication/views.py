@@ -6,10 +6,11 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.template.defaulttags import register
 
-from datacleansing.utils import get_pre_url
 from datacleansing.settings import MSG_SUCCESS_SIGN_UP, MSG_SUCCESS_PWD_CHANGE
+from datacleansing.utils import get_pre_url
 from .backends import CustomBackend
-from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm, CustomSetPasswordForm
+from .forms import CustomPasswordChangeForm, CustomPasswordResetForm, CustomLoginForm, CustomUserCreationForm, \
+    CustomSetPasswordForm
 
 
 class CustomLoginView(LoginView):
@@ -95,7 +96,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 @register.filter
 def get_item(dictionary, key):
-    if not isinstance(dictionary,dict):
+    if not isinstance(dictionary, dict):
         return ""
     res = dictionary.get(key)
     if not res:

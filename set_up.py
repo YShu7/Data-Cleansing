@@ -161,10 +161,16 @@ voting_qas = {
     ]
 }
 
-for q in voting_qas:
+for i, q in enumerate(voting_qas):
     voting_data = VotingData.create(title=q, group=groups[0], is_active=True)
-    for a in voting_qas[q]:
-        choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
+    if i < 2:
+        for a in voting_qas[q]:
+            choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=10)
+            voting_data.num_votes += 10
+        voting_data.save()
+    else:
+        for a in voting_qas[q]:
+            choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
 validating_qns = [
     "What is the least intelligent thing you've ever seen a tourist do?",
@@ -232,6 +238,6 @@ for url in urls:
 users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False)
 print("validating: {}, voting: {}, user: {}".format(len(validating_qns), len(voting_qas), len(users)))
 assign(users, Assignment, ValidatingData.objects.all(), Data, NUM_USER_PER_TASK=3)
-assign(users, Assignment, VotingData.objects.filter(is_active=True), Data, NUM_USER_PER_TASK=5)
+assign(users, Assignment, VotingData.objects.filter(is_active=True, num_votes__lte=15), Data, NUM_USER_PER_TASK=5)
 assign(users, Assignment, FinalizedData.objects.all(), Data, NUM_USER_PER_TASK=3)
 assign(users, Assignment, ImageData.objects.all(), Data, NUM_USER_PER_TASK=3)

@@ -1,6 +1,7 @@
 [run]
+include = *.py
 omit =
-	*/env/*
+	*/venv/*
 	*/migrations/*
 	manage.py
 	set_up.py

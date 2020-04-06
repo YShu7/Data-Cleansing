@@ -6,15 +6,14 @@ from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
 from django.utils import translation
 
-
 from assign.models import Assignment
-from authentication.models import CustomGroup, CustomUser
 from authentication.forms import CreateGroupForm
+from authentication.models import CustomGroup, CustomUser
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
 from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
-from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_unassigned_voting_data, \
+from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_controversial_voting_data, \
     get_num_per_group_dict, get_group_info_context
 
 
@@ -100,7 +99,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -131,7 +130,7 @@ class UserViewTestCase(TestCase):
         data = {"validate_ids": new_id,
                 "approve_value_{}".format(new_id): 'false',
                 "new_ans_{}".format(new_id): 'New Answer'}
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -204,7 +203,7 @@ class UserViewTestCase(TestCase):
         val.save()
         data_id = val.id
 
-        response = self.client.post(path= reverse('tasks/validate'),
+        response = self.client.post(path=reverse('tasks/validate'),
                                     data=data,
                                     follow=True, format='json')
         self.assertEqual(response.status_code, 200)
@@ -226,20 +225,22 @@ class UserViewTestCase(TestCase):
         assignment = Assignment.objects.create(tasker=self.user, task=vote)
         self.assertEqual(choice.num_votes, 0)
         self.assertFalse(assignment.done)
-
-        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                    data={"choice": [choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Choice.objects.get(pk=choice.id).num_votes, 1)
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
 
     def test_post_final_vote(self):
         vote = self.active_voting[1]
+        vote.num_votes = 4
+        vote.save()
         choice = vote.choice_set.all()[2]
         choice.num_votes = 4
         choice.save()
         self.assertEqual(choice.num_votes, 4)
 
-        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertIsNone(VotingData.objects.filter(pk=vote.pk).first())
@@ -247,14 +248,17 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_vote_2(self):
         vote = self.active_voting[2]
+        vote.num_votes = 5
+        vote.save()
         first_choice = vote.choice_set.all()[0]
-        first_choice.num_votes = 2
+        first_choice.num_votes = 3
         first_choice.save()
         second_choice = vote.choice_set.all()[1]
         second_choice.num_votes = 2
         second_choice.save()
 
-        response = self.client.post(path=reverse('vote', args=(vote.id,)), data={"choice": [first_choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                    data={"choice": [first_choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertEqual(FinalizedData.objects.get(pk=vote.pk).answer_text, first_choice.answer)
@@ -263,6 +267,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_vote_tie(self):
         vote = self.active_voting[3]
+        vote.num_votes = 5
+        vote.save()
         first_choice = vote.choice_set.all()[0]
         first_choice.num_votes = 2
         first_choice.save()
@@ -270,13 +276,12 @@ class UserViewTestCase(TestCase):
         second_choice.num_votes = 2
         second_choice.save()
 
-        response = self.client.post(path=reverse('vote', args=(vote.id,)),
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
                                     data={"choice": [vote.choice_set.all()[2].id]}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
-        self.assertIn(FinalizedData.objects.get(pk=vote.pk).answer_text, [first_choice.answer, second_choice.answer])
-        self.assertIsNone(VotingData.objects.filter(pk=vote.pk).first())
-        self.assertIsNone(Choice.objects.filter(data=vote.id).first())
+        self.assertIsNone(FinalizedData.objects.filter(pk=vote.pk).first())
+        self.assertIsNotNone(VotingData.objects.filter(pk=vote.pk).first())
+        self.assertEqual(Assignment.objects.filter(task=vote, done=False).count(), 2)
 
     def test_post_keywords(self):
         keywords = self.finalized[0]
@@ -510,7 +515,8 @@ class AdminViewTestCase(TestCase):
         expected_data = []
         for i in range(data_len):
             str += "Q{}, A{}\r\n".format(i, i)
-            expected_data.append(ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
+            expected_data.append(
+                ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
         csv_file = SimpleUploadedFile("file.csv", str.encode('UTF-8'), content_type="text/csv")
         self.admin_client.post(path=reverse("import_dataset"), data={'file': csv_file, 'qns_col': 0, 'ans_col': 1})
         data = [data for data in ValidatingData.objects.all()]
@@ -552,7 +558,7 @@ class AdminViewTestCase(TestCase):
 
     def test_delete_group(self):
         response = self.super_client.post(path=reverse('delete_group'),
-                                          data={'input': self.group.name,'confirm_input': self.group.name},
+                                          data={'input': self.group.name, 'confirm_input': self.group.name},
                                           follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(CustomGroup.objects.filter(name=self.group.name).first())
@@ -583,6 +589,7 @@ class UtilsTestCase(TestCase):
 
     def setUp_vote(self):
         self.active_voting_data = []
+        self.assigned_not_done_voting_data = []
         self.unassigned_voting_data = []
         # active voting data
         for q in range(20):
@@ -612,6 +619,7 @@ class UtilsTestCase(TestCase):
             if i > 10:
                 if i % 2 == 0:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=False)
+                    self.assigned_not_done_voting_data.append(data)
                     self.num_todo += 1
                 else:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=True)
@@ -642,7 +650,7 @@ class UtilsTestCase(TestCase):
 
     def test_get_assigned_tasks_context(self):
         data, task_num = get_assigned_tasks_context(self.user, VotingData, condition=(lambda x: x.is_active))
-        expected_data = self.active_voting_data[11:]
+        expected_data = self.assigned_not_done_voting_data
         expected_task_num = {
             'todo': self.num_todo,
             'done': self.num_done,
@@ -669,16 +677,8 @@ class UtilsTestCase(TestCase):
         self.assertEqual(len(data), len(expected_data))
         self.assertEqual(set(data), set(expected_data))
 
-    def test_get_unassigned_voting_data(self):
-        data = get_unassigned_voting_data()
-        expected_data = self.unassigned_voting_data
-        self.assertEqual(len(data), len(expected_data))
-        self.assertEqual(set(data), set(expected_data))
-
-        data = get_unassigned_voting_data(group=self.group)
-        expected_data = [data for data in self.unassigned_voting_data if data.group == self.group]
-        self.assertEqual(len(data), len(expected_data))
-        self.assertEqual(set(data), set(expected_data))
+    def test_get_controversial_voting_data(self):
+        return
 
     def test_get_admin_logs(self):
         return

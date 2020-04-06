@@ -19,7 +19,7 @@
                 </thead>
                 <tbody id="voting_tasks">
                 {% for question in page_obj %}
-                    <form action="{% url 'vote' question.id %}" method="post">
+                    <form action="{% url 'vote_post' question.id %}" method="post">
                         {% csrf_token %}
                         <tr>
                             <th scope="row">{{ question.id }}</th>
@@ -30,7 +30,7 @@
                                 {% for ans in question.answers %}
                                     <div class="custom-control custom-radio module" value="{{ question.id }}">
                                         <input type="radio" id="answer_{{ ans.id }}" class="custom-control-input"
-                                               name="ansRadio" value="{{ ans.answer }}">
+                                               name="ansRadio" value="{{ ans.id }}">
                                         <label id="ans_{{ ans.id }}" class="custom-control-label collapse"
                                                for="answer_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
                                         <a role="button" class="collapsed" data-toggle="collapse"
@@ -74,7 +74,7 @@
                     $("#choice").val(choice);
                     $("#door").val(1);
                 });
-                window.onbeforeunload = function (event) {
+                window.onbeforeunload = function () {
                     if ($("#door").val() == 0) {
                         return confirm("Confirm refresh");
                     }

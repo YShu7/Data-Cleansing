@@ -108,12 +108,40 @@ def validate(request):
 
 @user_login_required
 @csrf_protect
-def vote(request, vote_id=None):
+def vote(request):
+    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+
+    # Initiate paginator
+    data, task_num = get_assigned_tasks_context(request.user, VotingData,
+                                                condition=(lambda x: x.is_active and x.num_votes <= 15))
+    page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+
+    for d in data:
+        d.answers = d.choice_set.all()
+
+    context = {
+        'page_obj': page_obj,
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': 0,
+        'title': _('Voting Tasks'),
+        'next': 'tasks/vote',
+    }
+    return HttpResponse(template.render(request=request, context=context))
+
+
+@user_login_required
+@csrf_protect
+def vote_post(request, vote_id=None):
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
             data = VotingData.objects.get(pk=vote_id)
             selected_choice = Choice.objects.get(data_id=vote_id, pk=choice)
+        except ValueError:
+            messages.add_message(request, level=messages.ERROR,
+                                 message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+            return HttpResponseRedirect(reverse('tasks/vote'))
         except VotingData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
                                  message=_(MSG_FAIL_DATA_NONEXIST), extra_tags="danger")
@@ -128,25 +156,35 @@ def vote(request, vote_id=None):
         data.vote(selected_choice)
         messages.success(request, _(MSG_SUCCESS_VOTE))
         data_log(request.user, data, VOT, choice)
-    else:
-        template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
 
-        # Initiate paginator
-        data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
-        page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+        next = request.META.get('HTTP_REFERER')
+        if next is None:
+            next = '/'
+        return HttpResponseRedirect(next)
 
-        for d in data:
-            d.answers = d.choice_set.all()
 
-        context = {
-            'page_obj': page_obj,
-            'num_done': task_num["done"],
-            'num_total': task_num["total"],
-            'num_doing': 0,
-            'title': _('Voting Tasks'),
-        }
-        return HttpResponse(template.render(request=request, context=context))
-    return HttpResponseRedirect(reverse('tasks/vote'))
+@user_login_required
+@csrf_protect
+def contro(request):
+    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+
+    # Initiate paginator
+    data, task_num = get_assigned_tasks_context(request.user, VotingData,
+                                                condition=(lambda x: x.is_active and x.num_votes > 15))
+    page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+
+    for d in data:
+        d.answers = d.choice_set.all()
+
+    context = {
+        'page_obj': page_obj,
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': 0,
+        'title': _('Controversial Tasks'),
+        'next': 'tasks/contro',
+    }
+    return HttpResponse(template.render(request=request, context=context))
 
 
 @user_login_required
@@ -180,7 +218,7 @@ def keywords(request, data_id=None):
             'title': _('Keyword Selection Tasks'),
             'num_done': task_num["done"],
             'num_total': task_num["total"],
-            'num_doing': doing,
+            'num_doing': 0,
         }
         return HttpResponse(template.render(request=request, context=context))
     return HttpResponseRedirect(reverse('tasks/keywords'))
@@ -221,7 +259,7 @@ def image(request, img_id=None):
             'title': _('Image Label Validation Tasks'),
             'num_done': task_num["done"],
             'num_total': task_num["total"],
-            'num_doing': doing,
+            'num_doing': 0,
         }
         return HttpResponse(template.render(request=request, context=context))
 

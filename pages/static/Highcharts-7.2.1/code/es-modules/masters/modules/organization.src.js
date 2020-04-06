@@ -10,4 +10,3 @@
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../modules/organization.src.js';

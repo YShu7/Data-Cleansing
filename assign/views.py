@@ -1,6 +1,7 @@
 import random
 import sys
 from math import floor
+
 from pages.models.models import Data
 
 

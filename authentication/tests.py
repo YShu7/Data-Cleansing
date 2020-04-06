@@ -2,9 +2,9 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import translation
 
+from .forms import CustomUserCreationForm, CustomPasswordChangeForm
 from .models import CustomUser, CustomGroup
 from .utils import get_group_report, get_pending_users, get_approved_users
-from .forms import CustomUserCreationForm, CustomPasswordChangeForm
 
 
 class ModelsTestCase(TestCase):
@@ -81,7 +81,7 @@ class ViewTestCase(TestCase):
         new_pwd = 'jiiefa9790213*^&('
         user = CustomUser.objects.create_user(
             username='User', email='User@gmail.com',
-            certificate="G123456M", group=self.group, password= old_pwd
+            certificate="G123456M", group=self.group, password=old_pwd
         )
         self.client.login(username='User@gmail.com', password=old_pwd)
         form_data = {'old_password': old_pwd,

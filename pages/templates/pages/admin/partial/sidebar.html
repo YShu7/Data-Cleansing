@@ -21,8 +21,8 @@
 
         {% if request.user.is_superuser %}
             <li class="nav-item" id="account-toggle">
-                <a data-toggle="collapse" data-target="#accounts" aria-controls="accounts" class="nav-link dropdown-toggle section-header">{% trans "Accounts" %}</a>
-                <ul class="collapse navbar-nav p-2" id="accounts" data-parent="#account-toggle">
+                <a class="nav-link dropdown-toggle section-header">{% trans "Accounts" %}</a>
+                <ul class="navbar-nav p-2" id="accounts">
                     <li class="nav-item">
                         <a class="nav-link" id="/modify_users" href="/modify_users">{% trans "User List" %}</a>
                     </li>
@@ -34,8 +34,8 @@
         {% endif %}
 
         <li class="nav-item" id="data-toggle">
-            <a data-toggle="collapse" data-target="#data" aria-controls="data" class="nav-link dropdown-toggle section-header">{% trans "Data" %}</a>
-            <ul class="collapse navbar-nav p-2" id="data" data-parent="#data-toggle">
+            <a class="nav-link dropdown-toggle section-header">{% trans "Data" %}</a>
+            <ul class="navbar-nav p-2" id="data">
                 <li class="nav-item">
                     <a class="nav-link" id="/dataset" href="/dataset">{% trans "Dataset" %}</a>
                 </li>
@@ -78,8 +78,6 @@
 {% include "pages/partial/file_drop.html" with modal_id="file_modal" btn_id="upload_btn" %}
 
 <script type="text/javascript">
-
-
     $(document).ready(function () {
         var ele = document.getElementById("{{ request.path|remove_lang }}");
         ele.classList.add("active");
@@ -87,30 +85,5 @@
         function show_file_modal() {
             $("#file_modal").modal();
         }
-
-        var panels = localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels); //get all panels
-        for (var i in panels) {
-            if ($("#" + panels[i]).hasClass('collapse'))
-            {
-                $("#" + panels[i]).collapse('show');
-            }
-        }
-
-        $("ul").on('shown.bs.collapse', function () {
-            var active = $(this).attr('id');
-            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
-            if ($.inArray(active, panels)==-1) //check that the element is not in the array
-                panels.push(active);
-            localStorage.panels=JSON.stringify(panels);
-        }).on('hidden.bs.collapse', function () {
-            var active = $(this).attr('id');
-            var panels= localStorage.panels === undefined ? new Array() : JSON.parse(localStorage.panels);
-            var elementIndex=$.inArray(active,panels);
-            if (elementIndex!==-1) //check the array
-            {
-                panels.splice(elementIndex,1); //remove item from array
-            }
-            localStorage.panels=JSON.stringify(panels); //save array on localStorage
-        });
     });
 </script>
