@@ -2,7 +2,7 @@
 {% load i18n static %}
 
 {% block content %}
-    <form action="{% url 'assign'%}" method="post" id="assign_form">{% csrf_token %}
+    <form action="{% url 'assign_contro'%}" method="post" id="assign_form">{% csrf_token %}
         <input name="assign_tasker" id="assign_tasker" type="hidden">
         <input name="select_list" id="select_list" type="hidden">
         <a href="#" onclick="show_assign_modal({{ question.id }})" class="btn btn-outline-primary float-right">{% trans "Assign" %}</a>

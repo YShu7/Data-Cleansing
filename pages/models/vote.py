@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from math import ceil
 
+from assign.models import Assignment
 from pages.models.models import Data, FinalizedData
 
 
@@ -44,9 +45,10 @@ class VotingData(Data):
         if self.num_votes >= 5 and self.num_votes <= 15:
             for c in choices:
                 if c.num_votes > ceil(self.num_votes / 2.0):
-                    self.finalize(self, choice=c)
-                else:
-                    self.assignment_set.first().reassign(self, get_user_model().objects.all())
+                    self.finalize(c)
+                    return
+            Assignment.reassign(self, get_user_model().objects.all())
+
         if self.num_votes > 15:
             self.assignment_set.all().delete()
 

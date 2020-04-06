@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from authentication.models import CustomGroup
+from authentication.models import CustomGroup, CustomUser
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
 from pages.models.models import FinalizedData
 from pages.models.vote import VotingData, Choice
@@ -18,6 +18,9 @@ class VotingDataTestCase(TestCase):
             voting_data = VotingData.create(title=q, group=groups[0], is_active=True)
             for a in range(3):
                 choice = Choice.objects.create(data=voting_data, answer=a, num_votes=0)
+
+        user = CustomUser.objects.create_user(email='user@gmail.com', username='user', certificate='G123456M',
+                                              password='password', group=groups[0])
 
     def test_vote_finalize(self):
         voting_data = VotingData.objects.all()[0]

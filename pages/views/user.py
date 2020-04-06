@@ -157,7 +157,10 @@ def vote_post(request, vote_id=None):
         messages.success(request, _(MSG_SUCCESS_VOTE))
         data_log(request.user, data, VOT, choice)
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        next = request.META.get('HTTP_REFERER')
+        if next is None:
+            next = '/'
+        return HttpResponseRedirect(next)
 
 
 @user_login_required

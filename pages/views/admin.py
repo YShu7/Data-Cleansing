@@ -153,7 +153,7 @@ def update(request, data_ptr_id=None):
 
 @admin_login_required
 @csrf_protect
-def assign(request):
+def assign_contro(request):
     if request.method == 'POST':
         task_arr = request.POST['select_list'].split(',')
         tasker_id = request.POST['assign_tasker']
