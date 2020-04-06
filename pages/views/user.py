@@ -108,7 +108,31 @@ def validate(request):
 
 @user_login_required
 @csrf_protect
-def vote(request, vote_id=None):
+def vote(request):
+    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+
+    # Initiate paginator
+    data, task_num = get_assigned_tasks_context(request.user, VotingData,
+                                                condition=(lambda x: x.is_active and x.num_votes <= 15))
+    page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+
+    for d in data:
+        d.answers = d.choice_set.all()
+
+    context = {
+        'page_obj': page_obj,
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': 0,
+        'title': _('Voting Tasks'),
+        'next': 'tasks/vote',
+    }
+    return HttpResponse(template.render(request=request, context=context))
+
+
+@user_login_required
+@csrf_protect
+def vote_post(request, vote_id=None):
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
@@ -132,25 +156,32 @@ def vote(request, vote_id=None):
         data.vote(selected_choice)
         messages.success(request, _(MSG_SUCCESS_VOTE))
         data_log(request.user, data, VOT, choice)
-    else:
-        template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
 
-        # Initiate paginator
-        data, task_num = get_assigned_tasks_context(request.user, VotingData, condition=(lambda x: x.is_active))
-        page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-        for d in data:
-            d.answers = d.choice_set.all()
 
-        context = {
-            'page_obj': page_obj,
-            'num_done': task_num["done"],
-            'num_total': task_num["total"],
-            'num_doing': 0,
-            'title': _('Voting Tasks'),
-        }
-        return HttpResponse(template.render(request=request, context=context))
-    return HttpResponseRedirect(reverse('tasks/vote'))
+@user_login_required
+@csrf_protect
+def contro(request):
+    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+
+    # Initiate paginator
+    data, task_num = get_assigned_tasks_context(request.user, VotingData,
+                                                condition=(lambda x: x.is_active and x.num_votes > 15))
+    page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
+
+    for d in data:
+        d.answers = d.choice_set.all()
+
+    context = {
+        'page_obj': page_obj,
+        'num_done': task_num["done"],
+        'num_total': task_num["total"],
+        'num_doing': 0,
+        'title': _('Controversial Tasks'),
+        'next': 'tasks/contro',
+    }
+    return HttpResponse(template.render(request=request, context=context))
 
 
 @user_login_required

@@ -19,7 +19,7 @@
                 </thead>
                 <tbody id="voting_tasks">
                 {% for question in page_obj %}
-                    <form action="{% url 'vote' question.id %}" method="post">
+                    <form action="{% url 'vote_post' question.id %}" method="post">
                         {% csrf_token %}
                         <tr>
                             <th scope="row">{{ question.id }}</th>
