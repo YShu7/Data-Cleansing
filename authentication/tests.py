@@ -5,6 +5,7 @@ from django.utils import translation
 from .forms import CustomUserCreationForm, CustomPasswordChangeForm
 from .models import CustomUser, CustomGroup
 from .utils import get_group_report, get_pending_users, get_approved_users
+from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
 
 
 class ModelsTestCase(TestCase):
@@ -55,6 +56,24 @@ class ModelsTestCase(TestCase):
         user.correct_num_ans = 1
         user.num_ans = 5
         self.assertEqual(user.correct_num_ans / user.num_ans, 0.2)
+
+    def test_ans_is(self):
+        user = CustomUser.objects.create_user(email="user@gmail.com", username="user",
+                                              certificate="G123456M", password="user", group=self.group)
+
+        point = user.point
+        num_ans = user.num_ans
+        num_correct_ans = user.correct_num_ans
+
+        user.ans_is(True)
+        self.assertEqual(user.point, point + CORRECT_POINT)
+        self.assertEqual(user.num_ans, num_ans + 1)
+        self.assertEqual(user.correct_num_ans, num_correct_ans + 1)
+
+        user.ans_is(False)
+        self.assertEqual(user.point, point + CORRECT_POINT + INCORRECT_POINT)
+        self.assertEqual(user.num_ans, num_ans + 2)
+        self.assertEqual(user.correct_num_ans, num_correct_ans + 1)
 
 
 class ViewTestCase(TestCase):

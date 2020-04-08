@@ -27,3 +27,9 @@ class UserViewTestCase(TestCase):
         self.assertEqual(len(self.all_tasks), self.num_data)
         self.assertEqual(len(self.all_users), self.num_user)
         self.assertEqual(Assignment.objects.count(), 10*3)
+
+    def test_reassign(self):
+        task = self.all_tasks[0]
+        num = Assignment.objects.filter(task=task).count()
+        Assignment.reassign(task, all_users=self.all_users)
+        self.assertEqual(Assignment.objects.filter(task=task).count(), num + 2)
