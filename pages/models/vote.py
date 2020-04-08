@@ -27,15 +27,9 @@ class VotingData(Data):
         voting_data.save()
         return voting_data
 
-    def finalize(self, choice):
-        FinalizedData.create(title=self.data_ptr.title, ans=choice.answer, group=self.group)
-        self.delete(keep_parents=True)
-
     def vote(self, selected_choice):
         # update num of votes of the selected choice
         selected_choice.vote()
-        self.num_votes += 1
-        self.save()
 
         # get the number of choices that have been made for this question
         choices = self.choice_set.all()
@@ -44,8 +38,9 @@ class VotingData(Data):
         # this question is done
         if self.num_votes >= 5 and self.num_votes <= 15:
             for c in choices:
-                if c.num_votes > ceil(self.num_votes / 2.0):
-                    self.finalize(c)
+                if c.num_votes >= ceil(self.num_votes / 2.0):
+                    FinalizedData.create(title=self.data_ptr.title, ans=c.answer, group=self.group)
+                    self.delete(keep_parents=True)
                     return
             Assignment.reassign(self, get_user_model().objects.all())
 
@@ -68,3 +63,5 @@ class Choice(models.Model):
     def vote(self):
         self.num_votes += 1
         self.save()
+        self.data.num_votes += 1
+        self.data.save()

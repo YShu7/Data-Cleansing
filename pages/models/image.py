@@ -1,10 +1,14 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+from math import ceil
 
+from assign.models import Assignment
 from pages.models.models import Data
 
 
 class ImageData(Data):
     image_url = models.URLField(unique=True)
+    num_votes = models.IntegerField(default=0)
 
     @classmethod
     def create(cls, group, url, title=None):
@@ -24,20 +28,19 @@ class ImageData(Data):
 
         # get the number of choices that have been made for this question
         choices = self.imagelabel_set.all()
-        sum_votes = 0
-        max_votes = selected_choice.num_votes
-        win_choice = selected_choice
-        for c in choices:
-            sum_votes += c.num_votes
-            if c.num_votes > max_votes:
-                max_votes = c.num_votes
-                win_choice = c
 
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
-        if sum_votes >= 5:
-            FinalizedImageData.create_from_imagedata(data=self)
-            self.delete(keep_parents=True)
+        if self.num_votes >= 5 and self.num_votes <= 15:
+            for c in choices:
+                if c.num_votes >= ceil(self.num_votes / 2.0):
+                    FinalizedImageData.create_from_imagedata(data=self)
+                    self.delete(keep_parents=True)
+                    return
+            Assignment.reassign(self, get_user_model().objects.all())
+
+        if self.num_votes > 15:
+            self.assignment_set.all().delete()
 
 
 class ImageLabel(models.Model):
@@ -48,6 +51,8 @@ class ImageLabel(models.Model):
     def vote(self):
         self.num_votes += 1
         self.save()
+        self.image.num_votes += 1
+        self.image.save()
 
 
 class FinalizedImageData(Data):
