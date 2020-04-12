@@ -21,6 +21,9 @@ class FinalizedData(Data):
     qns_keywords = models.TextField(blank=False, null=False, default="")
     ans_keywords = models.TextField(blank=False, null=False, default="")
 
+    def __str__(self):
+        return "T:{}, A:{}, G:{}".format(self.title, self.answer_text, self.group.id)
+
     @classmethod
     def create(cls, title, group, ans):
         try:

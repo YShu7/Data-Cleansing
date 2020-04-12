@@ -82,22 +82,20 @@ def log(user, task, action, response):
 
 
 def get_controversial_voting_data(group=None, search_term=None):
-    # get all VotingData ids that are not allocated to any user
-    voting_data = VotingData.objects.filter(num_votes__gt=15)
     if group:
-        voting_data = voting_data.filter(group=group)
+        voting_data = VotingData.objects.filter(num_votes__gt=15, group=group)
     if search_term:
-        voting_data = voting_data.filter(title__icontains=search_term)
-    voting_ids = [i.id for i in voting_data]
+        voting_data = VotingData.objects.filter(num_votes__gt=15, title__icontains=search_term)
+    if group is None and search_term is None:
+        voting_data = VotingData.objects.filter(num_votes__gt=15)
 
     # get all VotingData objects and combine them with their respective choices
-    voting_data = []
-    for voting_id in voting_ids:
-        data = VotingData.objects.get(id=voting_id)
-        voting_data.append(data)
+    voting_data_list = []
+    for data in voting_data:
+        voting_data_list.append(data)
         data.answers = data.choice_set.all()
 
-    return voting_data
+    return voting_data_list
 
 
 def get_log_msg(log_obj):

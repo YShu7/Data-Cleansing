@@ -124,10 +124,10 @@ def update(request, data_ptr_id=None):
         if ans == "":
             messages.add_message(request, level=messages.ERROR, extra_tags="danger", message="Please choose an answer.")
         else:
-            FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
+            FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=voting_data.choice_set.get(id=ans).answer)
             voting_data.delete(keep_parents=True)
             messages.success(request, MSG_SUCCESS_VOTE)
-        return HttpResponseRedirect(get_pre_url(request))
+        return HttpResponseRedirect(reverse("update"))
     else:
         template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
 
@@ -168,11 +168,12 @@ def assign_contro(request):
 def report(request, from_date=None, to_date=None):
     template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
 
-    i = datetime.now()
-    if not from_date:
-        from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
-    if not to_date:
-        to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
+    # TODO
+    # i = datetime.now()
+    # if not from_date:
+    #     from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
+    # if not to_date:
+    #     to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     users = get_approved_users(getattr(request.user, 'group'), )
 
     context = {
@@ -263,6 +264,7 @@ def import_dataset(request):
 @admin_login_required
 def assign_tasks(request):
     grp = getattr(request.user, 'group')
+    u = get_user_model().objects.all()
     users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=grp)
     validating_data = ValidatingData.objects.filter(group=grp)
     voting_data = VotingData.objects.filter(is_active=True, group=grp, num_votes__lte=15)
