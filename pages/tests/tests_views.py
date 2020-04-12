@@ -793,10 +793,12 @@ class UtilsTestCase(TestCase):
         for d in self.controversial_data:
             if d.group == self.group:
                 expected_data.append(d)
-        self.assertEqual(data, expected_data)
+        self.assertEqual(len(data), len(expected_data))
+        self.assertEqual(set(data), set(expected_data))
 
         data = get_controversial_voting_data()
-        self.assertEqual(data, self.controversial_data)
+        self.assertEqual(len(data), len(self.controversial_data))
+        self.assertEqual(set(data), set(self.controversial_data))
 
     def test_get_admin_logs(self):
         return
