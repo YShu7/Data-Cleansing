@@ -14,7 +14,7 @@ from pages.models.models import FinalizedData
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
 from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_controversial_voting_data, \
-    get_num_per_group_dict, get_group_info_context
+    get_num_per_group_dict, get_group_info_context, get_group_report_context
 
 
 class UserViewTestCase(TestCase):
@@ -75,6 +75,9 @@ class UserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('tasks/vote'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse('tasks/contro'))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('tasks/keywords'))
@@ -240,7 +243,8 @@ class UserViewTestCase(TestCase):
         choice.save()
         self.assertEqual(choice.num_votes, 4)
 
-        response = self.client.post(path=reverse('vote_post', args=(vote.id,)), data={"choice": [choice.id]}, follow=True)
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                    data={"choice": [choice.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedData.objects.get(pk=vote.pk))
         self.assertIsNone(VotingData.objects.filter(pk=vote.pk).first())
@@ -248,10 +252,10 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_vote_2(self):
         vote = self.active_voting[2]
-        vote.num_votes = 5
+        vote.num_votes = 4
         vote.save()
         first_choice = vote.choice_set.all()[0]
-        first_choice.num_votes = 3
+        first_choice.num_votes = 2
         first_choice.save()
         second_choice = vote.choice_set.all()[1]
         second_choice.num_votes = 2
@@ -267,7 +271,7 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_vote_tie(self):
         vote = self.active_voting[3]
-        vote.num_votes = 5
+        vote.num_votes = 4
         vote.save()
         first_choice = vote.choice_set.all()[0]
         first_choice.num_votes = 2
@@ -282,6 +286,20 @@ class UserViewTestCase(TestCase):
         self.assertIsNone(FinalizedData.objects.filter(pk=vote.pk).first())
         self.assertIsNotNone(VotingData.objects.filter(pk=vote.pk).first())
         self.assertEqual(Assignment.objects.filter(task=vote, done=False).count(), 2)
+
+    def test_post_vote_err(self):
+        vote = self.active_voting[3]
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                    data={"choice": [""]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(FinalizedData.objects.filter(pk=vote.pk).first())
+        self.assertIsNotNone(VotingData.objects.filter(pk=vote.pk).first())
+
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                    data={"choice": [10081]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(FinalizedData.objects.filter(pk=vote.pk).first())
+        self.assertIsNotNone(VotingData.objects.filter(pk=vote.pk).first())
 
     def test_post_keywords(self):
         keywords = self.finalized[0]
@@ -328,6 +346,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image(self):
         img = self.images[1]
+        img.num_votes = 4
+        img.save()
         label = img.imagelabel_set.all()[2]
         label.num_votes = 4
         label.save()
@@ -341,6 +361,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image_2(self):
         img = self.images[2]
+        img.num_votes = 4
+        img.save()
         first_abel = img.imagelabel_set.all()[0]
         first_abel.num_votes = 2
         first_abel.save()
@@ -357,6 +379,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image_tie(self):
         img = self.images[3]
+        img.num_votes = 4
+        img.save()
         first_abel = img.imagelabel_set.all()[0]
         first_abel.num_votes = 2
         first_abel.save()
@@ -367,10 +391,9 @@ class UserViewTestCase(TestCase):
         label = img.imagelabel_set.all()[2]
         response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
-        self.assertIn(FinalizedImageData.objects.get(pk=img.pk).label, [first_abel.label, second_label.label])
-        self.assertIsNone(ImageData.objects.filter(pk=img.pk).first())
-        self.assertIsNone(ImageLabel.objects.filter(image=img).first())
+        self.assertIsNone(FinalizedImageData.objects.filter(pk=img.pk).first())
+        self.assertIsNotNone(ImageData.objects.filter(pk=img.pk).first())
+        self.assertEqual(Assignment.objects.filter(task=img, done=False).count(), 2)
 
 
 class AdminViewTestCase(TestCase):
@@ -394,16 +417,34 @@ class AdminViewTestCase(TestCase):
         for i in range(5):
             group = CustomGroup.objects.create(name="Group{}".format(i))
             self.groups.append(group)
+        for i, group in enumerate(self.groups):
             for j in range(10):
                 user = CustomUser.objects.create_user(
                     username='G{}_User{}'.format(i, j), email='G{}_User{}@gmail.com'.format(i, j),
                     certificate="G12345{}{}M".format(i, j), group=group, password='top_secret'
                 )
+                user.approve(True)
                 self.users.append(user)
+
+    def setUp_data(self):
+        self.data = []
+        for i in range(5):
+            group = CustomGroup.objects.create(name="Group{}".format(i))
+            for j in range(10):
+                data, _ = FinalizedData.objects.update_or_create(title=j, answer_text=j, group=group)
+                self.data.append(data)
 
     def setUp(self) -> None:
         translation.activate('en')
         self.setUp_client()
+
+    def get_csv(self, response):
+        content = b''.join(response.streaming_content).decode("utf-8")
+        csv_reader = csv.reader(io.StringIO(content))
+        body = list(csv_reader)
+        headers = body.pop(0)
+
+        return headers, body
 
     def test_admin_get(self):
         response = self.admin_client.get(reverse('modify_users'))
@@ -473,25 +514,67 @@ class AdminViewTestCase(TestCase):
         self.assertFalse(CustomUser.objects.get(pk=user.pk).is_admin)
 
     def test_update(self):
-        return
+        vote = VotingData.objects.create(title="vote", group=self.group)
+        choices = []
+        for i in range(3):
+            choice = Choice.objects.create(data=vote, answer="ans{}".format(i))
+            choices.append(choice)
+
+        selected_choice = choices[0]
+        response = self.admin_client.post(path=reverse("update", args=(vote.id, )),
+                                          data={"choice": str(selected_choice.id)}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(FinalizedData.objects.filter(title=vote.title, answer_text=selected_choice.answer,
+                                                          group=vote.group).first())
+        self.assertIsNone(VotingData.objects.filter(title=vote.title, group=self.group).first())
+
+        vote = VotingData.objects.create(title="vote2", group=self.group)
+        choices = []
+        for i in range(3):
+            choice = Choice.objects.create(data=vote, answer="ans{}".format(i))
+            choices.append(choice)
+        response = self.admin_client.post(path=reverse("update", args=(vote.id,)),
+                                          data={"choice": ""}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(FinalizedData.objects.filter(title=vote.title, group=vote.group).first())
+        self.assertIsNotNone(VotingData.objects.filter(title=vote.title, group=vote.group).first())
+
+    def test_download_dataset(self):
+        self.setUp_data()
+
+        # super_admin
+        response = self.super_client.post(path=reverse("download_dataset"))
+        self.assertEqual(response.status_code, 200)
+        headers, body = self.get_csv(response)
+        self.assertEqual(headers, ["id", "question", "qns_keywords", "answer", "ans_keywords"])
+        expected_body = [[str(u.id), str(u.title), str(u.qns_keywords.split(',')),
+                          str(u.answer_text), str(u.ans_keywords.split(','))] for u in self.data]
+        self.assertEqual(len(body), len(expected_body))
+        for b in body:
+            self.assertIn(b, expected_body)
+
+        # admin
+        response = self.admin_client.post(path=reverse("download_dataset"))
+        self.assertEqual(response.status_code, 200)
+        headers, body = self.get_csv(response)
+        self.assertEqual(headers, ["id", "question", "qns_keywords", "answer", "ans_keywords"])
+        expected_body = [[str(u.id), str(u.title), str(u.qns_keywords.split(',')),
+                          str(u.answer_text), str(u.ans_keywords.split(','))] for u in self.data
+                         if u.group == self.admin.group]
+        self.assertEqual(len(body), len(expected_body))
+        for b in body:
+            self.assertIn(b, expected_body)
 
     def test_download_report(self):
         self.setUp_users()
 
-        def get_csv(response):
-            content = b''.join(response.streaming_content).decode("utf-8")
-            csv_reader = csv.reader(io.StringIO(content))
-            body = list(csv_reader)
-            headers = body.pop(0)
-
-            return headers, body
-
         # super_admin
         response = self.super_client.post(path=reverse("download_report"))
         self.assertEqual(response.status_code, 200)
-        headers, body = get_csv(response)
+        headers, body = self.get_csv(response)
         self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
-        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users if u.is_approved]
+        expected_body = [[str(u.id), str(u.username), str(u.certificate), str(u.point), str(u.accuracy())]
+                         for u in self.users if u.is_approved]
         expected_body.append([str(self.admin.id), self.admin.username, self.admin.certificate,
                               str(self.admin.point), str(self.admin.accuracy())])
         self.assertEqual(len(body), len(expected_body))
@@ -501,10 +584,10 @@ class AdminViewTestCase(TestCase):
         # admin
         response = self.admin_client.post(path=reverse("download_report"))
         self.assertEqual(response.status_code, 200)
-        headers, body = get_csv(response)
+        headers, body = self.get_csv(response)
         self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
-        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users
-                         if u.is_approved and u.group == self.admin_client.group]
+        expected_body = [[str(u.id), str(u.username), str(u.certificate), str(u.point), str(u.accuracy())] for u in self.users
+                         if u.is_approved and u.group == self.admin.group]
         self.assertEqual(len(body), len(expected_body))
         for b in body:
             self.assertIn(b, expected_body)
@@ -538,11 +621,11 @@ class AdminViewTestCase(TestCase):
                 username='User{}'.format(i), email='User{}@gmail.com'.format(i),
                 certificate="G12345{}M".format(i), group=self.group, password='top_secret'
             )
+            user.approve(True)
 
-        self.admin_client.post(path=reverse("assign_tasks"))
-        # TODO: test assign
-
-        return
+        response = self.admin_client.post(path=reverse("assign_tasks"), HTTP_REFERER='/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Assignment.objects.all().count(), 20 * 3)
 
     def test_summarize(self):
         return
@@ -589,20 +672,27 @@ class UtilsTestCase(TestCase):
 
     def setUp_vote(self):
         self.active_voting_data = []
+        self.inactive_voting_data = []
         self.assigned_not_done_voting_data = []
         self.unassigned_voting_data = []
+        self.controversial_data = []
         # active voting data
         for q in range(20):
             voting_data = VotingData.create(title=q, group=self.group, is_active=True)
             self.active_voting_data.append(voting_data)
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
+            if q % 3 == 0:
+                voting_data.num_votes = q * 5
+                voting_data.save()
+                if q * 5 > 15:
+                    self.controversial_data.append(voting_data)
         # inactive voting data
         for q in range(20, 30):
             voting_data = VotingData.create(title=q, group=self.group, is_active=False)
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
-            self.unassigned_voting_data.append(voting_data)
+            self.inactive_voting_data.append(voting_data)
         self.num_vote_kkh = 30
 
         # active other group data
@@ -611,6 +701,11 @@ class UtilsTestCase(TestCase):
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
             self.unassigned_voting_data.append(voting_data)
+            voting_data.num_votes = q * 7
+            voting_data.save()
+            if q * 7 > 15:
+                self.controversial_data.append(voting_data)
+
         self.num_vote_other = 5
 
         self.num_todo = 0
@@ -628,6 +723,11 @@ class UtilsTestCase(TestCase):
                 Assignment.objects.update_or_create(tasker=self.other_user, task=data, done=False)
             else:
                 self.unassigned_voting_data.append(data)
+        for i, data in enumerate(self.inactive_voting_data):
+            if i % 2 == 0:
+                Assignment.objects.update_or_create(tasker=self.user, task=data, done=False)
+            else:
+                Assignment.objects.update_or_create(tasker=self.other_user, task=data, done=False)
 
     def setUp_finalized(self):
         self.finalized_data_group = []
@@ -661,6 +761,16 @@ class UtilsTestCase(TestCase):
         self.assertEqual(set(data), set(expected_data))
         self.assertEqual(task_num, expected_task_num)
 
+    def test_get_group_report_context(self):
+        data = get_group_report_context()
+        expected_data = {
+            'names': [self.group.name, self.other_group.name],
+            'points': [0, 0],
+            'num_ans': [0, 0],
+            'accuracy': [1, 1],
+        }
+        self.assertEqual(data, expected_data)
+
     def test_get_finalized_data(self):
         data = get_finalized_data(self.group.name)
         expected_data = self.finalized_data_group
@@ -678,7 +788,17 @@ class UtilsTestCase(TestCase):
         self.assertEqual(set(data), set(expected_data))
 
     def test_get_controversial_voting_data(self):
-        return
+        data = get_controversial_voting_data(self.group)
+        expected_data = []
+        for d in self.controversial_data:
+            if d.group == self.group:
+                expected_data.append(d)
+        self.assertEqual(len(data), len(expected_data))
+        self.assertEqual(set(data), set(expected_data))
+
+        data = get_controversial_voting_data()
+        self.assertEqual(len(data), len(self.controversial_data))
+        self.assertEqual(set(data), set(self.controversial_data))
 
     def test_get_admin_logs(self):
         return
@@ -743,3 +863,37 @@ class UtilsTestCase(TestCase):
 
     def test_compute_progress(self):
         return
+
+
+class ViewsTestCase(TestCase):
+    def setUp(self) -> None:
+        translation.activate('en')
+        self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
+
+        self.admin_client = Client()
+        self.admin = CustomUser.objects.create_admin(
+            username='admin', email='admin@gmail.com', certificate="G11111M",
+            group=self.group, password='top_secret')
+        self.admin_client.login(username=self.admin.email, password='top_secret')
+
+        self.super_client = Client()
+        self.superuser = CustomUser.objects.create_superuser(
+            username="superuser", email="superuser@gmail.com", certificate="G00000M", password="superuser"
+        )
+        self.super_client.login(username=self.superuser.email, password='superuser')
+
+        self.user_client = Client()
+        self.user = CustomUser.objects.create_user(
+            username="user", email='user@gmail.com', certificate="G12355M", password="user", group=self.group
+        )
+        self.user_client.login(username=self.user.email, password="user")
+
+    def test_help(self):
+        response = self.admin_client.get(reverse('help'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.super_client.get(reverse('help'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.user_client.get(reverse('help'))
+        self.assertEqual(response.status_code, 200)

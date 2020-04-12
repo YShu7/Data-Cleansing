@@ -50,6 +50,7 @@ class ValidatingData(Data):
             FinalizedData.create(title=self.data_ptr.title, group=self.data_ptr.group, ans=self.answer_text)
             data.choice_set.all().delete()
             self.delete(keep_parents=True)
+            data.delete(keep_parents=True)
         elif self.num_disapproved >= 2:
             # if enough user has disapprove the answer
             # the better answer should be selected by activating VotingData

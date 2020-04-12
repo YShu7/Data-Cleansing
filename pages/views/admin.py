@@ -72,7 +72,10 @@ def dataset(request, group_name="all"):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
 
     # Retrieve data
-    finalized_data = get_finalized_data(group_name)
+    if request.user.is_admin:
+        finalized_data = get_finalized_data(request.user.group.name)
+    else:
+        finalized_data = get_finalized_data(group_name)
     groups = CustomGroup.objects.all()
 
     # Initiate paginator
@@ -94,12 +97,15 @@ def dataset(request, group_name="all"):
 
 
 @superuser_admin_login_required
-def download_dataset(_, group_name=""):
+def download_dataset(request, group_name=""):
     """A view that streams a large CSV file."""
     # Generate a sequence of rows. The range is based on the maximum number of
     # rows that can be handled by a single sheet in most spreadsheet
     # applications.
-    finalized_data = get_finalized_data(group_name)
+    if request.user.is_admin:
+        finalized_data = get_finalized_data(request.user.group.name)
+    else:
+        finalized_data = get_finalized_data(group_name)
 
     rows = [["id", "question", "qns_keywords", "answer", "ans_keywords"]]
     rows += ([data.id, data.title, data.get_keywords()["qns"],
@@ -124,10 +130,10 @@ def update(request, data_ptr_id=None):
         if ans == "":
             messages.add_message(request, level=messages.ERROR, extra_tags="danger", message="Please choose an answer.")
         else:
-            FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=ans)
+            FinalizedData.create(title=voting_data.title, group=voting_data.group, ans=voting_data.choice_set.get(id=ans).answer)
             voting_data.delete(keep_parents=True)
             messages.success(request, MSG_SUCCESS_VOTE)
-        return HttpResponseRedirect(get_pre_url(request))
+        return HttpResponseRedirect(reverse("update"))
     else:
         template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
 
@@ -168,11 +174,12 @@ def assign_contro(request):
 def report(request, from_date=None, to_date=None):
     template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
 
+    # TODO
     i = datetime.now()
-    if not from_date:
-        from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
-    if not to_date:
-        to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
+    # if not from_date:
+    #     from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
+    # if not to_date:
+    #     to_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     users = get_approved_users(getattr(request.user, 'group'), )
 
     context = {
@@ -263,6 +270,7 @@ def import_dataset(request):
 @admin_login_required
 def assign_tasks(request):
     grp = getattr(request.user, 'group')
+    u = get_user_model().objects.all()
     users = get_user_model().objects.filter(is_active=True, is_approved=True, is_admin=False, group=grp)
     validating_data = ValidatingData.objects.filter(group=grp)
     voting_data = VotingData.objects.filter(is_active=True, group=grp, num_votes__lte=15)
