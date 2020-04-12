@@ -72,7 +72,10 @@ def dataset(request, group_name="all"):
     template = loader.get_template('{}/dataset.html'.format(ADMIN_DIR))
 
     # Retrieve data
-    finalized_data = get_finalized_data(group_name)
+    if request.user.is_admin:
+        finalized_data = get_finalized_data(request.user.group.name)
+    else:
+        finalized_data = get_finalized_data(group_name)
     groups = CustomGroup.objects.all()
 
     # Initiate paginator
@@ -94,12 +97,15 @@ def dataset(request, group_name="all"):
 
 
 @superuser_admin_login_required
-def download_dataset(_, group_name=""):
+def download_dataset(request, group_name=""):
     """A view that streams a large CSV file."""
     # Generate a sequence of rows. The range is based on the maximum number of
     # rows that can be handled by a single sheet in most spreadsheet
     # applications.
-    finalized_data = get_finalized_data(group_name)
+    if request.user.is_admin:
+        finalized_data = get_finalized_data(request.user.group.name)
+    else:
+        finalized_data = get_finalized_data(group_name)
 
     rows = [["id", "question", "qns_keywords", "answer", "ans_keywords"]]
     rows += ([data.id, data.title, data.get_keywords()["qns"],
@@ -169,7 +175,7 @@ def report(request, from_date=None, to_date=None):
     template = loader.get_template('{}/report.html'.format(ADMIN_DIR))
 
     # TODO
-    # i = datetime.now()
+    i = datetime.now()
     # if not from_date:
     #     from_date = '{}-{}-{}'.format(i.year, i.month, i.day)
     # if not to_date:

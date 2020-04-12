@@ -346,6 +346,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image(self):
         img = self.images[1]
+        img.num_votes = 4
+        img.save()
         label = img.imagelabel_set.all()[2]
         label.num_votes = 4
         label.save()
@@ -359,6 +361,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image_2(self):
         img = self.images[2]
+        img.num_votes = 4
+        img.save()
         first_abel = img.imagelabel_set.all()[0]
         first_abel.num_votes = 2
         first_abel.save()
@@ -375,6 +379,8 @@ class UserViewTestCase(TestCase):
 
     def test_post_final_image_tie(self):
         img = self.images[3]
+        img.num_votes = 4
+        img.save()
         first_abel = img.imagelabel_set.all()[0]
         first_abel.num_votes = 2
         first_abel.save()
@@ -385,10 +391,9 @@ class UserViewTestCase(TestCase):
         label = img.imagelabel_set.all()[2]
         response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
-        self.assertIn(FinalizedImageData.objects.get(pk=img.pk).label, [first_abel.label, second_label.label])
-        self.assertIsNone(ImageData.objects.filter(pk=img.pk).first())
-        self.assertIsNone(ImageLabel.objects.filter(image=img).first())
+        self.assertIsNone(FinalizedImageData.objects.filter(pk=img.pk).first())
+        self.assertIsNotNone(ImageData.objects.filter(pk=img.pk).first())
+        self.assertEqual(Assignment.objects.filter(task=img, done=False).count(), 2)
 
 
 class AdminViewTestCase(TestCase):
@@ -519,7 +524,6 @@ class AdminViewTestCase(TestCase):
         response = self.admin_client.post(path=reverse("update", args=(vote.id, )),
                                           data={"choice": str(selected_choice.id)}, follow=True)
         self.assertEqual(response.status_code, 200)
-        print(FinalizedData.objects.all())
         self.assertIsNotNone(FinalizedData.objects.filter(title=vote.title, answer_text=selected_choice.answer,
                                                           group=vote.group).first())
         self.assertIsNone(VotingData.objects.filter(title=vote.title, group=self.group).first())
@@ -569,7 +573,8 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         headers, body = self.get_csv(response)
         self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
-        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users if u.is_approved]
+        expected_body = [[str(u.id), str(u.username), str(u.certificate), str(u.point), str(u.accuracy())]
+                         for u in self.users if u.is_approved]
         expected_body.append([str(self.admin.id), self.admin.username, self.admin.certificate,
                               str(self.admin.point), str(self.admin.accuracy())])
         self.assertEqual(len(body), len(expected_body))
@@ -581,7 +586,7 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         headers, body = self.get_csv(response)
         self.assertEqual(headers, ['id', 'username', 'certificate', 'point', 'accuracy'])
-        expected_body = [[u.id, u.username, u.certificate, u.point, u.accuracy()] for u in self.users
+        expected_body = [[str(u.id), str(u.username), str(u.certificate), str(u.point), str(u.accuracy())] for u in self.users
                          if u.is_approved and u.group == self.admin.group]
         self.assertEqual(len(body), len(expected_body))
         for b in body:
@@ -860,6 +865,7 @@ class UtilsTestCase(TestCase):
 
 class ViewsTestCase(TestCase):
     def setUp(self) -> None:
+        translation.activate('en')
         self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
 
         self.admin_client = Client()
@@ -876,7 +882,7 @@ class ViewsTestCase(TestCase):
 
         self.user_client = Client()
         self.user = CustomUser.objects.create_user(
-            username="user", email='user@gmail.com', certificate="G12355M", password="user"
+            username="user", email='user@gmail.com', certificate="G12355M", password="user", group=self.group
         )
         self.user_client.login(username=self.user.email, password="user")
 
