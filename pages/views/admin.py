@@ -166,6 +166,8 @@ def assign_contro(request):
         tasker = get_user_model().objects.get(pk=tasker_id)
         for task_id in task_arr:
             task = VotingData.objects.get(pk=task_id)
+            task.activate(False)
+            task.assignment_set.all().delete()
             Assignment.objects.create(tasker=tasker, task=task)
         return HttpResponseRedirect(reverse('update'))
 

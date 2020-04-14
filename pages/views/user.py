@@ -170,7 +170,7 @@ def contro(request):
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, VotingData,
-                                                condition=(lambda x: x.is_active and x.num_votes > 15))
+                                                condition=(lambda x: not x.is_active and x.num_votes > 15))
     page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
 
     for d in data:

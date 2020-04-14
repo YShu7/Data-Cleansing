@@ -83,11 +83,11 @@ def log(user, task, action, response):
 
 def get_controversial_voting_data(group=None, search_term=None):
     if group:
-        voting_data = VotingData.objects.filter(num_votes__gt=15, group=group)
+        voting_data = VotingData.objects.filter(num_votes__gt=15, group=group, is_active=True)
     if search_term:
-        voting_data = VotingData.objects.filter(num_votes__gt=15, title__icontains=search_term)
+        voting_data = VotingData.objects.filter(num_votes__gt=15, title__icontains=search_term, is_active=True)
     if group is None and search_term is None:
-        voting_data = VotingData.objects.filter(num_votes__gt=15)
+        voting_data = VotingData.objects.filter(num_votes__gt=15, is_active=True)
 
     # get all VotingData objects and combine them with their respective choices
     voting_data_list = []
