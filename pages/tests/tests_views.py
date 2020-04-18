@@ -2,6 +2,7 @@ import csv
 import io
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.messages import get_messages
 from django.test import TestCase, RequestFactory, Client
 from django.urls import reverse
 from django.utils import translation
@@ -9,8 +10,9 @@ from django.utils import translation
 from assign.models import Assignment
 from authentication.forms import CreateGroupForm
 from authentication.models import CustomGroup, CustomUser
+from datacleansing.settings import VOT, VAL, INCORRECT_POINT, CORRECT_POINT, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
-from pages.models.models import FinalizedData
+from pages.models.models import FinalizedData, Log
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
 from pages.views.utils import get_assigned_tasks_context, get_finalized_data, get_controversial_voting_data, \
@@ -84,6 +86,9 @@ class UserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('tasks/image'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse('profile'))
         self.assertEqual(response.status_code, 200)
 
     def test_post_validate_add_data(self):
@@ -222,6 +227,24 @@ class UserViewTestCase(TestCase):
         self.assertEqual(data.choice_set.all()[0].answer, 'New Answer {}'.format(data_id))
         self.assertTrue(data.is_active)
 
+    def test_post_validate_fail(self):
+        session = self.client.session
+        ids = [103, 459, 380]
+        session['data'] = {"validate_ids": ids}
+        for id in ids:
+            session['data']['approve_value_{}'.format(id)] = 'true'
+        session.save()
+
+        data = {"submit": 'Submit'}
+        data['validate_ids'] = ids
+        response = self.client.post(path=reverse('tasks/validate'),
+                                    data=data,
+                                    follow=True, format='json')
+        self.assertEqual(response.status_code, 200)
+        messages = [str(msg) for msg in get_messages(response.wsgi_request)]
+        for id in ids:
+            self.assertIn(MSG_FAIL_DATA_NONEXIST.format(id), messages)
+
     def test_post_vote(self):
         vote = self.active_voting[0]
         choice = vote.choice_set.all()[1]
@@ -233,6 +256,20 @@ class UserViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Choice.objects.get(pk=choice.id).num_votes, 1)
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
+
+    def test_post_vote_fail(self):
+        response = self.client.post(path=reverse('vote_post', args=(100,)),
+                                    data={"choice": [0]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        messages = [str(msg) for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(MSG_FAIL_DATA_NONEXIST.format(100), messages[0])
+
+        vote = self.active_voting[0]
+        response = self.client.post(path=reverse('vote_post', args=(vote.id,)),
+                                   data={"choice": [999]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        messages = [str(msg) for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(MSG_FAIL_CHOICE, messages[0])
 
     def test_post_final_vote(self):
         vote = self.active_voting[1]
@@ -400,6 +437,10 @@ class AdminViewTestCase(TestCase):
     def setUp_client(self):
         self.admin_client = Client()
         self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
+        self.groups = [self.group]
+        for i in range(5):
+            group = CustomGroup.objects.create(name="Group{}".format(i))
+            self.groups.append(group)
         self.admin = CustomUser.objects.create_admin(
             username='admin', email='admin@gmail.com', certificate="G11111M",
             group=self.group, password='top_secret')
@@ -412,11 +453,7 @@ class AdminViewTestCase(TestCase):
         self.super_client.login(username=self.superuser.email, password='superuser')
 
     def setUp_users(self):
-        self.groups = [self.group]
         self.users = []
-        for i in range(5):
-            group = CustomGroup.objects.create(name="Group{}".format(i))
-            self.groups.append(group)
         for i, group in enumerate(self.groups):
             for j in range(10):
                 user = CustomUser.objects.create_user(
@@ -428,8 +465,7 @@ class AdminViewTestCase(TestCase):
 
     def setUp_data(self):
         self.data = []
-        for i in range(5):
-            group = CustomGroup.objects.create(name="Group{}".format(i))
+        for i, group in enumerate(self.groups):
             for j in range(10):
                 data, _ = FinalizedData.objects.update_or_create(title=j, answer_text=j, group=group)
                 self.data.append(data)
@@ -463,6 +499,9 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.super_client.get(reverse('group'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.super_client.get(reverse('group_details', args=(self.group.name,)))
         self.assertEqual(response.status_code, 200)
 
     def test_post_modify_users(self):
@@ -538,6 +577,26 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(FinalizedData.objects.filter(title=vote.title, group=vote.group).first())
         self.assertIsNotNone(VotingData.objects.filter(title=vote.title, group=vote.group).first())
+
+    def test_assign_contro(self):
+        self.setUp_users()
+        vote = VotingData.objects.create(title="vote", group=self.group)
+        choices = []
+        for i in range(3):
+            choice = Choice.objects.create(data=vote, answer="ans{}".format(i), num_votes=6)
+            choices.append(choice)
+        vote.num_votes = 3 * 6
+        vote.save()
+        for user in self.users:
+            Assignment.objects.create(tasker=user, task=vote, done=True)
+        tasker = self.users[0]
+
+        response = self.admin_client.post(path=reverse("assign_contro"),
+                                          data={"select_list": vote.id, 'assign_tasker': tasker.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(VotingData.objects.get(id=vote.id).is_active)
+        self.assertEqual(Assignment.objects.filter(task=vote).exclude(tasker=tasker).count(), 0)
+        self.assertEqual(Assignment.objects.filter(task=vote, tasker=tasker, done=False).count(), 1)
 
     def test_download_dataset(self):
         self.setUp_data()
@@ -628,7 +687,37 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(Assignment.objects.all().count(), 20 * 3)
 
     def test_summarize(self):
-        return
+        self.setUp_users()
+        self.setUp_data()
+
+        expected = {}
+        for i, user in enumerate(self.users):
+            if (user.group != self.admin.group):
+                continue
+            tasks = [task for task in self.data if task.group == user.group]
+            num_ans = 0
+            point = 0
+            correct_num_ans = 0
+            timestamp = "2000-01-01 23:59"
+            for j, task in enumerate(tasks):
+                num_ans += 1
+                if j % 2 == 0:
+                    Log.objects.create(user=user, task=task, action=VOT, response="Random", timestamp=timestamp)
+                    point += INCORRECT_POINT
+                else:
+                    Log.objects.create(user=user, task=task, action=VOT, response=task.answer_text, timestamp=timestamp)
+                    correct_num_ans += 1
+                    point += CORRECT_POINT
+            expected[user.id] = {'num_ans': num_ans, 'point': point, 'correct_num_ans': correct_num_ans}
+
+        response = self.admin_client.post(path=reverse("summarize"), HTTP_REFERER='/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        for user in self.users:
+            if (user.group != self.admin.group):
+                continue
+            self.assertEqual(CustomUser.objects.get(id=user.id).num_ans, expected[user.id]['num_ans'])
+            self.assertEqual(CustomUser.objects.get(id=user.id).correct_num_ans, expected[user.id]['correct_num_ans'])
+            self.assertEqual(CustomUser.objects.get(id=user.id).point, expected[user.id]['point'])
 
     def test_create_group(self):
         form_data = {'name': 'new group'}
@@ -697,7 +786,7 @@ class UtilsTestCase(TestCase):
 
         # active other group data
         for q in range(5):
-            voting_data = VotingData.create(title=q, group=self.other_group, is_active=False)
+            voting_data = VotingData.create(title=q, group=self.other_group, is_active=True)
             for a in range(3):
                 choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
             self.unassigned_voting_data.append(voting_data)

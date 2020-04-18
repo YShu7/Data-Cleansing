@@ -294,7 +294,7 @@ def summarize(request):
         for user_log in user_logs:
             user_response = user_log.response
             try:
-                data = FinalizedData.objects.get(title=user_log.task.task.title)
+                data = FinalizedData.objects.get(pk=user_log.task.pk)
                 if data and user_response == data.answer_text:
                     user.ans_is(True)
                 else:

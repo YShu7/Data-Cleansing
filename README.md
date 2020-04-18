@@ -62,6 +62,8 @@ It provides function including:
    Admin account: `admin@gmail.com` password: `admin`
    
    User account: `alice@gmail.com` password: `alice`
+   
+8. To generate test report: `coverage run --source=../Data-Cleansing manage.py test`
 
 # Roles
 
