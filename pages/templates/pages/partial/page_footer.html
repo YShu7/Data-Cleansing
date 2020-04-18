@@ -14,7 +14,7 @@
 
             <span class="current">
                 {% blocktrans with num=page_obj.number total_num=page_obj.paginator.num_pages %}
-                    Page {{ num }} of {{ total_num }}
+                    {{ num }} / {{ total_num }}
                 {% endblocktrans %}
             </span>
 

@@ -47,8 +47,8 @@ class VotingData(Data):
         if num_votes > 15:
             self.assignment_set.all().delete()
 
-    def activate(self):
-        self.is_active = True
+    def activate(self, is_active=True):
+        self.is_active = is_active
         self.save()
 
 
