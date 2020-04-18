@@ -135,7 +135,7 @@ def update(request, data_ptr_id=None):
             messages.success(request, MSG_SUCCESS_VOTE)
         return HttpResponseRedirect(reverse("update"))
     else:
-        template = loader.get_template('{}/setting_tasks.html'.format(ADMIN_DIR))
+        template = loader.get_template('{}/contro_tasks.html'.format(ADMIN_DIR))
 
         # Retrieve data
         search_term = None
@@ -149,7 +149,7 @@ def update(request, data_ptr_id=None):
         page_obj = paginator.get_page(page_number)
 
         context = {
-            'title': _('Data Set'),
+            'title': _('Assign Controversial Data'),
             'page_obj': page_obj,
             'data': VotingData.objects.all(),
             'taskers': get_approved_users(getattr(request.user, 'group'))

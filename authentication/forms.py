@@ -46,8 +46,9 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
-    old_password = forms.CharField(
-        widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'}, render_value=True))
+    old_password = forms.CharField(label=_("Old Password"),
+                                   widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
+                                                                      render_value=True))
     new_password1 = forms.CharField(label=_("New Password"), min_length=8,
                                     widget=forms.widgets.PasswordInput(attrs={'class': 'form-control'},
                                                                        render_value=True),
