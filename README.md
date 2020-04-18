@@ -73,7 +73,7 @@ Superuser is expected to be the account that has the most permissions.
 
 ### Allowed actions
 
-[Details](pages/templates/help/superuser.md)
+[Details](pages/templates/help/en/superuser.md)
 
 #### Group
 
@@ -101,7 +101,7 @@ Admin is a group of people who **do NOT require domain specific knowledge**. The
 
 ### Allowed actions
 
-[Details](pages/templates/help/admin.md)
+[Details](pages/templates/help/en/admin.md)
 
 #### Account
 
@@ -129,7 +129,7 @@ User is a group of people who require domain specific knowledge. Their role is t
 
 ### Allowed actions
 
-[Details](pages/templates/help/user.md)
+[Details](pages/templates/help/en/user.md)
 
 - To submit response for tasks allocated to the user
 - To change password

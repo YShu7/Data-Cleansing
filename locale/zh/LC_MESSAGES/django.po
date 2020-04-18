@@ -243,7 +243,7 @@ msgstr "任务分配已完成。"
 
 #: datacleansing/settings.py:186
 msgid "Summarize Succeed"
-msgstr "统计已完成。"
+msgstr "汇总已完成。"
 
 #: datacleansing/settings.py:187
 msgid ""
@@ -273,7 +273,7 @@ msgstr "选择"
 
 #: pages/templates/pages/admin/dataset.html:6
 msgid "Summary"
-msgstr "统计"
+msgstr "汇总"
 
 #: pages/templates/pages/admin/dataset.html:10
 msgid "Current Data #:"
@@ -337,12 +337,12 @@ msgstr "报告"
 #: pages/templates/pages/admin/group_details.html:15
 #: pages/templates/pages/admin/modify_users.html:7
 msgid "Pending Users"
-msgstr "待审核用户"
+msgstr "待处理用户"
 
 #: pages/templates/pages/admin/group_details.html:20
 #: pages/templates/pages/admin/modify_users.html:12
 msgid "Approved Users"
-msgstr "已通过用户"
+msgstr "已批准用户"
 
 #: pages/templates/pages/admin/log.html:8
 #: pages/templates/pages/admin/partial/finalized_data.html:11
@@ -404,7 +404,7 @@ msgstr "我了解后果，删除小组。"
 
 #: pages/templates/pages/admin/partial/finalized_data.html:5
 msgid "Download All Data"
-msgstr "下载全部数据"
+msgstr "下载所有数据"
 
 #: pages/templates/pages/admin/partial/finalized_data.html:6
 #: pages/templates/pages/admin/setting_tasks.html:5
@@ -458,7 +458,7 @@ msgstr "拒绝"
 #: pages/templates/pages/admin/partial/sidebar.html:18
 #: pages/templates/pages/admin/partial/sidebar.html:27
 msgid "User List"
-msgstr "用户清单"
+msgstr "用户列表"
 
 #: pages/templates/pages/admin/partial/sidebar.html:24
 msgid "Accounts"
@@ -494,7 +494,7 @@ msgstr "分配任务"
 
 #: pages/templates/pages/admin/partial/sidebar.html:72
 msgid "Summarize"
-msgstr "统计"
+msgstr "汇总"
 
 #: pages/templates/pages/admin/report.html:12
 msgid "Download Individual Report"
@@ -663,7 +663,7 @@ msgstr "状态"
 
 #: pages/templates/pages/user/validating_tasks.html:27
 msgid "Approved"
-msgstr "已通过"
+msgstr "已批准"
 
 #: pages/templates/pages/user/validating_tasks.html:28
 msgid "Disapproved"

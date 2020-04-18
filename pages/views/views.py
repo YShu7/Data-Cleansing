@@ -3,6 +3,7 @@ from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import loader
 from django.template.defaulttags import register
 from django.urls import reverse
+from django.utils.translation import get_language
 
 from pages.decorators import login_required
 
@@ -20,16 +21,17 @@ def index(request):
 def help(request):
     user = request.user
     template = loader.get_template('help/help.html')
+    lang = get_language()
 
     if user.is_superuser:
         base = "pages/admin/base.html"
-        filename = "superuser.md"
+        filename = "{}/superuser.md".format(lang)
     elif user.is_admin:
         base = "pages/admin/base.html"
-        filename = "admin.md"
+        filename = "{}/admin.md".format(lang)
     else:
         base = "pages/user/base.html"
-        filename = "user.md"
+        filename = "{}/user.md".format(lang)
 
     with open('pages/templates/help/{}'.format(filename), 'r') as myfile:
         data = myfile.read()
