@@ -29,6 +29,12 @@ class UserViewTestCase(TestCase):
         self.user.approve(True)
         self.client.login(username="alice@gmail.com", password="top_secret")
 
+        for i in range(5):
+            CustomUser.objects.create_user(
+                username='user{}'.format(i), email='user{}@gmail.com'.format(i), certificate="G123456{}M".format(i),
+                group=self.group, password='top_secret'
+            )
+
     def setUp_validating(self):
         self.validating = []
         for i in range(20):
@@ -775,6 +781,8 @@ class UtilsTestCase(TestCase):
                 voting_data.num_votes = q * 5
                 voting_data.save()
                 if q * 5 > 15:
+                    voting_data.is_contro = True
+                    voting_data.save()
                     self.controversial_data.append(voting_data)
         # inactive voting data
         for q in range(20, 30):
@@ -793,6 +801,8 @@ class UtilsTestCase(TestCase):
             voting_data.num_votes = q * 7
             voting_data.save()
             if q * 7 > 15:
+                voting_data.is_contro = True
+                voting_data.save()
                 self.controversial_data.append(voting_data)
 
         self.num_vote_other = 5

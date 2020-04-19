@@ -14,21 +14,23 @@ class Assignment(models.Model):
         self.done = True
         self.save()
 
-    def __str__(self):
-        return "{} {} {}".format(self.tasker.pk, self.task.title, self.done)
-
     @classmethod
     def reassign(cls, task, all_users):
-        assigned_taskers = Assignment.objects.filter(task=task)
+        assigned_taskers = [a.tasker for a in Assignment.objects.filter(task=task)]
         all_users = [user for user in all_users]
 
         target_new_users = 2
         num_new_users = 0
-        while num_new_users != target_new_users:
+        while num_new_users != target_new_users and len(all_users) != 0:
             new_user = random.choice(all_users)
+            all_users.remove(new_user)
             if new_user in assigned_taskers:
                 continue
             else:
                 new_assign = cls(tasker=new_user, task=task)
                 new_assign.save()
                 num_new_users += 1
+        if num_new_users == 2:
+            return True
+        else:
+            return False
