@@ -495,10 +495,19 @@ class AdminViewTestCase(TestCase):
         response = self.admin_client.get(reverse('dataset'))
         self.assertEqual(response.status_code, 200)
 
+        response = self.super_client.get(reverse('dataset'))
+        self.assertEqual(response.status_code, 200)
+
         response = self.admin_client.get(reverse('update'))
         self.assertEqual(response.status_code, 200)
 
+        response = self.admin_client.get(reverse('update'), data={'search': 'keyword'})
+        self.assertEqual(response.status_code, 200)
+
         response = self.admin_client.get(reverse('report'))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.super_client.get(reverse('report'))
         self.assertEqual(response.status_code, 200)
 
         response = self.admin_client.get(reverse('log'))
@@ -670,6 +679,35 @@ class AdminViewTestCase(TestCase):
         data = [data for data in ValidatingData.objects.all()]
         self.assertEqual(expected_data, data)
 
+    def test_import_dataset_fail(self):
+        response = self.admin_client.post(path=reverse("import_dataset"), data={'qns_col': 0, 'ans_col': 1})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertNotEqual(len(messages), 0)
+
+        str = "qns,ans\r\n"
+        data_len = 3
+        expected_data = []
+        for i in range(data_len):
+            str += "Q{}, A{}\r\n".format(i, i)
+            expected_data.append(
+                ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
+        csv_file = SimpleUploadedFile("file.csv", str.encode('UTF-8'), content_type="text/csv")
+        response = self.admin_client.post(path=reverse("import_dataset"), data={'file': csv_file, 'ans_col': 1})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertNotEqual(len(messages), 0)
+
+        str = "qns,ans\r\n"
+        data_len = 3
+        expected_data = []
+        for i in range(data_len):
+            str += "Q{}, A{}\r\n".format(i, i)
+            expected_data.append(
+                ValidatingData.create(title="Q{}".format(i), ans="A{}".format(i), group=self.admin.group))
+        txt = SimpleUploadedFile("file.txt", str.encode('UTF-8'), content_type="text/csv")
+        response = self.admin_client.post(path=reverse("import_dataset"), data={'file': txt, 'qns_col': 0, 'ans_col': 1})
+        messages = list(get_messages(response.wsgi_request))
+        self.assertNotEqual(len(messages), 0)
+
     def test_assign_tasks(self):
         validating = []
         for i in range(20):
@@ -734,12 +772,29 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(CustomGroup.objects.filter(name='new group').first())
 
+    def test_create_group_invalid(self):
+        form_data = {'name': self.group.name}
+        form = CreateGroupForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        response = self.super_client.post(path=reverse('create_group'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
     def test_delete_group(self):
+        name = 'group_deleted'
+        group = CustomGroup.objects.create(name=name)
         response = self.super_client.post(path=reverse('delete_group'),
-                                          data={'input': self.group.name, 'confirm_input': self.group.name},
+                                          data={'input': name, 'confirm_input': name},
                                           follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIsNone(CustomGroup.objects.filter(name=self.group.name).first())
+        self.assertIsNone(CustomGroup.objects.filter(name=name).first())
+
+        name = 'group_undeleted'
+        group = CustomGroup.objects.create(name=name)
+        response = self.super_client.post(path=reverse('delete_group'),
+                                          data={'input': name, 'confirm_input': name + "wrong"},
+                                          follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(CustomGroup.objects.filter(name=name).first())
 
 
 class UtilsTestCase(TestCase):

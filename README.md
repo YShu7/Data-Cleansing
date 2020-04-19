@@ -65,7 +65,7 @@ It provides function including:
    
 8. To generate test report: 
 
-   `coverage run --source=../Data-Cleansing manage.py test`   
+   `coverage run --source=. manage.py test`   
    
    `coverage report [-m]`
    

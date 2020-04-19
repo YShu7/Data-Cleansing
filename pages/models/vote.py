@@ -15,9 +15,6 @@ class VotingData(Data):
     is_contro = models.BooleanField(default=False)
     num_votes = models.IntegerField(default=0)
 
-    def __str__(self):
-        return "Q: {}, T: {}".format(self.data_ptr.title, self.data_ptr.group)
-
     @classmethod
     def create(cls, title, group, is_active=False):
         try:
@@ -60,9 +57,6 @@ class Choice(models.Model):
     data = models.ForeignKey(VotingData, models.CASCADE)
     answer = models.TextField(blank=False, null=False)
     num_votes = models.IntegerField(default=0)
-
-    def __str__(self):
-        return "ID: {}, A: {}, N: {}".format(self.data, self.answer, self.num_votes)
 
     def vote(self):
         self.num_votes += 1
