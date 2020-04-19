@@ -5,6 +5,7 @@
 /node_modules
 /.idea
 coverage.xml
+.coverage
 
 *.log
 

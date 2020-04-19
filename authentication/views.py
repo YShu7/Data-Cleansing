@@ -62,16 +62,11 @@ def signup(request):
 
     if request.method == "POST":
         if form.is_valid():
-            user = None
+            user = form.save()
+            auth.login(request, user, backend='authentication.backends.CustomBackend')
 
-            if user:
-                return HttpResponse(template.render(context={'form_obj': form}, request=request))
-            else:
-                user = form.save()
-                auth.login(request, user, backend='authentication.backends.CustomBackend')
-
-                messages.success(request, MSG_SUCCESS_SIGN_UP)
-                return HttpResponseRedirect('/')
+            messages.success(request, MSG_SUCCESS_SIGN_UP)
+            return HttpResponseRedirect('/')
         else:
             return HttpResponse(template.render(context={'form_obj': form}, request=request))
     else:

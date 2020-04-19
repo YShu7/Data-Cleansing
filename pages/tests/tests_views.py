@@ -10,7 +10,8 @@ from django.utils import translation
 from assign.models import Assignment
 from authentication.forms import CreateGroupForm
 from authentication.models import CustomGroup, CustomUser
-from datacleansing.settings import VOT, VAL, INCORRECT_POINT, CORRECT_POINT, MSG_FAIL_DATA_NONEXIST, MSG_FAIL_CHOICE
+from datacleansing.settings import VOT, VAL, INCORRECT_POINT, CORRECT_POINT, MSG_FAIL_DATA_NONEXIST, \
+    MSG_FAIL_CHOICE, MSG_FAIL_LABEL_NONEXIST
 from pages.models.image import ImageData, ImageLabel, FinalizedImageData
 from pages.models.models import FinalizedData, Log
 from pages.models.validate import ValidatingData
@@ -96,6 +97,26 @@ class UserViewTestCase(TestCase):
 
         response = self.client.get(reverse('profile'))
         self.assertEqual(response.status_code, 200)
+
+    def test_post_validate_new_data(self):
+        assignments = []
+        for val in self.validating[:10]:
+            assignment = Assignment.objects.create(tasker=self.user, task=val)
+            assignments.append(assignment)
+
+        new_id = self.validating[5].id
+        data = {"validate_ids": new_id,
+                "approve_value_{}".format(new_id): 'false',
+                "new_ans_{}".format(new_id): 'New Answer'}
+        response = self.client.post(path=reverse('tasks/validate'),
+                                    data=data,
+                                    follow=True, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data', response.client.session)
+        self.assertIn('validate_ids', response.client.session['data'])
+        data = response.client.session['data']['validate_ids']
+        expected_data = str(new_id)
+        self.assertEqual(data, expected_data)
 
     def test_post_validate_add_data(self):
         session = self.client.session
@@ -375,6 +396,16 @@ class UserViewTestCase(TestCase):
         self.assertEqual(keywords.ans_keywords, 'This,answer,.,is,')
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).is_done)
 
+    def test_post_keywords_invalid(self):
+        response = self.client.post(path=reverse('keywords', args=(999,)),
+                                    data={
+                                        "qns_keywords": 'This,a,',
+                                        "ans_keywords": 'This,answer,.,',
+                                    }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(MSG_FAIL_DATA_NONEXIST.format(999), str(messages[0]))
+
     def test_post_image(self):
         img = self.images[0]
         label = img.imagelabel_set.all()[1]
@@ -437,6 +468,31 @@ class UserViewTestCase(TestCase):
         self.assertIsNone(FinalizedImageData.objects.filter(pk=img.pk).first())
         self.assertIsNotNone(ImageData.objects.filter(pk=img.pk).first())
         self.assertEqual(Assignment.objects.filter(task=img, done=False).count(), 2)
+
+    def test_post_image_invalid(self):
+        img = self.images[0]
+        label = img.imagelabel_set.all()[0]
+
+        response = self.client.post(path=reverse('image', args=(999,)), data={"label": [label.id]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn(MSG_FAIL_DATA_NONEXIST.format(999), str(messages[0]))
+
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [999]}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn(MSG_FAIL_LABEL_NONEXIST.format(999), str(messages[0]))
+
+    def test_retry_sign_up(self):
+        rejected_client = Client()
+        rejected_user = CustomUser.objects.create_admin(
+            username='rejected', email='rejected@gmail.com', certificate="G11111M",
+            group=self.group, password='top_secret')
+        rejected_user.approve(False)
+        rejected_client.login(username=rejected_user.email, password='top_secret')
+
+        rejected_client.post(path=reverse('retry_sign_up'), follow=True)
+        self.assertIsNone(CustomUser.objects.get(pk=rejected_user.pk).is_approved)
 
 
 class AdminViewTestCase(TestCase):
