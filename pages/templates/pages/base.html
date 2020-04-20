@@ -16,7 +16,7 @@
 
 <body>
 <nav class="navbar navbar-light bg-light topbar">
-    {% include "pages/partial/header.html" with user_name=request.user %}
+    {% include "pages/partial/header.html" with user_name=request.user.username %}
 </nav>
 
 {% if request.user.is_approved %}

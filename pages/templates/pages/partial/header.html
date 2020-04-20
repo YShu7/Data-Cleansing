@@ -17,7 +17,7 @@
     </form>
 </span>
 {% if user_name == "" %}
-    <a href='/authentication/login'>{% trans "Log In" %}</a>
+    <a href='/authentication/login' class="btn btn-outline-primary btn-sm">{% trans "Log In" %}</a>
 {% else %}
     <div>
         <div class="navbar-text">{% trans "Welcome" %}, {{ user_name }} &nbsp</div>
