@@ -13,9 +13,6 @@ class CustomGroup(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return "{} created at {}, updated at {}".format(self.name, self.created_at, self.updated_at)
-
     def updated(self):
         self.updated_at = datetime.now()
         self.save()
@@ -23,9 +20,6 @@ class CustomGroup(models.Model):
 
 class CustomUserManager(UserManager):
     def create_user(self, email, username, certificate, password, group):
-        if not email:
-            raise ValueError('Users must have an email address')
-
         user = self.model(
             email=self.normalize_email(email),
             username=username,

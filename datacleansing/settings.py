@@ -93,8 +93,8 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'datacleansing',
-            'USER': 'datacleansinguser', # input your user name
-            'PASSWORD': 'L1feI5T0ugh', # input your password
+            'USER': '', # input your user name
+            'PASSWORD': '', # input your password
             'HOST': 'localhost',
             'PORT': '',
         }

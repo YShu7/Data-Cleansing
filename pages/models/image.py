@@ -8,6 +8,7 @@ from pages.models.models import Data
 
 class ImageData(Data):
     image_url = models.URLField(unique=True)
+    is_contro = models.BooleanField(default=False)
     num_votes = models.IntegerField(default=0)
 
     @classmethod
@@ -31,15 +32,18 @@ class ImageData(Data):
 
         # if enough users have made responses to this question and this choice has the maximum num of votes,
         # this question is done
+        reassigned = True
         if num_votes >= 5 and num_votes <= 15:
             for c in choices:
                 if c.num_votes >= ceil(num_votes / 2.0):
                     FinalizedImageData.create_from_imagedata(data=self)
                     self.delete(keep_parents=True)
                     return
-            Assignment.reassign(self, get_user_model().objects.all())
+            reassigned = Assignment.reassign(self, get_user_model().objects.all())
 
-        if num_votes > 15:
+        if num_votes > 15 or not reassigned:
+            self.is_contro = True
+            self.save()
             self.assignment_set.all().delete()
 
 

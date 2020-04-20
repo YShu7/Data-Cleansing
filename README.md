@@ -63,7 +63,13 @@ It provides function including:
    
    User account: `alice@gmail.com` password: `alice`
    
-8. To generate test report: `coverage run --source=../Data-Cleansing manage.py test`
+8. To generate test report: 
+
+   `coverage run --source=. manage.py test`   
+   
+   `coverage report [-m]`
+   
+   If `.xml` file is needed, run`coverage xml`
 
 # Roles
 
@@ -142,25 +148,32 @@ User is a group of people who require domain specific knowledge. Their role is t
 
 Validating tasks require users to agree or disagree with question-answer pairs. The users should either **approve a pair** or **provide the correct answer if they disapprove a pair**.
 
-The responses to these tasks will be collected each time a response is submitted. When responses from one side is confirmed to be greater than the other side, the data is considered to be cleaned and the majority will be the response for it. 
+The responses to these tasks will be collected each time a response is submitted. When responses from one side are confirmed to be greater than the other side, the data is considered to be cleaned and the majority will be the response for it. 
 
-If majority consider the data as false, the data will be input to voting tasks, and all new answers submitted will be converted to its choices.
+If the majority considers the data as false, the data will be input to voting tasks, and all new answers submitted will be converted to its choices.
 
-If majority consider the data as true, the data will directly be finalized.
+If the majority considers the data as true, the data will directly be finalized.
 
 ## Voting Tasks
 
 Voting tasks require users to select the best answer from at most 3 choices for a question.
 
-The choice that has the highest votes will be considered as the answer to the question. Whenever a tie occurs, the choice with lower id will be selected as the correct answer.
+The choice that has the highest votes will be considered as the answer to the question. Whenever a tie occurs, the task will be re-assigned to two more users, until the number of assignees is greater than 15. It will be transferred to **Controversial Tasks** after more than 15 users have voted for it.
 
 ## Keyword Selection Tasks
 
-Keyword selection tasks require users to select keywords for both question and answer from a pair. The keyword does not have to be a single word, it can be any substring of the question and answer.
+Keyword selection tasks require users to select keywords for both questions and answers from a pair. The keyword does not have to be a single word, it can be any substring of the question and answer.
 
 All responses submitted will be union together and considered as the keywords for a question-answer pair.
 
 ## Image Label Validation Tasks
 
-Image label validation tasks shares the same logic as voting tasks, while instead of question-answer pairs, its target is image-label pairs.
+Image label validation tasks share the same logic as voting tasks, while instead of question-answer pairs, its target is image-label pairs.
 
+## Controversial Tasks
+
+Controversial tasks require users to select the best answer from at most 3 choices for a question. 
+
+The choice selected will be considered as the answer to the question. 
+
+Controversial tasks are assigned to a user by admins. Since the user's response can directly affect the data, the assigned user is expected to be an expert in the area. 

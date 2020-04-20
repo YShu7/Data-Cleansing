@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, LoginView, PasswordResetConfirmView
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.template import loader
-from django.template.defaulttags import register
 
 from datacleansing.settings import MSG_SUCCESS_SIGN_UP, MSG_SUCCESS_PWD_CHANGE
 from datacleansing.utils import get_pre_url
@@ -63,16 +62,11 @@ def signup(request):
 
     if request.method == "POST":
         if form.is_valid():
-            user = None
+            user = form.save()
+            auth.login(request, user, backend='authentication.backends.CustomBackend')
 
-            if user:
-                return HttpResponse(template.render(context={'form_obj': form}, request=request))
-            else:
-                user = form.save()
-                auth.login(request, user, backend='authentication.backends.CustomBackend')
-
-                messages.success(request, MSG_SUCCESS_SIGN_UP)
-                return HttpResponseRedirect('/')
+            messages.success(request, MSG_SUCCESS_SIGN_UP)
+            return HttpResponseRedirect('/')
         else:
             return HttpResponse(template.render(context={'form_obj': form}, request=request))
     else:
@@ -92,14 +86,3 @@ class CustomPasswordResetView(PasswordResetView):
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'authentication/password_reset_confirm.html'
     form_class = CustomSetPasswordForm
-
-
-@register.filter
-def get_item(dictionary, key):
-    if not isinstance(dictionary, dict):
-        return ""
-    res = dictionary.get(key)
-    if not res:
-        return ""
-    else:
-        return res

@@ -197,7 +197,7 @@ def keywords(request, data_id=None):
             data = FinalizedData.objects.get(pk=data_id)
         except FinalizedData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
-                                 message=_(MSG_FAIL_DATA_NONEXIST), extra_tags="danger")
+                                 message=_(MSG_FAIL_DATA_NONEXIST).format(data_id), extra_tags="danger")
             return HttpResponseRedirect(reverse('tasks/keywords'))
 
         done_assignment(data_id, request.user.id)
@@ -234,11 +234,11 @@ def image(request, img_id=None):
             label = ImageLabel.objects.all().get(id=label_id)
         except ImageData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
-                                 message=_(MSG_FAIL_DATA_NONEXIST), extra_tags="danger")
+                                 message=_(MSG_FAIL_DATA_NONEXIST).format(img_id), extra_tags="danger")
             return HttpResponseRedirect(reverse('tasks/image'))
         except ImageLabel.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
-                                 message=_(MSG_FAIL_LABEL_NONEXIST), extra_tags="danger")
+                                 message=_(MSG_FAIL_LABEL_NONEXIST).format(label_id), extra_tags="danger")
             return HttpResponseRedirect(reverse('tasks/image'))
 
         done_assignment(img_id, request.user.id)

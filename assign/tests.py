@@ -1,6 +1,7 @@
 from django.test import TestCase
+from math import floor
 
-from .views import assign
+from .views import assign, NUM_USER_PER_TASK, PREDEFINED_MAX
 from .models import Assignment
 from pages.models.validate import ValidatingData
 from authentication.models import CustomGroup, CustomUser
@@ -24,12 +25,37 @@ class UserViewTestCase(TestCase):
 
     def test_assign(self):
         assign(self.all_users, Assignment, self.all_tasks)
-        self.assertEqual(len(self.all_tasks), self.num_data)
-        self.assertEqual(len(self.all_users), self.num_user)
-        self.assertEqual(Assignment.objects.count(), 10*3)
+        self.assertEqual(Assignment.objects.count(), self.num_data * NUM_USER_PER_TASK)
+
+    def test_assign_task(self):
+        assign(self.all_users, Assignment, self.all_tasks, num_task_per_user=2)
+        self.assertEqual(Assignment.objects.count(), 2 * self.num_user)
+
+    def test_assign_user(self):
+        assign(self.all_users, Assignment, self.all_tasks, num_user_per_task=2)
+        self.assertEqual(Assignment.objects.count(), floor(self.num_data * 2 / self.num_user) * self.num_user)
+
+    def test_assign_fail(self):
+        assign([], Assignment, self.all_tasks)
+        self.assertEqual(Assignment.objects.count(), 0)
 
     def test_reassign(self):
         task = self.all_tasks[0]
+        Assignment.objects.create(task=task, tasker=self.all_users[0])
         num = Assignment.objects.filter(task=task).count()
-        Assignment.reassign(task, all_users=self.all_users)
+        self.assertTrue(Assignment.reassign(task, all_users=self.all_users))
         self.assertEqual(Assignment.objects.filter(task=task).count(), num + 2)
+
+    def test_reassign_fail(self):
+        task = self.all_tasks[0]
+        for user in self.all_users:
+            Assignment.objects.create(task=task, tasker=user)
+        num = Assignment.objects.filter(task=task).count()
+        self.assertFalse(Assignment.reassign(task, all_users=self.all_users))
+        self.assertEqual(Assignment.objects.filter(task=task).count(), num)
+
+    def test_is_done(self):
+        assignment = Assignment.objects.create(task=self.all_tasks[0], tasker=self.all_users[0])
+        self.assertFalse(assignment.done)
+        assignment.is_done()
+        self.assertTrue(assignment.done)

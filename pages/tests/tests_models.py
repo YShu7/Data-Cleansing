@@ -11,20 +11,21 @@ from pages.models.vote import VotingData, Choice
 class VotingDataTestCase(TestCase):
     def setUp(self):
         group_names = ["KKH", "TPH", "AAH", "BH"]
-        groups = []
+        self.groups = []
         for group_name in group_names:
             group, _ = CustomGroup.objects.update_or_create(name=group_name)
-            groups.append(group)
+            self.groups.append(group)
 
         for q in range(20):
-            voting_data = VotingData.create(title=q, group=groups[0], is_active=True)
+            voting_data = VotingData.create(title=q, group=self.groups[0], is_active=True)
             for a in range(3):
                 choice = Choice.objects.create(data=voting_data, answer=a, num_votes=0)
 
-        user = CustomUser.objects.create_user(email='user@gmail.com', username='user', certificate='G123456M',
-                                              password='password', group=groups[0])
+        self.user = CustomUser.objects.create_user(
+            email='user@gmail.com', username='user', certificate='G123456M',
+            password='password', group=self.groups[0])
 
-    def test_vote(self):
+    def test_vote_has_result(self):
         voting_data = VotingData.objects.all()[0]
         selected_choice = voting_data.choice_set.all()[0]
         other_choice1 = voting_data.choice_set.all()[1]
@@ -44,7 +45,33 @@ class VotingDataTestCase(TestCase):
             group=voting_data.group
         ).first())
 
+    def test_vote_no_result_no_user(self):
         voting_data = VotingData.objects.all()[1]
+        selected_choice = voting_data.choice_set.all()[0]
+        other_choice1 = voting_data.choice_set.all()[1]
+        other_choice2 = voting_data.choice_set.all()[2]
+
+        voting_data.vote(selected_choice)
+        self.assertEqual(voting_data.num_votes, 1)
+
+        voting_data.vote(selected_choice)
+        voting_data.vote(other_choice1)
+        voting_data.vote(other_choice1)
+        voting_data.vote(other_choice2)
+        self.assertEqual(voting_data.num_votes, 5)
+        self.assertIsNotNone(VotingData.objects.filter(pk=voting_data.pk).first())
+        self.assertIsNone(FinalizedData.objects.filter(
+            title=voting_data.data_ptr.title,
+            group=voting_data.group
+        ).first())
+        self.assertEqual(Assignment.objects.filter(task=voting_data, done=False).count(), 0)
+
+    def test_vote_no_result(self):
+        for i in range(5):
+            CustomUser.objects.create_user(
+                email='user{}@gmail.com'.format(i), username='user'.format(i), certificate='G123456{}M'.format(i),
+                password='password', group=self.user.group)
+        voting_data = VotingData.objects.all()[2]
         selected_choice = voting_data.choice_set.all()[0]
         other_choice1 = voting_data.choice_set.all()[1]
         other_choice2 = voting_data.choice_set.all()[2]
@@ -68,10 +95,10 @@ class VotingDataTestCase(TestCase):
 class ImageDataTestCase(TestCase):
     def setUp(self) -> None:
         group_names = ["KKH", "TPH", "AAH", "BH"]
-        groups = []
+        self.groups = []
         for group_name in group_names:
             group, _ = CustomGroup.objects.update_or_create(name=group_name)
-            groups.append(group)
+            self.groups.append(group)
 
         for q in range(20):
             img_data = ImageData.create(group=group,
@@ -79,10 +106,11 @@ class ImageDataTestCase(TestCase):
             for a in range(3):
                 label = ImageLabel.objects.create(image=img_data, label="Label_{}".format(a))
 
-        user = CustomUser.objects.create_user(email='user@gmail.com', username='user', certificate='G123456M',
-                                              password='password', group=groups[0])
+        self.user = CustomUser.objects.create_user(
+            email='user@gmail.com', username='user', certificate='G123456M',
+            password='password', group=self.groups[0])
 
-    def test_vote_finalize(self):
+    def test_vote_finalize_has_result(self):
         img_data = ImageData.objects.all()[0]
 
         selected_label = img_data.imagelabel_set.all()[0]
@@ -103,6 +131,7 @@ class ImageDataTestCase(TestCase):
             group=img_data.group
         ).first())
 
+    def test_vote_finalize_no_result_no_user(self):
         img_data = ImageData.objects.all()[1]
         selected_label = img_data.imagelabel_set.all()[0]
         other_label1 = img_data.imagelabel_set.all()[1]
@@ -111,7 +140,32 @@ class ImageDataTestCase(TestCase):
         img_data.vote(selected_label)
         self.assertEqual(img_data.num_votes, 1)
 
+        img_data.vote(other_label2)
+        img_data.vote(other_label1)
+        img_data.vote(other_label1)
+        img_data.vote(other_label2)
+        self.assertEqual(img_data.num_votes, 5)
+        self.assertIsNotNone(ImageData.objects.filter(pk=img_data.pk).first())
+        self.assertIsNone(FinalizedImageData.objects.filter(
+            image_url=img_data.title,
+            group=img_data.group
+        ).first())
+        self.assertEqual(Assignment.objects.filter(task=img_data, done=False).count(), 0)
+
+    def test_vote_finalize_no_result(self):
+        for i in range(5):
+            CustomUser.objects.create_user(
+                email='user{}@gmail.com'.format(i), username='user{}'.format(i),
+                certificate='G123456{}M'.format(i), password='password', group=self.user.group)
+        img_data = ImageData.objects.all()[2]
+        selected_label = img_data.imagelabel_set.all()[0]
+        other_label1 = img_data.imagelabel_set.all()[1]
+        other_label2 = img_data.imagelabel_set.all()[2]
+
         img_data.vote(selected_label)
+        self.assertEqual(img_data.num_votes, 1)
+
+        img_data.vote(other_label2)
         img_data.vote(other_label1)
         img_data.vote(other_label1)
         img_data.vote(other_label2)

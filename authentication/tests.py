@@ -3,8 +3,9 @@ from django.urls import reverse
 from django.utils import translation
 
 from .forms import CustomUserCreationForm, CustomPasswordChangeForm
-from .models import CustomUser, CustomGroup
-from .utils import get_group_report, get_pending_users, get_approved_users
+from .models import CustomUser, CustomGroup, Log
+from .utils import get_group_report, get_pending_users, get_approved_users, get_log_msg, log
+from .templatetags import filter
 from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
 
 
@@ -55,7 +56,11 @@ class ModelsTestCase(TestCase):
                                               certificate="G123456M", password="user", group=self.group)
         user.correct_num_ans = 1
         user.num_ans = 5
-        self.assertEqual(user.correct_num_ans / user.num_ans, 0.2)
+        self.assertEqual(user.accuracy(), user.correct_num_ans / user.num_ans)
+
+        user = CustomUser.objects.create_user(email="user1@gmail.com", username="user",
+                                              certificate="G223456M", password="user", group=self.group)
+        self.assertEqual(user.accuracy(), 1)
 
     def test_ans_is(self):
         user = CustomUser.objects.create_user(email="user@gmail.com", username="user",
@@ -95,6 +100,27 @@ class ViewTestCase(TestCase):
         response = self.client.post(path=reverse('signup'), data=form_data, follow=True)
         self.assertEqual(response.status_code, 200)
 
+    def test_signup_invalid(self):
+        form_data = {'email': 'user@gmail.com',
+                     'username': 'user',
+                     'certificate': 'G1234567M',
+                     'password1': 'dsajkflsi&)(312',
+                     'password2': 'dsajkflsi&)(3',
+                     'group': self.group.pk}
+
+        form = CustomUserCreationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        response = self.client.post(path=reverse('signup'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_signup_get(self):
+        response = self.client.get(path=reverse('signup'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_change(self):
+        response = self.client.get(path=reverse('password_change'), follow=True)
+        self.assertEqual(response.status_code, 200)
+
     def test_password_change(self):
         old_pwd = 'dsajkflsi&)(3'
         new_pwd = 'jiiefa9790213*^&('
@@ -113,6 +139,30 @@ class ViewTestCase(TestCase):
         response = self.client.post(path=reverse('password_change'), data=form_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(CustomUser.objects.get(pk=user.pk).check_password(new_pwd))
+
+    def test_password_change_invalid(self):
+        old_pwd = 'dsajkflsi&)(3'
+        new_pwd = 'jiiefa9790213*^&('
+        user = CustomUser.objects.create_user(
+            username='User', email='User@gmail.com',
+            certificate="G123456M", group=self.group, password=old_pwd
+        )
+        self.client.login(username='User@gmail.com', password=old_pwd)
+        form_data = {'old_password': old_pwd + "wrong",
+                     'new_password1': new_pwd,
+                     'new_password2': new_pwd}
+
+        form = CustomPasswordChangeForm(data=form_data, user=user)
+        self.assertFalse(form.is_valid())
+
+        response = self.client.post(path=reverse('password_change'), data=form_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CustomUser.objects.get(pk=user.pk).check_password(new_pwd))
+        self.assertTrue(CustomUser.objects.get(pk=user.pk).check_password(old_pwd))
+
+    def test_password_change_get(self):
+        response = self.client.get(path=reverse('password_change'), follow=True)
+        self.assertEqual(response.status_code, 200)
 
 
 class UtilsTestCase(TestCase):
@@ -148,6 +198,11 @@ class UtilsTestCase(TestCase):
                         self.num_ans_0 += user.num_ans
                         self.correct_num_ans_0 += user.correct_num_ans
                         self.point_0 += user.point
+        self.admin = CustomUser.objects.create_admin(
+            username='Admin', email='admin@gmail.com',
+            certificate="G00000M", group=self.groups[0], password='admin'
+        )
+        self.all_approved_user.append(self.admin)
 
     def test_get_group_report(self):
         report = get_group_report(self.groups[0])
@@ -155,6 +210,15 @@ class UtilsTestCase(TestCase):
             "num_ans": self.num_ans_0,
             "point": self.point_0,
             "accuracy": self.correct_num_ans_0 / self.num_ans_0
+        }
+        self.assertEqual(report, expected_report)
+
+        group = CustomGroup.objects.create(name="Empty")
+        report = get_group_report(group)
+        expected_report = {
+            "num_ans": 0,
+            "point": 0,
+            "accuracy": 1
         }
         self.assertEqual(report, expected_report)
 
@@ -167,7 +231,29 @@ class UtilsTestCase(TestCase):
 
     def test_get_approved_users(self):
         users = get_approved_users(group=self.groups[0])
-        self.assertEqual(list(users), [u for u in self.all_approved_user if u.group == self.groups[0]])
+        self.assertEqual(list(users), [u for u in self.all_approved_user if u.group == self.groups[0] and not u.is_superuser and not u.is_admin])
 
         users = get_approved_users(group=None)
-        self.assertEqual(list(users), self.all_approved_user)
+        self.assertEqual(len(users), len(self.all_approved_user))
+        self.assertEqual(set(users), set(self.all_approved_user))
+
+    def test_get_log_msg(self):
+        timestamp = "2000-01-01 23:59"
+        log = Log.objects.create(admin=self.admin, action=Log.AccountAction.ACTIVATE, account=self.all_approved_user[0], timestamp=timestamp)
+        expected = {
+            "logger": "{}({})".format(self.admin.username, self.admin.certificate),
+            "timestamp": timestamp,
+            "msg": "{} {}({})".format("activate", self.all_approved_user[0].username, self.all_approved_user[0].certificate),
+            "extra": log.extra_msg,
+        }
+        self.assertEqual(get_log_msg(log), expected)
+
+    def test_log(self):
+        log(self.admin, Log.AccountAction.REJECT, self.all_pending_user[0])
+        self.assertIsNotNone(Log.objects.filter(admin=self.admin, action=Log.AccountAction.REJECT, account=self.all_pending_user[0]).first())
+
+class FilterTestCase(TestCase):
+    def test_get_item(self):
+        self.assertEqual(filter.get_item("{'a': 1, 'b': 2}", 'a'), "")
+        self.assertEqual(filter.get_item({'a': 1, 'b': 2}, 'a'), 1)
+        self.assertEqual(filter.get_item({'a': 1, 'b': 2}, 'c'), "")
