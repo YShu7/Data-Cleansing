@@ -23,13 +23,13 @@
         </div>
         {% endif %}
 
-        <button class="btn-success btn-lg btn-block" type="submit">
+        <button name="login" class="btn-success btn-lg btn-block" type="submit">
             {% trans "Log in" %}
         </button>
     </form>
     <br/>
     <form action="{% url 'signup' %}">
-        <button class="btn btn-primary btn-lg btn-block" type="submit">
+        <button name="signup" class="btn btn-primary btn-lg btn-block" type="submit">
             {% trans "Sign up" %}
         </button>
     </form>
