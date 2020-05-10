@@ -118,10 +118,6 @@ class ViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_password_change(self):
-        response = self.client.get(path=reverse('password_change'), follow=True)
-        self.assertEqual(response.status_code, 200)
-
-    def test_password_change(self):
         old_pwd = 'dsajkflsi&)(3'
         new_pwd = 'jiiefa9790213*^&('
         user = CustomUser.objects.create_user(

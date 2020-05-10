@@ -73,6 +73,13 @@ class CustomPasswordResetForm(PasswordResetForm):
                              },
                              widget=forms.widgets.EmailInput(attrs={'class': 'form-control', 'placeholder': _('Email')}))
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not get_user_model().objects.filter(email__iexact=email, is_active=True).exists():
+            msg = _("There is no user registered with the specified E-Mail address.")
+            self.add_error('email', msg)
+        return email
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):
