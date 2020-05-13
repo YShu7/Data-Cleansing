@@ -1,13 +1,19 @@
+"""
+Run the following script to dumpdata:
+python manage.py dumpdata --natural-foreign \
+  --exclude auth.permission --exclude contenttypes \
+  --indent 4 > fixtures.json
+"""
+
+import json
 import os
 import sys
 
 import django
-import json
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'datacleansing.settings')
 django.setup()
 
-from assign.models import Assignment
 from assign.views import assign
 from authentication.models import *
 from pages.models.models import *
@@ -51,7 +57,7 @@ for line in lines[1:]:
                                                             username=info[3], password=info[4])
             continue
 
-        group = groups[group_loop-1]
+        group = groups[group_loop - 1]
         if info[0] == "U":
             user = CustomUser.objects.create_user(email=info[1], certificate=info[2],
                                                   username=info[3], group=group, password=info[4])
@@ -70,37 +76,48 @@ for line in lines[1:]:
         with open('voting.json') as f:
             voting_qas = json.load(f)
         for i, q in enumerate(voting_qas):
-            voting_data = VotingData.create(title=q, group=group, is_active=True)
-            if i < 2:
-                for a in voting_qas[q]:
-                    choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=10)
-                    voting_data.num_votes += 10
-                voting_data.save()
-            else:
-                for a in voting_qas[q]:
-                    choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
+            for j in range(5):
+                voting_data = VotingData.create(title="{}-{}".format(j, q), group=group, is_active=True)
+                if i < 2:
+                    for a in voting_qas[q]:
+                        choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=10)
+                        voting_data.num_votes += 10
+                    voting_data.is_contro = True
+                    voting_data.save()
+                else:
+                    for a in voting_qas[q]:
+                        choice, _ = Choice.objects.update_or_create(data=voting_data, answer=a, num_votes=0)
 
         with open('validating.json') as f:
             validating_qas = json.load(f)
-        for i, q in enumerate(validating_qas):
+        for q in validating_qas:
             a = validating_qas[q]
             for i in range(5):
                 validating_data = ValidatingData.create(title="{}-{}".format(i, q), group=group, ans=a)
 
         for q in validating_qas:
-            finalized_data = FinalizedData.create(title="finalized_{}".format(q), group=group, ans=validating_qas[q])
+            for i in range(5):
+                finalized_data = FinalizedData.create(title="{}-finalized_{}".format(i, q), group=group,
+                                                      ans=validating_qas[q])
 
         for filename in os.listdir('pages/static/images'):
             if filename.startswith('.'):
                 continue
-            data = ImageData.create(group=group, url="/static/images/{}".format(filename), title='{}/static/images/{}'.format(group.name, filename))
+            data = ImageData.create(group=group, url="/static/images/{}".format(filename),
+                                    title='{}/static/images/{}'.format(group.name, filename))
             for j in range(5):
                 ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))
 
 for group in groups:
+    print("Assigning for: {}".format(group.name))
     users = CustomUser.objects.filter(is_active=True, is_approved=True, is_admin=False, group=group)
-    print("validating: {}, voting: {}, user: {}".format(len(validating_qas), len(voting_qas), len(users)))
     assign(users, Assignment, ValidatingData.objects.filter(group=group), Data, num_user_per_task=3)
-    assign(users, Assignment, VotingData.objects.filter(is_active=True, num_votes__lte=15, group=group), Data, num_user_per_task=5)
+    assign(users, Assignment, VotingData.objects.filter(is_active=True, is_contro=False, group=group), Data,
+           num_user_per_task=5)
     assign(users, Assignment, FinalizedData.objects.filter(group=group), Data, num_user_per_task=3)
     assign(users, Assignment, ImageData.objects.filter(group=group), Data, num_user_per_task=3)
+
+    contro_data = VotingData.objects.filter(is_active=True, is_contro=True, group=group)
+    for data in contro_data:
+        tasker = CustomUser.objects.get(email="{}user@gmail.com".format(group.name.lower()))
+        Assignment.reassign_contro(tasker=tasker, task=data)

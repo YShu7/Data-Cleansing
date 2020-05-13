@@ -6,12 +6,24 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 class CustomChromeWebDriver(Chrome):
     """Our own WebDriver with some helpers added"""
+
+    def __init__(self, live_server_url, executable_path="chromedriver", port=0,
+                 options=None, service_args=None,
+                 desired_capabilities=None, service_log_path=None,
+                 chrome_options=None, keep_alive=True):
+        Chrome.__init__(self, executable_path, port,  options, service_args,
+                 desired_capabilities, service_log_path, chrome_options, keep_alive)
+        self.live_server_url = live_server_url
+
+    def open(self, url):
+        self.get('%s%s' % (self.live_server_url, url))
+
     def clean(self, elems):
         found = len(elems)
         if found == 1:
             return elems[0]
         elif not elems:
-            raise NoSuchElementException(id)
+            return None
         return elems
 
     def find_css(self, css_selector):
@@ -41,4 +53,8 @@ class CustomChromeWebDriver(Chrome):
 
     def find_class(self, cname):
         elems = self.find_elements_by_class_name(cname)
+        return self.clean(elems)
+
+    def find_tag(self, tag):
+        elems = self.find_elements_by_tag_name(tag)
         return self.clean(elems)

@@ -34,3 +34,9 @@ class Assignment(models.Model):
             return True
         else:
             return False
+
+    @classmethod
+    def reassign_contro(cls, task, tasker):
+        task.activate(False)
+        task.assignment_set.all().delete()
+        Assignment.objects.create(tasker=tasker, task=task)

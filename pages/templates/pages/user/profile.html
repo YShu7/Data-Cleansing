@@ -38,7 +38,7 @@
     </table>
 
     <span class="d-flex justify-content-center">
-    <button id="reset" class="btn btn-outline-primary">
+    <button id="change_pwd" class="btn btn-outline-primary">
         {% trans "Change Password" %}
     </button>
 </span>
@@ -47,7 +47,7 @@
 
     <script>
         $(document).ready(function () {
-            $("#reset").on('click', function () {
+            $("#change_pwd").on('click', function () {
                 $('#dialog').modal();
             });
         });
