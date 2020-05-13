@@ -413,7 +413,7 @@ class UserViewTestCase(TestCase):
         self.assertEqual(label.num_votes, 0)
         self.assertFalse(assignment.done)
 
-        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"select_label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ImageLabel.objects.get(pk=label.id).num_votes, 1)
         self.assertTrue(Assignment.objects.get(pk=assignment.pk).done)
@@ -426,7 +426,7 @@ class UserViewTestCase(TestCase):
         label.num_votes = 4
         label.save()
         self.assertEqual(label.num_votes, 4)
-        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"select_label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
         self.assertEqual(FinalizedImageData.objects.get(pk=img.pk).label, label.label)
@@ -444,7 +444,7 @@ class UserViewTestCase(TestCase):
         second_label.num_votes = 2
         second_label.save()
 
-        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [first_abel.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"select_label": [first_abel.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(FinalizedImageData.objects.get(pk=img.pk))
         self.assertEqual(FinalizedImageData.objects.get(pk=img.pk).label, first_abel.label)
@@ -463,7 +463,7 @@ class UserViewTestCase(TestCase):
         second_label.save()
 
         label = img.imagelabel_set.all()[2]
-        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"select_label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(FinalizedImageData.objects.filter(pk=img.pk).first())
         self.assertIsNotNone(ImageData.objects.filter(pk=img.pk).first())
@@ -473,12 +473,12 @@ class UserViewTestCase(TestCase):
         img = self.images[0]
         label = img.imagelabel_set.all()[0]
 
-        response = self.client.post(path=reverse('image', args=(999,)), data={"label": [label.id]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(999,)), data={"select_label": [label.id]}, follow=True)
         self.assertEqual(response.status_code, 200)
         messages = list(get_messages(response.wsgi_request))
         self.assertIn(MSG_FAIL_DATA_NONEXIST.format(999), str(messages[0]))
 
-        response = self.client.post(path=reverse('image', args=(img.id,)), data={"label": [999]}, follow=True)
+        response = self.client.post(path=reverse('image', args=(img.id,)), data={"select_label": [999]}, follow=True)
         self.assertEqual(response.status_code, 200)
         messages = list(get_messages(response.wsgi_request))
         self.assertIn(MSG_FAIL_LABEL_NONEXIST.format(999), str(messages[0]))
@@ -583,6 +583,7 @@ class AdminViewTestCase(TestCase):
         self.assertIsNone(user.is_approved)
 
         # approve
+        print(reverse('modify_users'))
         response = self.admin_client.post(path=reverse('modify_users'),
                                           data={"approve": "1", "id": user.id}, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -784,7 +785,7 @@ class AdminViewTestCase(TestCase):
 
         response = self.admin_client.post(path=reverse("assign_tasks"), HTTP_REFERER='/', follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Assignment.objects.all().count(), 20 * 3)
+        self.assertEqual(Assignment.objects.all().count(), Assignment.objects.distinct('tasker_id', 'task_id').count())
 
     def test_summarize(self):
         self.setUp_users()
@@ -879,7 +880,7 @@ class UtilsTestCase(TestCase):
     def setUp_vote(self):
         self.active_voting_data = []
         self.inactive_voting_data = []
-        self.assigned_not_done_voting_data = []
+        self.assigned_voting_data = []
         self.unassigned_voting_data = []
         self.controversial_data = []
         # active voting data
@@ -924,10 +925,11 @@ class UtilsTestCase(TestCase):
             if i > 10:
                 if i % 2 == 0:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=False)
-                    self.assigned_not_done_voting_data.append(data)
+                    self.assigned_voting_data.append(data)
                     self.num_todo += 1
                 else:
                     Assignment.objects.update_or_create(tasker=self.user, task=data, done=True)
+                    self.assigned_voting_data.append(data)
                     self.num_done += 1
             elif i < 5:
                 Assignment.objects.update_or_create(tasker=self.other_user, task=data, done=False)
@@ -960,7 +962,7 @@ class UtilsTestCase(TestCase):
 
     def test_get_assigned_tasks_context(self):
         data, task_num = get_assigned_tasks_context(self.user, VotingData, condition=(lambda x: x.is_active))
-        expected_data = self.assigned_not_done_voting_data
+        expected_data = self.assigned_voting_data
         expected_task_num = {
             'todo': self.num_todo,
             'done': self.num_done,

@@ -5,16 +5,17 @@ from math import ceil
 from assign.models import Assignment
 from pages.models.models import Data
 
+import datetime
 
 class ImageData(Data):
-    image_url = models.URLField(unique=True)
+    image_url = models.URLField()
     is_contro = models.BooleanField(default=False)
     num_votes = models.IntegerField(default=0)
 
     @classmethod
     def create(cls, group, url, title=None):
         if title is None:
-            title = url
+            title = url + str(datetime.datetime.now())
         try:
             data = Data.objects.get(title=title, group=group)
             image_data = cls(pk=data.id, title=title, group=group, image_url=url)

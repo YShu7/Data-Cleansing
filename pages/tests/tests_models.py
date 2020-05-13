@@ -101,7 +101,7 @@ class ImageDataTestCase(TestCase):
             self.groups.append(group)
 
         for q in range(20):
-            img_data = ImageData.create(group=group,
+            img_data = ImageData.create(group=self.groups[0],
                                         url='"https://media.timeout.com/images/105370171/630/{}/image.jpg"'.format(q))
             for a in range(3):
                 label = ImageLabel.objects.create(image=img_data, label="Label_{}".format(a))
@@ -126,7 +126,7 @@ class ImageDataTestCase(TestCase):
         self.assertEqual(img_data.num_votes, 5)
         self.assertIsNone(ImageData.objects.filter(pk=img_data.pk).first())
         self.assertIsNotNone(FinalizedImageData.objects.filter(
-            image_url=img_data.title,
+            image_url=img_data.image_url,
             label=selected_label.label,
             group=img_data.group
         ).first())
