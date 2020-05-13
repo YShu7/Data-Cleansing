@@ -25,15 +25,15 @@ class UserViewTestCase(TestCase):
 
     def test_assign(self):
         assign(self.all_users, Assignment, self.all_tasks)
-        self.assertEqual(Assignment.objects.count(), self.num_data * NUM_USER_PER_TASK)
+        self.assertEqual(Assignment.objects.count(), Assignment.objects.distinct('task_id', 'tasker_id').count())
 
     def test_assign_task(self):
         assign(self.all_users, Assignment, self.all_tasks, num_task_per_user=2)
-        self.assertEqual(Assignment.objects.count(), 2 * self.num_user)
+        self.assertEqual(Assignment.objects.count(), Assignment.objects.distinct('task_id', 'tasker_id').count())
 
     def test_assign_user(self):
         assign(self.all_users, Assignment, self.all_tasks, num_user_per_task=2)
-        self.assertEqual(Assignment.objects.count(), floor(self.num_data * 2 / self.num_user) * self.num_user)
+        self.assertEqual(Assignment.objects.count(), Assignment.objects.distinct('task_id', 'tasker_id').count())
 
     def test_assign_fail(self):
         assign([], Assignment, self.all_tasks)
