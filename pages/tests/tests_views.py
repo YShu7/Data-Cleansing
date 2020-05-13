@@ -72,7 +72,7 @@ class UserViewTestCase(TestCase):
                 ImageLabel.objects.update_or_create(image=data, label="food{}".format(j))
 
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.setUp_client()
         self.setUp_validating()
         self.setUp_voting()
@@ -533,7 +533,7 @@ class AdminViewTestCase(TestCase):
                 self.data.append(data)
 
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.setUp_client()
 
     def get_csv(self, response):
@@ -952,7 +952,7 @@ class UtilsTestCase(TestCase):
             self.finalized_data.append(data)
 
     def setUp(self):
-        translation.activate('en')
+        translation.activate('en-us')
         self.factory = RequestFactory()
         self.setUp_auth()
         self.setUp_vote()
@@ -1077,7 +1077,7 @@ class UtilsTestCase(TestCase):
 
 class ViewsTestCase(TestCase):
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.group, _ = CustomGroup.objects.update_or_create(name="KKH")
 
         self.admin_client = Client()

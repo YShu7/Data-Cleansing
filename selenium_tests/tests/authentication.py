@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import Select
 from authentication.models import CustomUser, CustomGroup
 
 
-
 class Auth(SeleniumTestCase):
     def setUp(self):
         translation.activate(settings.LANGUAGE_CODE)

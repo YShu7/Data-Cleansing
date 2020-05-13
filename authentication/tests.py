@@ -11,7 +11,7 @@ from datacleansing.settings import CORRECT_POINT, INCORRECT_POINT
 
 class ModelsTestCase(TestCase):
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.group = CustomGroup.objects.create(name="group")
 
     def test_group(self):
@@ -83,7 +83,7 @@ class ModelsTestCase(TestCase):
 
 class ViewTestCase(TestCase):
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.group = CustomGroup.objects.create(name="group")
         self.client = Client()
 
@@ -163,7 +163,7 @@ class ViewTestCase(TestCase):
 
 class UtilsTestCase(TestCase):
     def setUp(self) -> None:
-        translation.activate('en')
+        translation.activate('en-us')
         self.num_ans_0 = 0
         self.correct_num_ans_0 = 0
         self.point_0 = 0
