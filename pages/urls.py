@@ -16,6 +16,7 @@ urlpatterns = [
     path('validate', user.validate, name='validate'),
     path('<int:data_id>/keywords', user.keywords, name='keywords'),
     path('<int:vote_id>/vote_post', user.vote_post, name='vote_post'),
+    path('<int:contro_id>/contro_post', user.contro_post, name='contro_post'),
     path('<int:img_id>/image', user.image, name='image'),
     path('retry_sign_up', user.retry_sign_up, name='retry_sign_up'),
 

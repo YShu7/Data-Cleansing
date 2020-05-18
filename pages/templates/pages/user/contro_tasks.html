@@ -1,0 +1,114 @@
+{% extends "pages/user/base.html" %}
+{% load i18n static %}
+
+{% block content %}
+    {% include "pages/user/partial/progress_bar.html" with num_done=num_done num_doing=num_doing num_total=num_total %}
+    <button id="collapse_all" class="btn btn-outline-primary float-right">{% trans "Expand/Collapse All" %}</button>
+
+    <div id="taskList">
+        <table type="table" class="table table-hover">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col" style="width: 5%">{% trans "ID" %}</th>
+                <th scope="col" style="width: 35%">{% trans "Question" %}</th>
+                <th scope="col" style="width: 45%">{% trans "Answers" %}</th>
+                <th scope="col" style="width: 15%"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for question in page_obj %}
+                <form action="{% url 'contro_post' question.id %}" method="post">{% csrf_token %}
+                    <tr>
+                        <th scope="row">{{ question.id }}</th>
+                        <input type="hidden" id="door" name='door' value=1>
+                        <input type="hidden" id="selected" name='selected' value=0>
+                        <input type="hidden" id="choice" name="choice">
+                        <td>{{ question.title }}</td>
+                        <td>
+                            {% for ans in question.answers %}
+                                <div class="custom-control custom-radio module">
+                                    <input type="radio" id="choice_{{ ans.id }}" class="custom-control-input" value="{{ ans.id }}">
+                                    <label id="label_choice_{{ ans.id }}" class="custom-control-label collapse"
+                                           for="choice_{{ ans.id }}" aria-expanded="false">{{ ans.answer }}</label>
+                                    <a role="button" class="collapsed" data-toggle="collapse"
+                                       href="#label_choice_{{ ans.id }}" aria-expanded="false"
+                                       aria-controls="label_choice_{{ ans.id }}"></a>
+                                </div>
+                            {% endfor %}
+                            <label id="new_ans_label" style="color: green"></label><br/>
+                            <input type="hidden" id="new_ans" name="new_ans">
+                            <a href="#" name="new_ans_btn" onclick="show_new_ans_modal({{ question.id }})" class="new_ans_btn">
+                                {% trans "New Answer" %}
+                            </a>
+                        </td>
+                        <td>
+                            <button name="submit" type="submit" class="vote btn btn-outline-primary btn-sm btn-block">
+                                {% trans "Update" %}
+                            </button>
+                        </td>
+                    </tr>
+                </form>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
+    </div>
+    {% include 'pages/partial/new_ans_modal.html' with modal_id="new_ans_modal" btn_id="update_btn" %}
+    <script>
+        $(document).ready(function () {
+            $("#collapse_all").on("click", function () {
+                $('.module label.collapse').collapse('toggle');
+                $('.collapse').collapse('toggle');
+            });
+            $(".custom-radio .custom-control-input").on("click", function () {
+                choose_option($(this).val());
+
+                $(".custom-radio label").css('color', 'black');
+                var label = $("label[for='" + $(this).attr("id") + "']");
+                label.css('color', 'green');
+            });
+            $("#update_btn").on('click', function () {
+                update_new_ans($("#new_ans_textarea").val());
+
+                $(".custom-radio label").css('color', 'black');
+                var x = document.getElementById('new_ans_modal');
+                x.setAttribute('style', "display: none");
+            });
+            $(".vote").on('click', function () {
+                $('#door').val(1);
+                $('#selected').val(1);
+            })
+        });
+        function show_new_ans_modal(id) {
+            $('#new_ans_modal').modal();
+            $("#update_btn").val(id);
+        }
+        function update_new_ans(ans) {
+            $("#door").val(0);
+
+            $("#new_ans_textarea").val(ans);
+            $("#new_ans_label").text(ans);
+            $("#new_ans").val(ans);
+            $("#new_ans_label").css('color', 'green');
+
+            $("#choice").val('');
+        }
+        function choose_option(ans_id) {
+            $("#door").val(0);
+
+            $("#new_ans_textarea").val('');
+            $("#new_ans_label").text('');
+            $("#new_ans").val('');
+            $("#new_ans_label").css('color', 'black');
+
+            $("#choice").val(ans_id);
+        }
+
+        window.onbeforeunload = function (event) {
+            if ($("#door").val() == 0) {
+                return confirm("Confirm refresh");
+            }
+        };
+    </script>
+{% endblock %}

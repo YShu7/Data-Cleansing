@@ -152,10 +152,7 @@ def vote_post(request, vote_id=None):
 
         done_assignment(vote_id, request.user.id)
 
-        if data.is_contro:
-            data.finalize(selected_choice)
-        else:
-            data.vote(selected_choice)
+        data.vote(selected_choice)
 
         messages.success(request, _(MSG_SUCCESS_VOTE))
         data_log(request.user, data, VOT, choice)
@@ -169,7 +166,7 @@ def vote_post(request, vote_id=None):
 @user_login_required
 @csrf_protect
 def contro(request):
-    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+    template = loader.get_template('{}/contro_tasks.html'.format(USER_DIR))
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, VotingData,
@@ -190,6 +187,46 @@ def contro(request):
     }
     return HttpResponse(template.render(request=request, context=context))
 
+@user_login_required
+@csrf_protect
+def contro_post(request, contro_id):
+    seleted = request.POST['selected']
+    if seleted != "1":
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+    try:
+        choice = request.POST['choice']
+        data = VotingData.objects.get(pk=contro_id)
+        if choice == "":
+            new_ans = request.POST['new_ans']
+            data.finalize(new_ans)
+        else:
+            try:
+                selected_choice = Choice.objects.get(data=data, pk=choice)
+                data.finalize(selected_choice.answer)
+            except Choice.DoesNotExist:
+                messages.add_message(request, level=messages.ERROR,
+                                     message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+                return HttpResponseRedirect(reverse('tasks/contro'))
+    except ValueError:
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+    except VotingData.DoesNotExist:
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_DATA_NONEXIST.format(contro_id)), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+
+    done_assignment(contro_id, request.user.id)
+
+    messages.success(request, _(MSG_SUCCESS_VOTE))
+    data_log(request.user, data, VOT, choice)
+
+    next = request.META.get('HTTP_REFERER')
+    if next is None:
+        next = '/'
+    return HttpResponseRedirect(next)
 
 @user_login_required
 @csrf_protect

@@ -48,8 +48,8 @@ class VotingData(Data):
             self.save()
             self.assignment_set.all().delete()
 
-    def finalize(self, selected_choice):
-        FinalizedData.create(title=self.data_ptr.title, ans=selected_choice.answer, group=self.group)
+    def finalize(self, ans):
+        FinalizedData.create(title=self.data_ptr.title, ans=ans, group=self.group)
         self.delete(keep_parents=True)
 
     def activate(self, is_active=True):
