@@ -67,8 +67,10 @@ for line in lines[1:]:
                 user.activate(False)
             if info[-2] == "Approve":
                 user.approve(True)
-            else:
+            elif info[-2] == "Disapprove":
                 user.approve(False)
+            else:
+                user.approve(None)
         elif info[0] == "A":
             admin = CustomUser.objects.create_admin(email=info[1], certificate=info[2],
                                                     username=info[3], group=group, password=info[4])
@@ -118,6 +120,6 @@ for group in groups:
     assign(users, Assignment, ImageData.objects.filter(group=group), Data, num_user_per_task=3)
 
     contro_data = VotingData.objects.filter(is_active=True, is_contro=True, group=group)
-    for data in contro_data:
+    for data in contro_data[:int(len(contro_data) / 2)]:
         tasker = CustomUser.objects.get(email="{}user@gmail.com".format(group.name.lower()))
         Assignment.reassign_contro(tasker=tasker, task=data)

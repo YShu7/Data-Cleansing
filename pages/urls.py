@@ -27,7 +27,6 @@ urlpatterns = [
     path('download_dataset/<str:group_name>', admin.download_dataset, name='download_dataset'),
     path('download_dataset/', admin.download_dataset, name='download_dataset'),
     path('update', admin.update, name='update'),
-    path('<int:data_ptr_id>/update', admin.update, name='update'),
     path('assign_contro', admin.assign_contro, name='assign_contro'),
     path('report', admin.report, name='report'),
     path('report/<str:from_date>/<str:to_date>', admin.report, name='report'),
