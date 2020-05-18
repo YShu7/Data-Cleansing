@@ -42,36 +42,6 @@ class PageUser(StaticLiveServerTestCase):
         self.wd.find_name("password").send_keys(self.pwd)
         self.wd.find_name("login").click()
 
-    @classmethod
-    def generate_data(cls):
-        # generate data
-        cls.group = CustomGroup.objects.create(name="TestGroup")
-        cls.email = CustomUser.objects.create_user(
-            email="user@gmail.com", username="user", password="user",
-            certificate="G1111111M", group=cls.group)
-        cls.email.activate(True)
-        cls.email.approve(True)
-        cls.validating_data_list = []
-        for i in range(30):
-            data = ValidatingData.create(title="Validating_{}".format(i), ans="Answer_{}".format(i), group=cls.group)
-            cls.validating_data_list.append(data)
-            Assignment.objects.create(tasker=cls.email, task=data)
-        cls.voting_data_list = []
-        for i in range(30):
-            data = VotingData.create(title="Voting_{}".format(i), group=cls.group, is_active=True)
-            cls.voting_data_list.append(data)
-            for j in range(3):
-                Choice.objects.create(data=data, answer="Option_{}".format(j))
-            Assignment.objects.create(tasker=cls.email, task=data)
-        cls.image_data_list = []
-        for filename in os.listdir(os.path.abspath('./pages/static/images')):
-            if filename.startswith('.'):
-                continue
-            data = ImageData.create(group=cls.group, url='/static/images/{}'.format(filename))
-            cls.image_data_list.append(data)
-            for j in range(5):
-                ImageLabel.objects.create(image=data, label="Option_{}".format(j))
-            Assignment.objects.create(tasker=cls.email, task=data)
 
     @classmethod
     def tearDownClass(cls):
@@ -200,13 +170,32 @@ class PageUser(StaticLiveServerTestCase):
 
         choice = VotingData.objects.get(id=qid).choice_set.all()[0]
 
-        self.wd.find_id('ans_{}'.format(choice.id)).click()
+        self.wd.find_id('choice_{}'.format(choice.id)).click()
         self.wd.find_name('submit').click()
         time.sleep(1)
 
         self.assertFalse(VotingData.objects.filter(id=qid).exists())
         self.assertTrue(FinalizedData.objects.filter(id=qid).exists())
         self.assertEqual(choice.answer, FinalizedData.objects.get(id=qid).answer_text)
+        self._check_progress_bar(expected_done_progress=0, expected_page_no=1,
+                                 expected_curr_progress=0)
+
+    def test_contro_new_ans(self):
+        self.wd.open(reverse('tasks/contro'))
+
+        done, qid, page_no, max_page_no = self._get_info()
+        new_ans = "New Answer"
+
+        self.wd.find_name('new_ans_btn').click()
+        time.sleep(1)
+        self.wd.find_id('new_ans_textarea').send_keys(new_ans)
+        self.wd.find_id('update_btn').click()
+        self.wd.find_name('submit').click()
+        time.sleep(1)
+
+        self.assertFalse(VotingData.objects.filter(id=qid).exists())
+        self.assertTrue(FinalizedData.objects.filter(id=qid).exists())
+        self.assertEqual(new_ans, FinalizedData.objects.get(id=qid).answer_text)
         self._check_progress_bar(expected_done_progress=0, expected_page_no=1,
                                  expected_curr_progress=0)
 
