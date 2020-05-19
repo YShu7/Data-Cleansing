@@ -33,6 +33,8 @@ class PageUser(StaticLiveServerTestCase):
         options = ChromeOptions()
         options.add_argument('--lang={}'.format(settings.LANGUAGE_CODE))
         options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
+        options.add_argument('--disable-dev-shm-usage')
         cls.wd = CustomChromeWebDriver(chrome_options=options, live_server_url=cls.live_server_url)
         cls.wd.set_page_load_timeout(120)
 
