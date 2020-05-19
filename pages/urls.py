@@ -16,6 +16,7 @@ urlpatterns = [
     path('validate', user.validate, name='validate'),
     path('<int:data_id>/keywords', user.keywords, name='keywords'),
     path('<int:vote_id>/vote_post', user.vote_post, name='vote_post'),
+    path('<int:contro_id>/contro_post', user.contro_post, name='contro_post'),
     path('<int:img_id>/image', user.image, name='image'),
     path('retry_sign_up', user.retry_sign_up, name='retry_sign_up'),
 
@@ -27,7 +28,6 @@ urlpatterns = [
     path('download_dataset/<str:group_name>', admin.download_dataset, name='download_dataset'),
     path('download_dataset/', admin.download_dataset, name='download_dataset'),
     path('update', admin.update, name='update'),
-    path('<int:data_ptr_id>/update', admin.update, name='update'),
     path('assign_contro', admin.assign_contro, name='assign_contro'),
     path('report', admin.report, name='report'),
     path('report/<str:from_date>/<str:to_date>', admin.report, name='report'),

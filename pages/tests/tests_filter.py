@@ -12,9 +12,9 @@ class FilterViewTestCase(TestCase):
         self.assertEqual(split(str, ','), str.split(','))
 
     def test_remove_lang(self):
-        url = '/en/this/is/a/test'
+        url = '/en-us/this/is/a/test'
         self.assertEqual(remove_lang(url), '/this/is/a/test')
 
     def test_get_lang(self):
-        url = '/en/this/is/a/test'
-        self.assertEqual(get_lang(url), 'en')
+        url = '/en-us/this/is/a/test'
+        self.assertEqual(get_lang(url), 'en-us')

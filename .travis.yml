@@ -15,8 +15,20 @@ install:
  - pip install psycopg2 --quiet
  - pip install codecov --quiet
 
+addons:
+  chrome: stable
+
+before_script:
+- LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
+- curl "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
+- unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python3.7.1/bin/
+- export CHROME_BIN=chromium-browser
+- psql -c 'create database datacleansing;'
+- python manage.py migrate
+- python manage.py loaddata fixtures.json
+
 script:
-- python manage.py test
+- coverage run --source=. manage.py test
 
 branches:
   only:
@@ -24,4 +36,4 @@ branches:
     - develop
 
 after_success:
- - codecov
+ - bash <(curl -s https://codecov.io/bash)

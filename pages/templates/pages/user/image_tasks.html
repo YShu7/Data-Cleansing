@@ -24,10 +24,9 @@
                             <th scope="row">{{ question.id }}</th>
                             <td><img src="{{ question.image_url }}" alt="img" width="100%"></td>
                             <td>
-                                <input type="hidden" name="label" id="label">
                                 {% for label in question.imagelabel_set.all %}
                                     <div style="margin: 2px">
-                                        <button id="select_label" class="btn btn-outline-primary btn-block"
+                                        <button name="select_label" class="btn btn-outline-primary btn-block"
                                                 type="submit" value="{{ label.id }}">
                                             {{ label.label }}
                                         </button>
@@ -41,13 +40,6 @@
             </table>
             {% include "pages/partial/page_footer.html" with page_obj=page_obj  num_done=num_done %}
         </div>
-        <script>
-            $(document).ready(function () {
-                $("#select_label").on('click', function () {
-                    $("#label").val($("#select_label").val())
-                })
-            })
-        </script>
     {% else %}
         <br/>
         <div class="alert alert-success" role="alert">

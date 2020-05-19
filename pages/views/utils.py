@@ -8,14 +8,24 @@ from pages.models.models import FinalizedData, CustomGroup, Data, Log as DataLog
 from pages.models.vote import VotingData
 
 
-def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
-    all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=False)]
-    all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=user.id, done=True)]
+def get_assigned_tasks_context(request, model, condition=(lambda x: True)):
+    all_data_todo = [i.task for i in Assignment.objects.all().filter(tasker_id=request.id, done=False).order_by('task_id')]
+    all_data_done = [i.task for i in Assignment.objects.all().filter(tasker_id=request.id, done=True).order_by('task_id')]
 
     todo_num = len(all_data_todo)
     done_num = len(all_data_done)
 
     data = []
+    for d in all_data_done:
+        try:
+            d_obj = model.objects.get(pk=d)
+            if condition(d_obj):
+                data.append(d_obj)
+            else:
+                done_num -= 1
+        except model.DoesNotExist:
+            done_num -= 1
+
     for d in all_data_todo:
         try:
             d_obj = model.objects.get(pk=d)
@@ -25,16 +35,6 @@ def get_assigned_tasks_context(user, model, condition=(lambda x: True)):
                 todo_num -= 1
         except model.DoesNotExist:
             todo_num -= 1
-
-    for d in all_data_done:
-        try:
-            d_obj = model.objects.get(pk=d)
-            if condition(d_obj):
-                pass
-            else:
-                done_num -= 1
-        except model.DoesNotExist:
-            done_num -= 1
 
     total_num = todo_num + done_num
     num = {
@@ -139,6 +139,8 @@ def get_group_info_context(groups, info_dict):
 
 
 def merge_validate_context(new_data, old_data):
+    if not old_data:
+        return new_data
     if 'validate_ids' in old_data:
         if isinstance(old_data['validate_ids'], list):
             validate_ids = old_data['validate_ids']
@@ -190,7 +192,7 @@ def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
     except ValueError:
         page_num = 1
 
-    if not total or num_done + num_doing + 1 <= page_num:
+    if not total or num_done + 1 <= page_num:
         pass
     else:
         page_num = page_num + num_done
@@ -200,6 +202,13 @@ def compute_paginator(request, data, num_done=0, num_doing=0, total=None):
 
 def compute_progress(request):
     try:
-        return len(get_ids(request.session['data']['validate_ids']))
+        ids = get_ids(request.session['data']['validate_ids'])
+        cleaned_ids = []
+        for qid in ids:
+            ass = Assignment.objects.filter(tasker=request.user, task_id=qid)[0]
+            if Assignment.objects.filter(tasker=request.user, task_id=qid, done=False):
+                cleaned_ids.append(qid)
+        request.session['data']['validate_ids'] = cleaned_ids
+        return len(cleaned_ids)
     except Exception:
         return 0

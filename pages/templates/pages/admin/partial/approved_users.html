@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 <script src="{% static 'bootstrap-4.3.1/js/bootstrap.bundle.js' %}" type="text/javascript"></script>
 
-<table type="table" class="table table-hover">
+<table type="table" name="approved" class="table table-hover">
     <thead class="thead-light">
     <tr>
         <th scope="col" width="20%">{% trans "Username" %}</th>
@@ -25,12 +25,14 @@
             {% csrf_token %}
             {% if not user.is_active %}
                 <tr style="color: red">
+            {% else %}
+                <tr>
             {% endif %}
-            <td>{{ user.username }}</td>
-            <td>{{ user.certificate }}</td>
-            <td>{{ user.email }}</td>
+            <td name="username">{{ user.username }}</td>
+            <td name="certificate">{{ user.certificate }}</td>
+            <td name="email">{{ user.email }}</td>
             {% if request.user.is_superuser %}
-                <td>{{ user.group.name }}</td>
+                <td name="group">{{ user.group.name }}</td>
                 <td>
                     <div class="custom-control custom-switch">
                         <input {% if user.is_admin %} checked {% endif %} type="checkbox" onchange="this.form.submit();"

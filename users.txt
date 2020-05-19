@@ -1,0 +1,24 @@
+KKH,TPH,AAH,BH
+S superuser@gmail.com G0000000M superuser01 spuser!s123
+KKH
+A kkhadmin@gmail.com G2312490K KKH_Admin kkhadmin!s123
+A akjiew@gmail.com G3924032P KKH_Admin2 sdfewiomoiwr
+U kkhuser@gmail.com G1234567M KKH_User kkhuser!s123 Approve Active
+U dcsefs@gmail.com G1230393K David dfajewiofmksla99231~ None Active
+U dcesef@gmail.com G2139034W Oscar djfsiw932jfs(#$@ Approve Active
+U dfewj@163.com G0210392K Alice sjiwojfkljerwio Disapprove Active
+U dfj32lf@yahoo.com G3243209T Ben rjwfnk23990@@(#$ Approve Inactive
+U djiead@yahoo.com G2199413M Bob reqjimviwoerji Approve Inactive
+TPH
+A afewf@gmail.com G3922132P TPH_Admin fdsajewo(&*(32!
+U tphuser@gmail.com G1234567T TPH_User tphuser!s123 Approve Active
+U dceai3@gmail.com G1239393K David dfajewiofmksla99231~ None Active
+U defjioa@gmail.com G2193034W Oscar djfsiw932jfs(#$@ Approve Active
+U djhuea@163.com G0219732K Alice sjiwojfkljerwio Disapprove Active
+U djf23k@yahoo.com G3239309W Ben rjwfnk23990@@(#$ Approve Inactive
+AAH
+A afeikl@gmail.com G3846102A AAH_Admin kfjw9834209*^%^&*&(
+U aahuser@gmail.com G1234567A AAH_User aahuser!s123 Approve Active
+BH
+A afejai@gmail.com G3420342K BH_Admin fkejwio9328490##@
+U bhuser@gmail.com G1234567B BH_User bhuser!s123 Approve Active

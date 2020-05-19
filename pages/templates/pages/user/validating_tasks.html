@@ -55,7 +55,6 @@
                                        value="">
                                 <div class="btn-group btn-block">
                                     <button id="approve_{{ question.id }}" value="{{ question.id }}" type="button"
-                                            name="choice_{{ question.id }}"
                                             class="approve btn btn-outline-success btn-sm">
                                         {% trans "Approve" %}
                                     </button>
@@ -101,7 +100,7 @@
                     $("#new_ans_" + id).attr('disabled', false);
                     $("#validate_ids").val(getNewIds(id));
                     $("#update_btn").val(id);
-                    $("#new_ans").val("");
+                    $("#new_ans_textarea").val("");
                     $('#dialog').modal();
                 });
                 $("#update_btn").on('click', function () {
@@ -140,7 +139,7 @@
                         type_element.text("Approved");
                         type_element.css('color', 'green');
                     } else {
-                        var new_ans = $("#new_ans").val();
+                        var new_ans = $("#new_ans_textarea").val();
 
                         $("#new_ans_" + id).val(new_ans);
                         ans_element.text(new_ans);
@@ -179,7 +178,7 @@
 
                                 {% with new_ans_key='new_ans_{}'|format:question.id %}
                                     {% with new_ans=request.session.data|get:new_ans_key %}
-                                        $("#new_ans").val("{{ new_ans }}");
+                                        $("#new_ans_textarea").val("{{ new_ans }}");
                                     {% endwith %}
                                 {% endwith %}
 

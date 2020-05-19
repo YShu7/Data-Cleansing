@@ -79,7 +79,6 @@ class CustomPasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
     subject_template_name = "authentication/password_reset_subject.txt"
     email_template_name = "authentication/password_reset_email.html"
-    success_url = "password_reset_done"
     from_email = "Data Cleansing Team <noreply@gmail.com>"
 
 

@@ -58,23 +58,23 @@ def validate(request):
 
     if request.method == 'POST':
         data = {}
-        if "submit" not in request.POST:
-            old_data = request.session.pop('data', False)
+        old_data = request.session.pop('data', False)
 
-            if old_data:
-                data = merge_validate_context(request.POST, old_data)
-            else:
-                data = request.POST
+        if old_data:
+            data = merge_validate_context(request.POST, old_data)
+        else:
+            data = request.POST
+
+        if "submit" not in request.POST:
             request.session['data'] = data
             return HttpResponseRedirect(reverse('tasks/validate'))
+
+        if isinstance(data['validate_ids'], list):
+            validate_ids = set(data['validate_ids'])
         else:
-            data = request.session.pop('data', False)
-
-        # merge session and post
-        request.POST = merge_validate_context(new_data=request.POST, old_data=data)
-
-        validate_ids = set(request.POST['validate_ids'])
+            validate_ids = set(data['validate_ids'].split(','))
         for validate_id in validate_ids:
+            validate_id = int(validate_id)
             try:
                 task = ValidatingData.objects.get(pk=validate_id)
             except ValidatingData.DoesNotExist:
@@ -85,7 +85,7 @@ def validate(request):
             except ValueError:
                 continue
 
-            approve = request.POST["approve_value_{}".format(validate_id)]
+            approve = data["approve_value_{}".format(validate_id)]
             new_ans = task.answer_text
 
             # User has done this assignment
@@ -96,13 +96,12 @@ def validate(request):
                 task.approve()
             elif approve == "false":
                 # if user disapprove the answer, create VotingData and the choice
-                task.disapprove(new_ans=request.POST["new_ans_{}".format(validate_id)])
+                task.disapprove(new_ans=data["new_ans_{}".format(validate_id)])
 
             task.validate()
             data_log(request.user, task, VAL, new_ans)
         messages.success(request, _(MSG_SUCCESS_VAL))
         return HttpResponseRedirect(reverse('tasks/validate'))
-
     return HttpResponse(template.render(request=request, context=context))
 
 
@@ -113,7 +112,7 @@ def vote(request):
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, VotingData,
-                                                condition=(lambda x: x.is_active and x.num_votes <= 15))
+                                                condition=(lambda x: x.is_active and not x.is_contro))
     page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
 
     for d in data:
@@ -154,6 +153,7 @@ def vote_post(request, vote_id=None):
         done_assignment(vote_id, request.user.id)
 
         data.vote(selected_choice)
+
         messages.success(request, _(MSG_SUCCESS_VOTE))
         data_log(request.user, data, VOT, choice)
 
@@ -166,11 +166,12 @@ def vote_post(request, vote_id=None):
 @user_login_required
 @csrf_protect
 def contro(request):
-    template = loader.get_template('{}/voting_tasks.html'.format(USER_DIR))
+    template = loader.get_template('{}/contro_tasks.html'.format(USER_DIR))
 
     # Initiate paginator
     data, task_num = get_assigned_tasks_context(request.user, VotingData,
-                                                condition=(lambda x: not x.is_active and x.num_votes > 15))
+                                                condition=(lambda x: not x.is_active and x.is_contro))
+
     page_obj = compute_paginator(request, data, task_num['done'], 0, task_num['total'])
 
     for d in data:
@@ -186,6 +187,46 @@ def contro(request):
     }
     return HttpResponse(template.render(request=request, context=context))
 
+@user_login_required
+@csrf_protect
+def contro_post(request, contro_id):
+    seleted = request.POST['selected']
+    if seleted != "1":
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+    try:
+        choice = request.POST['choice']
+        data = VotingData.objects.get(pk=contro_id)
+        if choice == "":
+            new_ans = request.POST['new_ans']
+            data.finalize(new_ans)
+        else:
+            try:
+                selected_choice = Choice.objects.get(data=data, pk=choice)
+                data.finalize(selected_choice.answer)
+            except Choice.DoesNotExist:
+                messages.add_message(request, level=messages.ERROR,
+                                     message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+                return HttpResponseRedirect(reverse('tasks/contro'))
+    except ValueError:
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_CHOICE), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+    except VotingData.DoesNotExist:
+        messages.add_message(request, level=messages.ERROR,
+                             message=_(MSG_FAIL_DATA_NONEXIST.format(contro_id)), extra_tags="danger")
+        return HttpResponseRedirect(reverse('tasks/contro'))
+
+    done_assignment(contro_id, request.user.id)
+
+    messages.success(request, _(MSG_SUCCESS_VOTE))
+    data_log(request.user, data, VOT, choice)
+
+    next = request.META.get('HTTP_REFERER')
+    if next is None:
+        next = '/'
+    return HttpResponseRedirect(next)
 
 @user_login_required
 @csrf_protect
@@ -230,7 +271,7 @@ def image(request, img_id=None):
     if request.method == "POST":
         try:
             data = ImageData.objects.all().get(pk=img_id)
-            label_id = request.POST["label"]
+            label_id = request.POST["select_label"]
             label = ImageLabel.objects.all().get(id=label_id)
         except ImageData.DoesNotExist:
             messages.add_message(request, level=messages.ERROR,
