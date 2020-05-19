@@ -25,6 +25,7 @@ before_script:
 - export CHROME_BIN=chromium-browser
 - psql -c 'create database datacleansing;'
 - python manage.py migrate
+- python manage.py loaddata fixtures.json
 
 script:
 - python manage.py test
