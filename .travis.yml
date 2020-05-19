@@ -15,10 +15,8 @@ install:
  - pip install psycopg2 --quiet
  - pip install codecov --quiet
 
-before_script:
-- wget http://chromedriver.storage.googleapis.com/80.0.3987.106/chromedriver_linux64.zip
-- unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python3.7.1/bin/
-- export CHROME_BIN=chromium-browser
+addons:
+  chrome: stable
 
 script:
 - python manage.py test
