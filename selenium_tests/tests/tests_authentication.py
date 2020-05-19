@@ -5,7 +5,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver import ChromeOptions
 from selenium_tests.webdriver import CustomChromeWebDriver
 from selenium.webdriver.support.ui import Select
-from authentication.models import CustomUser, CustomGroup
+from authentication.models import CustomUser
 
 
 class Auth(StaticLiveServerTestCase):

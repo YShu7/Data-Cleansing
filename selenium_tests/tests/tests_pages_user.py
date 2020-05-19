@@ -1,22 +1,17 @@
 from django.urls import reverse
 from django.utils import translation
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium_tests.webdriver import CustomChromeWebDriver
 from selenium.webdriver import ChromeOptions
-from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.common.keys import Keys
-from authentication.models import CustomUser, CustomGroup
-from assign.models import Assignment
+from authentication.models import CustomUser
 from pages.models.validate import ValidatingData
 from pages.models.vote import VotingData, Choice
 from pages.models.image import ImageData, ImageLabel
 from pages.models.models import FinalizedData
 
 import time
-
-import os
 
 
 class PageUser(StaticLiveServerTestCase):
