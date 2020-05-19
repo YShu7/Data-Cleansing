@@ -73,7 +73,7 @@ def get_finalized_data(group_name=None):
     if group_name and group_name != "all":
         group = CustomGroup.objects.get(name=group_name)
         finalized_data = finalized_data.filter(group=group)
-    return finalized_data
+    return finalized_data.order_by('pk')
 
 
 def log(user, task, action, response):
