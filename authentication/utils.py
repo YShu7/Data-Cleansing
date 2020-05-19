@@ -30,10 +30,10 @@ def get_pending_users(group=None):
 
 def get_approved_users(group=None):
     if group is None:
-        return get_user_model().objects.filter(is_approved=True, is_active=True, is_superuser=False).order_by(
+        return get_user_model().objects.filter(is_approved=True, is_superuser=False).order_by(
             'date_joined')
     else:
-        return get_user_model().objects.filter(is_approved=True, is_active=True, group=group, is_superuser=False,
+        return get_user_model().objects.filter(is_approved=True, group=group, is_superuser=False,
                                                is_admin=False).order_by(
             'date_joined')
 

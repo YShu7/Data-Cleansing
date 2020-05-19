@@ -275,7 +275,7 @@ class PageUser(StaticLiveServerTestCase):
         self.wd.find_id('change_{}'.format(qid)).click()
 
         self.wd.implicitly_wait(10)
-        ans_modal = self.wd.find_id('new_ans')
+        ans_modal = self.wd.find_id('new_ans_textarea')
         ans_modal.send_keys(Keys.TAB)
         ans_modal.clear()
         ans_modal.send_keys(new_ans)

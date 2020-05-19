@@ -1,23 +1,14 @@
 from django.urls import reverse
 from django.utils import translation
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium_tests.webdriver import CustomChromeWebDriver
 from selenium.webdriver import ChromeOptions
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.common.keys import Keys
-from authentication.models import CustomUser, CustomGroup
+from selenium.webdriver.support.ui import Select
+from authentication.models import CustomUser
 from assign.models import Assignment
-from pages.models.validate import ValidatingData
-from pages.models.vote import VotingData, Choice
-from pages.models.image import ImageData, ImageLabel
-from pages.models.models import FinalizedData
 
 import time
-
-import os
-
 
 class PageAdmin(StaticLiveServerTestCase):
     fixtures = ['fixtures.json']
@@ -74,7 +65,7 @@ class PageAdmin(StaticLiveServerTestCase):
         self.assertFalse(CustomUser.objects.get(email=email).is_approved)
         self.assertEqual(len(pending_trs) - 1, len(
             self.wd.find_name('pending').find_element_by_tag_name('tbody').find_elements_by_tag_name('tr')))
-        self.assertEqual(len(approved_trs) + 1, len(
+        self.assertEqual(len(approved_trs), len(
             self.wd.find_name('approved').find_element_by_tag_name('tbody').find_elements_by_tag_name('tr')))
 
     def test_user_list_approved(self):
@@ -91,25 +82,27 @@ class PageAdmin(StaticLiveServerTestCase):
             else:
                 inactive_tr_ids.append(i)
 
+        this_id = inactive_tr_ids[0]
         tr = self.wd.find_name('approved').find_element_by_tag_name('tbody') \
-            .find_elements_by_tag_name('tr')[inactive_tr_ids[0]]
+            .find_elements_by_tag_name('tr')[this_id]
         email = tr.find_element_by_name('email').text
         tr.find_element_by_name('activate').click()
         self.assertTrue(CustomUser.objects.get(email=email).is_active)
 
         new_tr = self.wd.find_name('approved').find_element_by_tag_name('tbody') \
-            .find_elements_by_tag_name('tr')[inactive_tr_ids[0]]
+            .find_elements_by_tag_name('tr')[this_id]
         self.assertTrue(new_tr.find_element_by_name('deactivate').is_enabled())
         self.assertFalse(new_tr.find_element_by_name('activate').is_enabled())
 
+        this_id = active_tr_ids[0]
         tr = self.wd.find_name('approved').find_element_by_tag_name('tbody') \
-            .find_elements_by_tag_name('tr')[active_tr_ids[0]]
+            .find_elements_by_tag_name('tr')[this_id]
         email = tr.find_element_by_name('email').text
         tr.find_element_by_name('deactivate').click()
         self.assertFalse(CustomUser.objects.get(email=email).is_active)
 
         new_tr = self.wd.find_name('approved').find_element_by_tag_name('tbody') \
-            .find_elements_by_tag_name('tr')[active_tr_ids[0]]
+            .find_elements_by_tag_name('tr')[this_id]
         self.assertFalse(new_tr.find_element_by_name('deactivate').is_enabled())
         self.assertTrue(new_tr.find_element_by_name('activate').is_enabled())
 
