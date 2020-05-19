@@ -24,6 +24,7 @@ before_script:
 - unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python3.7.1/bin/
 - export CHROME_BIN=chromium-browser
 - psql -c 'create database datacleansing;'
+- python manage.py migrate
 
 script:
 - python manage.py test
