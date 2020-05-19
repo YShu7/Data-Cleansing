@@ -23,7 +23,7 @@ before_script:
 - curl "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
 - unzip chromedriver_linux64.zip -d /home/travis/virtualenv/python3.7.1/bin/
 - export CHROME_BIN=chromium-browser
-- psql -c `create database datacleansing;` -U postgres
+- psql -c 'create database datacleansing;'
 
 script:
 - python manage.py test
