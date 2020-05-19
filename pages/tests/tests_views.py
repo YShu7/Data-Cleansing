@@ -624,32 +624,6 @@ class AdminViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(CustomUser.objects.get(pk=user.pk).is_admin)
 
-    def test_update(self):
-        vote = VotingData.objects.create(title="vote", group=self.group)
-        choices = []
-        for i in range(3):
-            choice = Choice.objects.create(data=vote, answer="ans{}".format(i))
-            choices.append(choice)
-
-        selected_choice = choices[0]
-        response = self.admin_client.post(path=reverse("update", args=(vote.id, )),
-                                          data={"choice": str(selected_choice.id)}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNotNone(FinalizedData.objects.filter(title=vote.title, answer_text=selected_choice.answer,
-                                                          group=vote.group).first())
-        self.assertIsNone(VotingData.objects.filter(title=vote.title, group=self.group).first())
-
-        vote = VotingData.objects.create(title="vote2", group=self.group)
-        choices = []
-        for i in range(3):
-            choice = Choice.objects.create(data=vote, answer="ans{}".format(i))
-            choices.append(choice)
-        response = self.admin_client.post(path=reverse("update", args=(vote.id,)),
-                                          data={"choice": ""}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIsNone(FinalizedData.objects.filter(title=vote.title, group=vote.group).first())
-        self.assertIsNotNone(VotingData.objects.filter(title=vote.title, group=vote.group).first())
-
     def test_assign_contro(self):
         self.setUp_users()
         vote = VotingData.objects.create(title="vote", group=self.group)
